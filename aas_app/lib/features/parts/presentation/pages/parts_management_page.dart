@@ -98,45 +98,7 @@ class _PartsManagementPageState extends State<PartsManagementPage>
         ],
       ),
                  floatingActionButton: _tabController.index != 2 // Don't show FAB on Analytics tab
-               ? Row(
-                   mainAxisSize: MainAxisSize.min,
-                   children: [
-                     // Test button for creating a part with image
-                     FloatingActionButton(
-                       onPressed: () async {
-                         try {
-                           await PartsService.createTestPartWithImage();
-                           if (mounted) {
-                             ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(
-                                 content: const Text('Test part created! Check the list.'),
-                                 backgroundColor: AppColors.success,
-                                 behavior: SnackBarBehavior.floating,
-                               ),
-                             );
-                           }
-                         } catch (e) {
-                           if (mounted) {
-                             ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(
-                                 content: Text('Failed to create test part: $e'),
-                                 backgroundColor: AppColors.error,
-                                 behavior: SnackBarBehavior.floating,
-                               ),
-                             );
-                           }
-                         }
-                       },
-                       backgroundColor: AppColors.info,
-                       foregroundColor: AppColors.onInfo,
-                       heroTag: 'test',
-                       child: const Icon(Icons.bug_report),
-                     ),
-                     const SizedBox(width: 16),
-                     // Regular add part button
-                     const AddPartFAB(),
-                   ],
-                 )
+               ? const AddPartFAB()
                : null,
     );
   }

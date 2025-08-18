@@ -34,35 +34,38 @@ class _SalesDashboardState extends State<SalesDashboard> {
   }
 
   Widget _buildHeader() {
+    final width = MediaQuery.of(context).size.width;
+    final bool isDesktop = width >= 1200;
+    final bool isTablet = width >= 768 && width < 1200;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isDesktop ? 16 : isTablet ? 20 : 24),
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(isDesktop ? 12 : isTablet ? 16 : 20),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadow.withOpacity(0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            blurRadius: isDesktop ? 8 : isTablet ? 12 : 15,
+            offset: Offset(0, isDesktop ? 4 : isTablet ? 6 : 8),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 60,
-            height: 60,
+            width: isDesktop ? 48 : isTablet ? 54 : 60,
+            height: isDesktop ? 48 : isTablet ? 54 : 60,
             decoration: BoxDecoration(
               gradient: AppColors.successGradient ?? AppColors.primaryGradient,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(isDesktop ? 10 : isTablet ? 12 : 15),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.people,
               color: Colors.white,
-              size: 30,
+              size: isDesktop ? 24 : isTablet ? 26 : 30,
             ),
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: isDesktop ? 16 : isTablet ? 18 : 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,16 +73,16 @@ class _SalesDashboardState extends State<SalesDashboard> {
                 Text(
                   'Sales & Customer Hub',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: isDesktop ? 20 : isTablet ? 22 : 24,
                     fontWeight: FontWeight.w700,
                     color: AppColors.onBackground,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: isDesktop ? 2 : isTablet ? 3 : 4),
                 Text(
                   'Customer management and sales pipeline',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: isDesktop ? 14 : isTablet ? 15 : 16,
                     color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
@@ -93,16 +96,19 @@ class _SalesDashboardState extends State<SalesDashboard> {
   }
 
   Widget _buildQuickActions() {
+    final width = MediaQuery.of(context).size.width;
+    final bool isDesktop = width >= 1200;
+    final bool isTablet = width >= 768 && width < 1200;
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isDesktop ? 16 : isTablet ? 20 : 24),
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(isDesktop ? 12 : isTablet ? 16 : 20),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadow.withOpacity(0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            blurRadius: isDesktop ? 8 : isTablet ? 12 : 15,
+            offset: Offset(0, isDesktop ? 4 : isTablet ? 6 : 8),
           ),
         ],
       ),
@@ -112,19 +118,19 @@ class _SalesDashboardState extends State<SalesDashboard> {
           Text(
             'Quick Actions',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: isDesktop ? 18 : isTablet ? 19 : 20,
               fontWeight: FontWeight.w700,
               color: AppColors.onBackground,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: isDesktop ? 16 : isTablet ? 18 : 20),
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 2.5,
+            crossAxisCount: isDesktop ? 4 : isTablet ? 3 : 2,
+            crossAxisSpacing: isDesktop ? 12 : isTablet ? 14 : 16,
+            mainAxisSpacing: isDesktop ? 12 : isTablet ? 14 : 16,
+            childAspectRatio: isDesktop ? 3.0 : isTablet ? 2.8 : 2.5,
             children: [
               _buildActionButton(
                 title: 'Manage Clients',
@@ -170,14 +176,17 @@ class _SalesDashboardState extends State<SalesDashboard> {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final width = MediaQuery.of(context).size.width;
+    final bool isDesktop = width >= 1200;
+    final bool isTablet = width >= 768 && width < 1200;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(isDesktop ? 8 : isTablet ? 10 : 12),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(isDesktop ? 12 : isTablet ? 14 : 16),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(isDesktop ? 8 : isTablet ? 10 : 12),
           border: Border.all(
             color: color.withOpacity(0.2),
             width: 1,
@@ -188,14 +197,14 @@ class _SalesDashboardState extends State<SalesDashboard> {
             Icon(
               icon,
               color: color,
-              size: 24,
+              size: isDesktop ? 20 : isTablet ? 22 : 24,
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: isDesktop ? 8 : isTablet ? 10 : 12),
             Expanded(
               child: Text(
                 title,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: isDesktop ? 12 : isTablet ? 13 : 14,
                   fontWeight: FontWeight.w600,
                   color: AppColors.onBackground,
                 ),
@@ -208,13 +217,16 @@ class _SalesDashboardState extends State<SalesDashboard> {
   }
 
   Widget _buildSalesMetrics() {
+    final width = MediaQuery.of(context).size.width;
+    final bool isDesktop = width >= 1200;
+    final bool isTablet = width >= 768 && width < 1200;
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      childAspectRatio: 1.3,
+      crossAxisCount: isDesktop ? 4 : isTablet ? 3 : 2,
+      crossAxisSpacing: isDesktop ? 12 : isTablet ? 14 : 16,
+      mainAxisSpacing: isDesktop ? 12 : isTablet ? 14 : 16,
+      childAspectRatio: isDesktop ? 1.8 : isTablet ? 1.5 : 1.3,
       children: [
         _buildMetricCard(
           title: 'Monthly Sales',
@@ -260,11 +272,14 @@ class _SalesDashboardState extends State<SalesDashboard> {
     required IconData icon,
     required Color color,
   }) {
+    final width = MediaQuery.of(context).size.width;
+    final bool isDesktop = width >= 1200;
+    final bool isTablet = width >= 768 && width < 1200;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isDesktop ? 16 : isTablet ? 18 : 20),
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(isDesktop ? 12 : isTablet ? 14 : 16),
         border: Border.all(
           color: AppColors.outline.withOpacity(0.1),
           width: 1,
@@ -272,8 +287,8 @@ class _SalesDashboardState extends State<SalesDashboard> {
         boxShadow: [
           BoxShadow(
             color: AppColors.shadow.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
+            blurRadius: isDesktop ? 6 : isTablet ? 8 : 10,
+            offset: Offset(0, isDesktop ? 3 : isTablet ? 4 : 5),
           ),
         ],
       ),
@@ -283,37 +298,40 @@ class _SalesDashboardState extends State<SalesDashboard> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(isDesktop ? 6 : isTablet ? 7 : 8),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(isDesktop ? 6 : isTablet ? 7 : 8),
                 ),
                 child: Icon(
                   icon,
                   color: color,
-                  size: 20,
+                  size: isDesktop ? 18 : isTablet ? 19 : 20,
                 ),
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isDesktop ? 6 : isTablet ? 7 : 8,
+                  vertical: isDesktop ? 3 : isTablet ? 3.5 : 4,
+                ),
                 decoration: BoxDecoration(
                   color: isPositive ? AppColors.success.withOpacity(0.1) : AppColors.error.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(isDesktop ? 8 : isTablet ? 10 : 12),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       isPositive ? Icons.trending_up : Icons.trending_down,
-                      size: 12,
+                      size: isDesktop ? 10 : isTablet ? 11 : 12,
                       color: isPositive ? AppColors.success : AppColors.error,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: isDesktop ? 3 : isTablet ? 3.5 : 4),
                     Text(
                       change,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: isDesktop ? 10 : isTablet ? 11 : 12,
                         fontWeight: FontWeight.w600,
                         color: isPositive ? AppColors.success : AppColors.error,
                       ),
@@ -323,20 +341,20 @@ class _SalesDashboardState extends State<SalesDashboard> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isDesktop ? 12 : isTablet ? 14 : 16),
           Text(
             value,
             style: TextStyle(
-              fontSize: 24,
+              fontSize: isDesktop ? 22 : isTablet ? 23 : 24,
               fontWeight: FontWeight.w700,
               color: AppColors.onBackground,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: isDesktop ? 2 : isTablet ? 3 : 4),
           Text(
             title,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: isDesktop ? 12 : isTablet ? 13 : 14,
               color: AppColors.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),

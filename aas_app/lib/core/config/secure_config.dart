@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +13,7 @@ class SecureConfig {
   
   static bool get isDevelopment => kDebugMode;
   static bool get isProduction => !kDebugMode;
-  static bool get isTest => Platform.environment.containsKey('FLUTTER_TEST');
+  static bool get isTest => kDebugMode && !kIsWeb;
 
   // ===== SECURE KEY RETRIEVAL =====
 
@@ -60,8 +59,8 @@ class SecureConfig {
       }
     }
 
-    // Fallback for development
-    if (isDevelopment) {
+    // Fallback for development and web builds
+    if (isDevelopment || kIsWeb) {
       return 'https://adryhxoeywqkeufnzepe.supabase.co';
     }
 
@@ -94,8 +93,8 @@ class SecureConfig {
       }
     }
 
-    // Fallback for development
-    if (isDevelopment) {
+    // Fallback for development and web builds
+    if (isDevelopment || kIsWeb) {
       return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkcnloeG9leXdxa2V1Zm56ZXBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY3NDg0ODYsImV4cCI6MjA0MjMyNDQ4Nn0.NEZ8FIMqDCpNPDS8xszwwGId2LcMgoEwkkpg_mxixqM';
     }
 

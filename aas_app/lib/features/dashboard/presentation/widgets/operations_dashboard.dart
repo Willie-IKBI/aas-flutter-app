@@ -338,57 +338,38 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Equipment Status',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.onBackground,
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'View All',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+          Text(
+            'Equipment Status',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: AppColors.onBackground,
+            ),
           ),
           const SizedBox(height: 20),
           _buildEquipmentItem(
             name: 'Excavator #001',
-            status: 'In Repair',
-            location: 'Workshop A',
-            priority: 'High',
+            status: 'In Use',
+            location: 'Site A',
+            color: AppColors.info,
+          ),
+          _buildEquipmentItem(
+            name: 'Bulldozer #002',
+            status: 'Maintenance',
+            location: 'Workshop',
             color: AppColors.warning,
           ),
           _buildEquipmentItem(
-            name: 'Bulldozer #003',
+            name: 'Crane #003',
             status: 'Available',
-            location: 'Yard 2',
-            priority: 'Normal',
+            location: 'Site B',
             color: AppColors.success,
           ),
           _buildEquipmentItem(
-            name: 'Crane #007',
-            status: 'Out of Service',
-            location: 'Workshop B',
-            priority: 'Critical',
+            name: 'Loader #004',
+            status: 'Repair',
+            location: 'Service Center',
             color: AppColors.error,
-          ),
-          _buildEquipmentItem(
-            name: 'Loader #012',
-            status: 'On Site',
-            location: 'Construction Site A',
-            priority: 'Normal',
-            color: AppColors.info,
           ),
         ],
       ),
@@ -399,28 +380,23 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
     required String name,
     required String status,
     required String location,
-    required String priority,
     required Color color,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceVariant.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
           Container(
-            width: 12,
-            height: 12,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.construction,
               color: color,
-              borderRadius: BorderRadius.circular(6),
+              size: 20,
             ),
           ),
           const SizedBox(width: 16),
@@ -431,16 +407,16 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
                 Text(
                   name,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.onBackground,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
-                  '$status • $location',
+                  location,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: AppColors.onSurfaceVariant,
                   ),
                 ),
@@ -451,10 +427,10 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              priority,
+              status,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -485,7 +461,7 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Today's Schedule",
+            'Today\'s Schedule',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w700,
@@ -494,34 +470,28 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
           ),
           const SizedBox(height: 20),
           _buildScheduleItem(
-            time: '08:00',
-            title: 'Team Briefing',
-            subtitle: 'Daily operations meeting',
+            time: '09:00',
+            title: 'Equipment Inspection',
+            description: 'Routine maintenance check',
             color: AppColors.info,
           ),
           _buildScheduleItem(
-            time: '09:30',
-            title: 'Equipment Inspection',
-            subtitle: 'Excavator #001 maintenance check',
-            color: AppColors.warning,
-          ),
-          _buildScheduleItem(
-            time: '11:00',
-            title: 'Customer Meeting',
-            subtitle: 'ABC Construction - New project',
+            time: '11:30',
+            title: 'Client Meeting',
+            description: 'Project review with ABC Construction',
             color: AppColors.primary,
           ),
           _buildScheduleItem(
             time: '14:00',
             title: 'Parts Delivery',
-            subtitle: 'Crane #007 replacement parts',
-            color: AppColors.secondary,
+            description: 'New hydraulic parts arrival',
+            color: AppColors.success,
           ),
           _buildScheduleItem(
-            time: '16:00',
-            title: 'Progress Review',
-            subtitle: 'Weekly operations review',
-            color: AppColors.success,
+            time: '16:30',
+            title: 'Team Briefing',
+            description: 'Daily operations update',
+            color: AppColors.secondary,
           ),
         ],
       ),
@@ -531,11 +501,11 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
   Widget _buildScheduleItem({
     required String time,
     required String title,
-    required String subtitle,
+    required String description,
     required Color color,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
           Container(
@@ -544,15 +514,11 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: color.withOpacity(0.2),
-                width: 1,
-              ),
             ),
             child: Text(
               time,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: color,
               ),
@@ -567,16 +533,16 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.onBackground,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  subtitle,
+                  description,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: AppColors.onSurfaceVariant,
                   ),
                 ),
@@ -605,44 +571,31 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.warning,
-                color: AppColors.warning,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'Urgent Alerts',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.onBackground,
-                ),
-              ),
-            ],
+          Text(
+            'Urgent Alerts',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: AppColors.onBackground,
+            ),
           ),
           const SizedBox(height: 20),
           _buildAlertItem(
-            title: 'Critical Parts Needed',
-            message: 'Crane #007 hydraulic pump failure',
-            time: '2 hours ago',
-            priority: 'Critical',
+            title: 'Equipment Breakdown',
+            description: 'Crane #003 requires immediate attention',
+            priority: 'High',
             color: AppColors.error,
           ),
           _buildAlertItem(
-            title: 'Technician Overdue',
-            message: 'John Smith - Site visit delayed',
-            time: '1 hour ago',
-            priority: 'High',
+            title: 'Low Stock Alert',
+            description: 'Hydraulic fluid running low',
+            priority: 'Medium',
             color: AppColors.warning,
           ),
           _buildAlertItem(
-            title: 'Equipment Breakdown',
-            message: 'Excavator #001 engine issues',
-            time: '30 min ago',
-            priority: 'High',
+            title: 'Safety Inspection Due',
+            description: 'Excavator #001 safety check overdue',
+            priority: 'Medium',
             color: AppColors.warning,
           ),
         ],
@@ -652,72 +605,70 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
 
   Widget _buildAlertItem({
     required String title,
-    required String message,
-    required String time,
+    required String description,
     required String priority,
     required Color color,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: color.withOpacity(0.2),
+            width: 1,
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.onBackground,
+        child: Row(
+          children: [
+            Icon(
+              Icons.warning,
+              color: color,
+              size: 24,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onBackground,
+                    ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                priority,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  priority,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.onSurfaceVariant,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            time,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppColors.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,13 +1,15 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 import '../config/supabase_config.dart';
+
+// Conditional imports for platform-specific functionality
+import 'storage_service_web.dart' if (dart.library.io) 'storage_service_mobile.dart';
 
 /// Storage Service
 /// 
 /// Handles file uploads, downloads, and management with Supabase Storage.
+/// Web-compatible with conditional imports for platform-specific functionality.
 class StorageService {
   // Private constructor to prevent instantiation
   StorageService._();
@@ -19,14 +21,13 @@ class StorageService {
   /// Upload file to storage
   static Future<String> uploadFile({
     required String bucket,
-    required String filePath,
+    required dynamic file, // Can be File (mobile) or html.File (web)
     String? customPath,
     Map<String, String>? metadata,
   }) async {
     try {
-      final file = File(filePath);
-      final fileName = path.basename(filePath);
-      final fileExtension = path.extension(fileName);
+      final fileName = _getFileName(file);
+      final fileExtension = _getFileExtension(fileName);
       final uniqueFileName = '${_uuid.v4()}$fileExtension';
       
       final storagePath = customPath ?? uniqueFileName;
@@ -65,7 +66,7 @@ class StorageService {
     Map<String, String>? metadata,
   }) async {
     try {
-      final fileExtension = path.extension(fileName);
+      final fileExtension = _getFileExtension(fileName);
       final uniqueFileName = '${_uuid.v4()}$fileExtension';
       
       final storagePath = customPath ?? uniqueFileName;
@@ -98,57 +99,39 @@ class StorageService {
   /// Upload order document
   static Future<String> uploadOrderDocument({
     required String orderId,
-    required String filePath,
-    required String category,
-    Map<String, String>? metadata,
+    required dynamic file,
+    String? customPath,
   }) async {
-    final fileName = path.basename(filePath);
-    final fileExtension = path.extension(fileName);
-    final uniqueFileName = '${_uuid.v4()}$fileExtension';
-    
-    final storagePath = 'orders/$orderId/$category/$uniqueFileName';
-
     return uploadFile(
       bucket: SupabaseConfig.orderFilesBucket,
-      filePath: filePath,
-      customPath: storagePath,
-      metadata: metadata,
+      file: file,
+      customPath: customPath ?? 'orders/$orderId/${_uuid.v4()}',
     );
   }
 
   /// Upload profile image
   static Future<String> uploadProfileImage({
     required String userId,
-    required String filePath,
+    required dynamic file,
+    String? customPath,
   }) async {
-    final fileName = path.basename(filePath);
-    final fileExtension = path.extension(fileName);
-    final uniqueFileName = '${_uuid.v4()}$fileExtension';
-    
-    final storagePath = 'profiles/$userId/$uniqueFileName';
-
     return uploadFile(
       bucket: SupabaseConfig.profileImagesBucket,
-      filePath: filePath,
-      customPath: storagePath,
+      file: file,
+      customPath: customPath ?? 'profiles/$userId/${_uuid.v4()}',
     );
   }
 
   /// Upload part image
   static Future<String> uploadPartImage({
     required String partId,
-    required String filePath,
+    required dynamic file,
+    String? customPath,
   }) async {
-    final fileName = path.basename(filePath);
-    final fileExtension = path.extension(fileName);
-    final uniqueFileName = '${_uuid.v4()}$fileExtension';
-    
-    final storagePath = 'parts/$partId/$uniqueFileName';
-
     return uploadFile(
       bucket: SupabaseConfig.partImagesBucket,
-      filePath: filePath,
-      customPath: storagePath,
+      file: file,
+      customPath: customPath ?? 'parts/$partId/${_uuid.v4()}',
     );
   }
 
@@ -191,7 +174,7 @@ class StorageService {
   static Future<String> getSignedUrl({
     required String bucket,
     required String filePath,
-    int expiresIn = 3600, // 1 hour
+    int expiresIn = 3600, // 1 hour default
   }) async {
     try {
       final response = await SupabaseConfig.storage
@@ -265,27 +248,6 @@ class StorageService {
     }
   }
 
-  /// Delete multiple files from storage
-  static Future<void> deleteFiles({
-    required String bucket,
-    required List<String> filePaths,
-  }) async {
-    try {
-      await SupabaseConfig.storage
-          .from(bucket)
-          .remove(filePaths);
-
-      if (kDebugMode) {
-        print('✅ Files deleted successfully: ${filePaths.length} files');
-      }
-    } catch (error) {
-      if (kDebugMode) {
-        print('❌ Files deletion failed: $error');
-      }
-      rethrow;
-    }
-  }
-
   /// Move file in storage
   static Future<void> moveFile({
     required String bucket,
@@ -332,27 +294,15 @@ class StorageService {
 
   // ===== UTILITY METHODS =====
 
-  /// Get file size in bytes
-  static Future<int> getFileSize({
-    required String bucket,
-    required String filePath,
-  }) async {
-    try {
-      final response = await SupabaseConfig.storage
-          .from(bucket)
-          .list(path: path.dirname(filePath));
+  /// Get file name from file object
+  static String _getFileName(dynamic file) {
+    return StorageServicePlatform.getFileName(file);
+  }
 
-      final file = response.firstWhere(
-        (file) => file.name == path.basename(filePath),
-      );
-
-      return file.metadata['size'] ?? 0;
-    } catch (error) {
-      if (kDebugMode) {
-        print('❌ Get file size failed: $error');
-      }
-      return 0;
-    }
+  /// Get file extension from file name
+  static String _getFileExtension(String fileName) {
+    final parts = fileName.split('.');
+    return parts.length > 1 ? '.${parts.last}' : '';
   }
 
   /// Check if file exists
@@ -363,11 +313,28 @@ class StorageService {
     try {
       await SupabaseConfig.storage
           .from(bucket)
-          .list(path: path.dirname(filePath));
-
+          .download(filePath);
       return true;
     } catch (error) {
       return false;
+    }
+  }
+
+  /// Get file size
+  static Future<int> getFileSize({
+    required String bucket,
+    required String filePath,
+  }) async {
+    try {
+      final response = await SupabaseConfig.storage
+          .from(bucket)
+          .download(filePath);
+      return response.length;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Could not get file size: $error');
+      }
+      return 0;
     }
   }
 
@@ -379,51 +346,23 @@ class StorageService {
     try {
       final response = await SupabaseConfig.storage
           .from(bucket)
-          .list(path: path.dirname(filePath));
-
-      final file = response.firstWhere(
-        (file) => file.name == path.basename(filePath),
-      );
-
-      return file.metadata;
+          .list(path: filePath);
+      
+      if (response.isNotEmpty) {
+        final file = response.first;
+        return {
+          'name': file.name,
+          'size': file.metadata?['size'],
+          'mimeType': file.metadata?['mimetype'],
+          'lastModified': file.updatedAt,
+        };
+      }
+      return null;
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Get file metadata failed: $error');
+        print('❌ Could not get file metadata: $error');
       }
       return null;
     }
-  }
-
-  /// Format file size for display
-  static String formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) {
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
-  }
-
-  /// Get file extension from path
-  static String getFileExtension(String filePath) {
-    return path.extension(filePath).toLowerCase();
-  }
-
-  /// Check if file is image
-  static bool isImage(String filePath) {
-    final extension = getFileExtension(filePath);
-    return ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'].contains(extension);
-  }
-
-  /// Check if file is video
-  static bool isVideo(String filePath) {
-    final extension = getFileExtension(filePath);
-    return ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm'].contains(extension);
-  }
-
-  /// Check if file is document
-  static bool isDocument(String filePath) {
-    final extension = getFileExtension(filePath);
-    return ['.pdf', '.doc', '.docx', '.txt', '.rtf'].contains(extension);
   }
 }

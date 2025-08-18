@@ -1,178 +1,209 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io';
+import '../../../../core/config/supabase_config.dart';
 import '../../presentation/models/part.dart';
 
+/// Parts Service
+/// 
+/// Handles all parts-related operations with Supabase.
 class PartsService {
-  static final SupabaseClient _supabase = Supabase.instance.client;
+  // Private constructor to prevent instantiation
+  PartsService._();
 
-  // Get all parts
+  // ===== CRUD OPERATIONS =====
+
+  /// Get all parts
   static Future<List<Part>> getAllParts() async {
     try {
-      final response = await _supabase
-          .from('parts_inventory')
+      final response = await SupabaseConfig.database
+          .from(SupabaseConfig.partsInventoryTable)
           .select()
-          .order('part_name');
+          .order('created_at', ascending: false);
 
-      final parts = (response as List).map((json) => Part.fromJson(json)).toList();
-      
-      // Debug: Print raw JSON for first part to see field names
-      if (parts.isNotEmpty) {
-        print('🔍 Raw JSON for first part:');
-        print(response.first);
+      final parts = response.map((json) => Part.fromJson(json)).toList();
+
+      if (kDebugMode) {
+        print('✅ Retrieved ${parts.length} parts');
       }
-      
+
       return parts;
-    } catch (e) {
-      throw Exception('Failed to fetch parts: $e');
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Failed to get parts: $error');
+      }
+      rethrow;
     }
   }
 
-  // Get part by ID
-  static Future<Part> getPartById(int id) async {
+  /// Get part by ID
+  static Future<Part?> getPartById(int partId) async {
     try {
-      final response = await _supabase
-          .from('parts_inventory')
+      final response = await SupabaseConfig.database
+          .from(SupabaseConfig.partsInventoryTable)
           .select()
-          .eq('id', id)
+          .eq('id', partId)
           .single();
 
-      return Part.fromJson(response);
-    } catch (e) {
-      throw Exception('Failed to fetch part: $e');
+      final part = Part.fromJson(response);
+
+      if (kDebugMode) {
+        print('✅ Retrieved part: ${part.partName}');
+      }
+
+      return part;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Failed to get part: $error');
+      }
+      return null;
     }
   }
 
-  // Upload part image
-  static Future<String> uploadPartImage(File imageFile, String partName) async {
+  /// Create new part
+  static Future<Part> createPart(Part part) async {
     try {
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${partName.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}.jpg';
-      final filePath = 'parts/$fileName';
-      
-      print('📤 Uploading image to: AAS/$filePath');
-      
-      await _supabase.storage
-          .from('AAS')
-          .upload(filePath, imageFile);
-      
-      final imageUrl = _supabase.storage
-          .from('AAS')
-          .getPublicUrl(filePath);
-      
-      print('✅ Image uploaded successfully. URL: $imageUrl');
-      
-      return imageUrl;
-    } catch (e) {
-      print('❌ Failed to upload image: $e');
-      throw Exception('Failed to upload image: $e');
-    }
-  }
-
-  // Create new part
-  static Future<Part> createPart(Part part, {File? imageFile}) async {
-    try {
-      String? imageUrl;
-      
-      // Upload image if provided
-      if (imageFile != null) {
-        imageUrl = await uploadPartImage(imageFile, part.partName);
-      }
-      
-      // Create part with image URL
-      final partData = part.toJson();
-      if (imageUrl != null) {
-        partData['part_image_url'] = imageUrl;
-      }
-      
-      final response = await _supabase
-          .from('parts_inventory')
-          .insert(partData)
+      final response = await SupabaseConfig.database
+          .from(SupabaseConfig.partsInventoryTable)
+          .insert(part.toJson())
           .select()
           .single();
 
-      return Part.fromJson(response);
-    } catch (e) {
-      throw Exception('Failed to create part: $e');
+      final createdPart = Part.fromJson(response);
+
+      if (kDebugMode) {
+        print('✅ Created part: ${createdPart.partName}');
+      }
+
+      return createdPart;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Failed to create part: $error');
+      }
+      rethrow;
     }
   }
 
-  // Update part
+  /// Update part
   static Future<Part> updatePart(Part part) async {
     try {
-      if (part.id == null) {
-        throw Exception('Part ID is required for update');
-      }
-
-      final response = await _supabase
-          .from('parts_inventory')
+      final response = await SupabaseConfig.database
+          .from(SupabaseConfig.partsInventoryTable)
           .update(part.toJson())
           .eq('id', part.id!)
           .select()
           .single();
 
-      return Part.fromJson(response);
-    } catch (e) {
-      throw Exception('Failed to update part: $e');
+      final updatedPart = Part.fromJson(response);
+
+      if (kDebugMode) {
+        print('✅ Updated part: ${updatedPart.partName}');
+      }
+
+      return updatedPart;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Failed to update part: $error');
+      }
+      rethrow;
     }
   }
 
-  // Delete part
-  static Future<void> deletePart(int id) async {
+  /// Delete part
+  static Future<void> deletePart(int partId) async {
     try {
-      await _supabase
-          .from('parts_inventory')
+      await SupabaseConfig.database
+          .from(SupabaseConfig.partsInventoryTable)
           .delete()
-          .eq('id', id);
-    } catch (e) {
-      throw Exception('Failed to delete part: $e');
+          .eq('id', partId);
+
+      if (kDebugMode) {
+        print('✅ Deleted part: $partId');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Failed to delete part: $error');
+      }
+      rethrow;
     }
   }
 
-  // Search parts by name
-  static Future<List<Part>> searchParts(String searchTerm) async {
+  // ===== SEARCH AND FILTER =====
+
+  /// Search parts by name or description
+  static Future<List<Part>> searchParts(String query) async {
     try {
-      final response = await _supabase
-          .from('parts_inventory')
+      final response = await SupabaseConfig.database
+          .from(SupabaseConfig.partsInventoryTable)
           .select()
-          .ilike('part_name', '%$searchTerm%')
-          .order('part_name');
+          .or('part_name.ilike.%$query%,part_description.ilike.%$query%')
+          .order('created_at', ascending: false);
 
-      return (response as List).map((json) => Part.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to search parts: $e');
+      final parts = response.map((json) => Part.fromJson(json)).toList();
+
+      if (kDebugMode) {
+        print('✅ Found ${parts.length} parts matching: $query');
+      }
+
+      return parts;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Failed to search parts: $error');
+      }
+      rethrow;
     }
   }
 
-  // Get parts by status
+  /// Get parts by status
   static Future<List<Part>> getPartsByStatus(String status) async {
     try {
-      final response = await _supabase
-          .from('parts_inventory')
+      final response = await SupabaseConfig.database
+          .from(SupabaseConfig.partsInventoryTable)
           .select()
           .eq('part_status', status)
-          .order('part_name');
+          .order('created_at', ascending: false);
 
-      return (response as List).map((json) => Part.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to fetch parts by status: $e');
+      final parts = response.map((json) => Part.fromJson(json)).toList();
+
+      if (kDebugMode) {
+        print('✅ Retrieved ${parts.length} parts with status: $status');
+      }
+
+      return parts;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Failed to get parts by status: $error');
+      }
+      rethrow;
     }
   }
 
-  // Get parts by location
+  /// Get parts by location
   static Future<List<Part>> getPartsByLocation(String location) async {
     try {
-      final response = await _supabase
-          .from('parts_inventory')
+      final response = await SupabaseConfig.database
+          .from(SupabaseConfig.partsInventoryTable)
           .select()
           .ilike('part_location', '%$location%')
-          .order('part_name');
+          .order('created_at', ascending: false);
 
-      return (response as List).map((json) => Part.fromJson(json)).toList();
-    } catch (e) {
-      throw Exception('Failed to fetch parts by location: $e');
+      final parts = response.map((json) => Part.fromJson(json)).toList();
+
+      if (kDebugMode) {
+        print('✅ Retrieved ${parts.length} parts in location: $location');
+      }
+
+      return parts;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Failed to get parts by location: $error');
+      }
+      rethrow;
     }
   }
 
-  // Get parts statistics
+  // ===== STATISTICS =====
+
+  /// Get parts statistics
   static Future<Map<String, dynamic>> getPartsStats() async {
     try {
       final allParts = await getAllParts();
@@ -188,41 +219,30 @@ class PartsService {
         locationGroups[location] = (locationGroups[location] ?? 0) + 1;
       }
 
-      return {
+      final stats = {
         'totalParts': totalParts,
         'activeParts': activeParts,
         'inactiveParts': inactiveParts,
         'locationBreakdown': locationGroups,
       };
-    } catch (e) {
-      throw Exception('Failed to get parts statistics: $e');
+
+      if (kDebugMode) {
+        print('✅ Retrieved parts statistics');
+      }
+
+      return stats;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Failed to get parts statistics: $error');
+      }
+      rethrow;
     }
   }
 
-  // Test method to create a part with a sample image URL
-  static Future<Part> createTestPartWithImage() async {
-    try {
-      // Create a test part with a sample image URL
-      final testPart = Part(
-        partName: 'Test Part with Image',
-        partDescription: 'This is a test part to verify image display',
-        partNumber: 'TEST-001',
-        partLocation: 'Test Shelf',
-        partStatus: 'Active',
-        partImageUrl: 'https://picsum.photos/300/300?random=1', // Sample image URL
-      );
+  // ===== ERROR HANDLING =====
 
-      final response = await _supabase
-          .from('parts_inventory')
-          .insert(testPart.toJson())
-          .select()
-          .single();
-
-      print('✅ Test part created with image URL: ${testPart.partImageUrl}');
-      return Part.fromJson(response);
-    } catch (e) {
-      print('❌ Failed to create test part: $e');
-      throw Exception('Failed to create test part: $e');
-    }
+  /// Get user-friendly error message
+  static String getErrorMessage(dynamic error) {
+    return SupabaseConfig.handleError(error);
   }
 }
