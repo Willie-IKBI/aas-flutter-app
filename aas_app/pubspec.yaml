@@ -53,6 +53,7 @@ dependencies:
   # File Handling
   file_picker: ^8.0.0+1
   image_picker: ^1.1.2
+  image: ^4.1.7
   
   # Utilities
   uuid: ^4.4.2

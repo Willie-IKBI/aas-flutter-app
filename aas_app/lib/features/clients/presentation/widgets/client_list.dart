@@ -92,7 +92,7 @@ class _ClientListState extends State<ClientList> {
             const SizedBox(height: 16),
             Text(
               'Error loading customers',
-              style: context.titleMedium?.copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: AppColors.error,
                 fontWeight: FontWeight.w600,
               ),
@@ -100,7 +100,7 @@ class _ClientListState extends State<ClientList> {
             const SizedBox(height: 8),
             Text(
               _error!,
-              style: context.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
@@ -130,7 +130,7 @@ class _ClientListState extends State<ClientList> {
               widget.searchQuery.isNotEmpty 
                   ? 'No customers found for "${widget.searchQuery}"'
                   : 'No customers yet',
-              style: context.titleMedium?.copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: AppColors.onSurfaceVariant,
                 fontWeight: FontWeight.w600,
               ),
@@ -140,7 +140,7 @@ class _ClientListState extends State<ClientList> {
               widget.searchQuery.isNotEmpty
                   ? 'Try a different search term'
                   : 'Add your first customer to get started',
-              style: context.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
@@ -195,7 +195,7 @@ class _ClientListState extends State<ClientList> {
                       children: [
                         Text(
                           client.clientName,
-                          style: context.titleMedium?.copyWith(
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: AppColors.onBackground,
                             fontWeight: FontWeight.w700,
                           ),
@@ -203,7 +203,7 @@ class _ClientListState extends State<ClientList> {
                         const SizedBox(height: 4),
                         Text(
                           client.primaryContact,
-                          style: context.bodyMedium?.copyWith(
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: AppColors.onSurfaceVariant,
                           ),
                         ),
@@ -274,7 +274,7 @@ class _ClientListState extends State<ClientList> {
                 const SizedBox(height: 12),
                 Text(
                   'Added ${_formatDate(client.createdAt!)}',
-                  style: context.bodySmall?.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
@@ -322,7 +322,7 @@ class _ClientListState extends State<ClientList> {
         Expanded(
           child: Text(
             text,
-            style: context.bodySmall?.copyWith(
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
@@ -379,7 +379,7 @@ class _ClientListState extends State<ClientList> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 client.clientName,
-                style: context.headlineSmall?.copyWith(
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: AppColors.onBackground,
                   fontWeight: FontWeight.w700,
                 ),
@@ -451,7 +451,7 @@ class _ClientListState extends State<ClientList> {
             width: 100,
             child: Text(
               label,
-              style: context.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.onSurfaceVariant,
                 fontWeight: FontWeight.w600,
               ),
@@ -460,7 +460,7 @@ class _ClientListState extends State<ClientList> {
           Expanded(
             child: Text(
               value,
-              style: context.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.onBackground,
               ),
             ),

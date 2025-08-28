@@ -5,6 +5,7 @@ import 'dart:ui';
 import '../../../../core/theme/index.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/config/supabase_config.dart';
+import '../../../../core/providers/auth_providers.dart';
 import '../widgets/modern_auth_text_field.dart';
 import '../widgets/modern_auth_button.dart';
 
@@ -90,7 +91,7 @@ class _SignInPageState extends ConsumerState<SignInPage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Welcome back!'),
-            backgroundColor: context.primary,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -100,7 +101,7 @@ class _SignInPageState extends ConsumerState<SignInPage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(SupabaseConfig.handleError(error)),
-            backgroundColor: context.error,
+            backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -255,7 +256,7 @@ class _SignInPageState extends ConsumerState<SignInPage>
                    ),
                   Text(
                     'Remember me',
-                    style: context.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.onSurface,
                       fontWeight: FontWeight.w500,
                     ),
@@ -269,7 +270,7 @@ class _SignInPageState extends ConsumerState<SignInPage>
                    onPressed: _forgotPassword,
                    child: Text(
                      'Forgot Password?',
-                     style: context.bodyMedium?.copyWith(
+                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                        color: AppColors.primary,
                        fontWeight: FontWeight.w600,
                      ),
@@ -302,19 +303,19 @@ class _SignInPageState extends ConsumerState<SignInPage>
         children: [
           Text(
             "Don't have an account? ",
-            style: context.bodySmall?.copyWith(
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.onSurfaceVariant,
               fontWeight: FontWeight.w400,
             ),
           ),
           InteractiveText(
             text: 'Sign Up',
-            style: context.bodySmall?.copyWith(
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.primary,
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),
-            hoverStyle: context.bodySmall?.copyWith(
+            hoverStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.primary.withOpacity(0.8),
               fontWeight: FontWeight.w600,
               fontSize: 14,

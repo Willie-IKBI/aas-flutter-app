@@ -91,7 +91,7 @@ class AuthHeader extends StatelessWidget {
   }
 
   TextStyle _getTitleStyle(BuildContext context, bool isDesktop, bool isTablet) {
-    final baseStyle = context.headlineLarge;
+    final baseStyle = Theme.of(context).textTheme.headlineLarge;
     final fontSize = isDesktop ? 32.0 : isTablet ? 28.0 : 24.0;
     final letterSpacing = isDesktop ? -0.5 : isTablet ? -0.3 : -0.2;
     
@@ -111,7 +111,7 @@ class AuthHeader extends StatelessWidget {
   }
 
   TextStyle _getSubtitleStyle(BuildContext context, bool isDesktop, bool isTablet) {
-    final baseStyle = context.bodyLarge;
+    final baseStyle = Theme.of(context).textTheme.bodyLarge;
     final fontSize = isDesktop ? 18.0 : isTablet ? 16.0 : 14.0;
     
     return baseStyle?.copyWith(
@@ -194,7 +194,7 @@ class CompactAuthHeader extends StatelessWidget {
   }
 
   TextStyle _getTitleStyle(BuildContext context, bool isDesktop, bool isTablet) {
-    final baseStyle = context.headlineMedium;
+    final baseStyle = Theme.of(context).textTheme.headlineMedium;
     final fontSize = isDesktop ? 24.0 : isTablet ? 20.0 : 18.0;
     
     return baseStyle?.copyWith(
@@ -211,7 +211,7 @@ class CompactAuthHeader extends StatelessWidget {
   }
 
   TextStyle _getSubtitleStyle(BuildContext context, bool isDesktop, bool isTablet) {
-    final baseStyle = context.bodyMedium;
+    final baseStyle = Theme.of(context).textTheme.bodyMedium;
     final fontSize = isDesktop ? 16.0 : isTablet ? 14.0 : 12.0;
     
     return baseStyle?.copyWith(

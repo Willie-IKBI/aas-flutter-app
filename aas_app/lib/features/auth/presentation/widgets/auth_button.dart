@@ -55,8 +55,8 @@ class AuthButton extends StatelessWidget {
     switch (variant) {
       case ButtonVariant.filled:
         return ElevatedButton.styleFrom(
-          backgroundColor: context.primary,
-          foregroundColor: context.onPrimary,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
           elevation: 0,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
@@ -66,9 +66,9 @@ class AuthButton extends StatelessWidget {
         );
       case ButtonVariant.outlined:
         return OutlinedButton.styleFrom(
-          foregroundColor: context.primary,
+          foregroundColor: Theme.of(context).colorScheme.primary,
           side: BorderSide(
-            color: context.primary,
+            color: Theme.of(context).colorScheme.primary,
             width: 1.5,
           ),
           shape: RoundedRectangleBorder(
@@ -78,7 +78,7 @@ class AuthButton extends StatelessWidget {
         );
       case ButtonVariant.text:
         return TextButton.styleFrom(
-          foregroundColor: context.primary,
+          foregroundColor: Theme.of(context).colorScheme.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -88,7 +88,7 @@ class AuthButton extends StatelessWidget {
   }
 
   TextStyle _getTextStyle(BuildContext context) {
-    final baseStyle = context.labelLarge?.copyWith(
+    final baseStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
       fontWeight: FontWeight.w600,
       letterSpacing: 0.5,
     );
@@ -96,12 +96,12 @@ class AuthButton extends StatelessWidget {
     switch (variant) {
       case ButtonVariant.filled:
         return baseStyle?.copyWith(
-          color: context.onPrimary,
+          color: Theme.of(context).colorScheme.onPrimary,
         ) ?? const TextStyle();
       case ButtonVariant.outlined:
       case ButtonVariant.text:
         return baseStyle?.copyWith(
-          color: context.primary,
+          color: Theme.of(context).colorScheme.primary,
         ) ?? const TextStyle();
     }
   }

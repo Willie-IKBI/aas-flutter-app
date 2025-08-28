@@ -72,14 +72,14 @@ class _ClientManagementPageState extends State<ClientManagementPage>
               children: [
                 Text(
                   'Client Management',
-                  style: context.headlineSmall?.copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: AppColors.onBackground,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
                   'Manage your clients and their equipment',
-                  style: context.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
@@ -137,10 +137,10 @@ class _ClientManagementPageState extends State<ClientManagementPage>
         indicatorSize: TabBarIndicatorSize.tab,
         labelColor: AppColors.onPrimary,
         unselectedLabelColor: AppColors.onSurfaceVariant,
-        labelStyle: context.labelLarge?.copyWith(
+        labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: context.labelLarge?.copyWith(
+        unselectedLabelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
           fontWeight: FontWeight.w500,
         ),
         tabs: const [

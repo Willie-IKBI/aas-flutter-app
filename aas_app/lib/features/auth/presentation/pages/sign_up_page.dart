@@ -84,7 +84,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please agree to the terms and conditions'),
-          backgroundColor: context.error,
+                      backgroundColor: Theme.of(context).colorScheme.error,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -94,16 +94,24 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
     setState(() => _isLoading = true);
 
     try {
+      // Debug logging
+      final displayName = _fullNameController.text.trim();
+      print('Signup - Full name entered: "$displayName"');
+      print('Signup - Email entered: "${_emailController.text.trim()}"');
+      
       await AuthService.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
+        userData: {
+          'display_name': displayName,
+        },
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Account created successfully! Please check your email to verify your account.'),
-            backgroundColor: context.success,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 5),
           ),
@@ -117,7 +125,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(SupabaseConfig.handleError(error)),
-            backgroundColor: context.error,
+            backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -331,7 +339,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
               Expanded(
                 child: RichText(
                   text: TextSpan(
-                    style: context.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.onSurface,
                       fontWeight: FontWeight.w500,
                     ),
@@ -382,19 +390,19 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
         children: [
           Text(
             'Already have an account? ',
-            style: context.bodySmall?.copyWith(
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.onSurfaceVariant,
               fontWeight: FontWeight.w400,
             ),
           ),
           InteractiveText(
             text: 'Sign In',
-            style: context.bodySmall?.copyWith(
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.primary,
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),
-            hoverStyle: context.bodySmall?.copyWith(
+            hoverStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.primary.withOpacity(0.8),
               fontWeight: FontWeight.w600,
               fontSize: 14,

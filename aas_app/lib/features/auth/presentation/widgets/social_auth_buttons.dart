@@ -311,7 +311,7 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
   }
 
   TextStyle _getTextStyle(BuildContext context, double fontSize) {
-    final baseStyle = context.labelLarge;
+    final baseStyle = Theme.of(context).textTheme.labelLarge;
     
     return baseStyle?.copyWith(
       color: _getTextColor(),
@@ -368,7 +368,7 @@ class SocialAuthDivider extends StatelessWidget {
                 ),
                 child: Text(
                   text ?? 'or',
-                  style: context.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                     fontSize: isDesktop ? 14.0 : isTablet ? 13.0 : 12.0,

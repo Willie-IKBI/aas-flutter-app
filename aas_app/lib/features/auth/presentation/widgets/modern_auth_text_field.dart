@@ -325,7 +325,7 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
   }
 
   TextStyle _getTextStyle(BuildContext context, bool isDesktop, bool isTablet) {
-    final baseStyle = context.bodyLarge;
+    final baseStyle = Theme.of(context).textTheme.bodyLarge;
     final fontSize = isDesktop ? 16.0 : isTablet ? 15.0 : 14.0;
     
     return baseStyle?.copyWith(
@@ -342,7 +342,7 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
   }
 
   TextStyle _getHintStyle(BuildContext context, bool isDesktop, bool isTablet) {
-    final baseStyle = context.bodyLarge;
+    final baseStyle = Theme.of(context).textTheme.bodyLarge;
     final fontSize = isDesktop ? 16.0 : isTablet ? 15.0 : 14.0;
     
     return baseStyle?.copyWith(
@@ -359,7 +359,7 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
   }
 
   TextStyle _getLabelStyle(BuildContext context, bool isDesktop, bool isTablet) {
-    final baseStyle = context.bodyMedium;
+    final baseStyle = Theme.of(context).textTheme.bodyMedium;
     final fontSize = isDesktop ? 14.0 : isTablet ? 13.0 : 12.0;
     
     return baseStyle?.copyWith(
@@ -376,7 +376,7 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
   }
 
   TextStyle _getErrorStyle(BuildContext context, bool isDesktop, bool isTablet) {
-    final baseStyle = context.bodySmall;
+    final baseStyle = Theme.of(context).textTheme.bodySmall;
     final fontSize = isDesktop ? 13.0 : isTablet ? 12.0 : 11.0;
     
     return baseStyle?.copyWith(

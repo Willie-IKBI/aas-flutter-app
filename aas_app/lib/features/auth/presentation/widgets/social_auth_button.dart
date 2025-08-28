@@ -61,7 +61,7 @@ class SocialAuthButton extends StatelessWidget {
                   const SizedBox(width: 12),
                   Text(
                     text,
-                    style: context.labelLarge?.copyWith(
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: _getTextColor(),
                       fontWeight: FontWeight.w600,
                     ),

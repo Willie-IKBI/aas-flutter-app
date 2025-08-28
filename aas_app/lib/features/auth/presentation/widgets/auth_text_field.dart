@@ -48,8 +48,8 @@ class AuthTextField extends StatelessWidget {
         // Label
         Text(
           label,
-          style: context.labelLarge?.copyWith(
-            color: context.onSurface,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -70,24 +70,24 @@ class AuthTextField extends StatelessWidget {
           focusNode: focusNode,
           textInputAction: textInputAction,
           onEditingComplete: onEditingComplete,
-          style: context.bodyLarge?.copyWith(
-            color: context.onSurface,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: context.bodyLarge?.copyWith(
-              color: context.onSurfaceVariant.withOpacity(0.6),
+            hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
             ),
             prefixIcon: prefixIcon != null
                 ? Icon(
                     prefixIcon,
-                    color: context.onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     size: 20,
                   )
                 : null,
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: context.surfaceVariant.withOpacity(0.3),
+            fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -95,28 +95,28 @@ class AuthTextField extends StatelessWidget {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: context.outline.withOpacity(0.2),
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
                 width: 1,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: context.primary,
+                color: Theme.of(context).colorScheme.primary,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: context.error,
+                color: Theme.of(context).colorScheme.error,
                 width: 1,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: context.error,
+                color: Theme.of(context).colorScheme.error,
                 width: 2,
               ),
             ),

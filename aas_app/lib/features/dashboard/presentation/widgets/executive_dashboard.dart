@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
+import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/order_service.dart';
+import '../../../../core/models/user_profile.dart';
 import '../../../clients/presentation/pages/client_management_page.dart';
+import '../../../admin/presentation/pages/user_management_page.dart';
+import '../../../orders/presentation/pages/active_jobs_page.dart';
 
 class ExecutiveDashboard extends StatefulWidget {
   const ExecutiveDashboard({super.key});
@@ -10,6 +15,49 @@ class ExecutiveDashboard extends StatefulWidget {
 }
 
 class _ExecutiveDashboardState extends State<ExecutiveDashboard> {
+  List<UserProfile> _unassignedUsers = [];
+  bool _isLoadingUsers = true;
+  
+  // Order statistics
+  int _activeOrdersCount = 0;
+  bool _isLoadingOrders = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUnassignedUsers();
+    _loadOrderStatistics();
+  }
+
+  Future<void> _loadUnassignedUsers() async {
+    try {
+      final users = await AuthService.getUnassignedUsers();
+      setState(() {
+        _unassignedUsers = users;
+        _isLoadingUsers = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingUsers = false;
+      });
+    }
+  }
+
+  Future<void> _loadOrderStatistics() async {
+    try {
+      final activeCount = await OrderService.getActiveOrdersCount();
+      
+      setState(() {
+        _activeOrdersCount = activeCount;
+        _isLoadingOrders = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingOrders = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -116,13 +164,22 @@ class _ExecutiveDashboardState extends State<ExecutiveDashboard> {
         ),
         _buildMetricCard(
           title: 'Active Jobs',
-          value: '47',
+          value: _isLoadingOrders ? '...' : _activeOrdersCount.toString(),
           change: '+3',
           isPositive: true,
           icon: Icons.engineering,
           color: AppColors.info,
           isDesktop: isDesktop,
           isTablet: isTablet,
+          isLoading: _isLoadingOrders,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ActiveJobsPage(),
+              ),
+            ).then((_) => _loadOrderStatistics()); // Refresh after returning
+          },
         ),
         _buildMetricCard(
           title: 'Equipment Utilization',
@@ -157,8 +214,10 @@ class _ExecutiveDashboardState extends State<ExecutiveDashboard> {
     required Color color,
     required bool isDesktop,
     required bool isTablet,
+    bool isLoading = false,
+    VoidCallback? onTap,
   }) {
-    return Container(
+    Widget cardContent = Container(
       padding: EdgeInsets.all(isDesktop ? 16 : isTablet ? 18 : 20),
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
@@ -225,14 +284,24 @@ class _ExecutiveDashboardState extends State<ExecutiveDashboard> {
             ],
           ),
           SizedBox(height: isDesktop ? 12 : isTablet ? 14 : 16),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: isDesktop ? 24 : isTablet ? 26 : 28,
-              fontWeight: FontWeight.w700,
-              color: AppColors.onBackground,
+          if (isLoading)
+            SizedBox(
+              height: isDesktop ? 24 : isTablet ? 26 : 28,
+              width: isDesktop ? 24 : isTablet ? 26 : 28,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+              ),
+            )
+          else
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: isDesktop ? 24 : isTablet ? 26 : 28,
+                fontWeight: FontWeight.w700,
+                color: AppColors.onBackground,
+              ),
             ),
-          ),
           SizedBox(height: isDesktop ? 2 : isTablet ? 3 : 4),
           Text(
             title,
@@ -245,6 +314,16 @@ class _ExecutiveDashboardState extends State<ExecutiveDashboard> {
         ],
       ),
     );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(isDesktop ? 12 : isTablet ? 14 : 16),
+        child: cardContent,
+      );
+    }
+
+    return cardContent;
   }
 
   Widget _buildQuickActions(bool isDesktop, bool isTablet) {
@@ -281,6 +360,22 @@ class _ExecutiveDashboardState extends State<ExecutiveDashboard> {
             mainAxisSpacing: isDesktop ? 12 : isTablet ? 14 : 16,
             childAspectRatio: isDesktop ? 3.0 : isTablet ? 2.8 : 2.5,
             children: [
+              _buildActionButton(
+                title: 'User Management',
+                icon: Icons.people,
+                color: AppColors.primary,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UserManagementPage(),
+                    ),
+                  ).then((_) => _loadUnassignedUsers()); // Refresh after returning
+                },
+                isDesktop: isDesktop,
+                isTablet: isTablet,
+                badge: _unassignedUsers.isNotEmpty ? _unassignedUsers.length.toString() : null,
+              ),
               _buildActionButton(
                 title: 'View Reports',
                 icon: Icons.analytics_outlined,
@@ -327,6 +422,7 @@ class _ExecutiveDashboardState extends State<ExecutiveDashboard> {
     required VoidCallback onTap,
     required bool isDesktop,
     required bool isTablet,
+    String? badge,
   }) {
     return InkWell(
       onTap: onTap,
@@ -341,24 +437,51 @@ class _ExecutiveDashboardState extends State<ExecutiveDashboard> {
             width: 1,
           ),
         ),
-        child: Row(
+        child: Stack(
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: isDesktop ? 20 : isTablet ? 22 : 24,
+            Row(
+              children: [
+                Icon(
+                  icon,
+                  color: color,
+                  size: isDesktop ? 20 : isTablet ? 22 : 24,
+                ),
+                SizedBox(width: isDesktop ? 8 : isTablet ? 10 : 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: isDesktop ? 12 : isTablet ? 13 : 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onBackground,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: isDesktop ? 8 : isTablet ? 10 : 12),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: isDesktop ? 12 : isTablet ? 13 : 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.onBackground,
+            if (badge != null)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isDesktop ? 4 : isTablet ? 5 : 6,
+                    vertical: isDesktop ? 2 : isTablet ? 2.5 : 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.error,
+                    borderRadius: BorderRadius.circular(isDesktop ? 8 : isTablet ? 10 : 12),
+                  ),
+                  child: Text(
+                    badge,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isDesktop ? 10 : isTablet ? 11 : 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

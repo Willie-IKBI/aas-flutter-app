@@ -184,6 +184,16 @@ class AppColors {
     ],
   );
 
+  /// Warning gradient
+  static const LinearGradient warningGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      warning,
+      Color(0xFF744210),
+    ],
+  );
+
   /// Glassmorphism effect
   static const LinearGradient glassGradient = LinearGradient(
     begin: Alignment.topLeft,

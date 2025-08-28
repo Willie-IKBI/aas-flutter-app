@@ -104,14 +104,14 @@ class _AddClientPageState extends State<AddClientPage> {
               children: [
                 Text(
                   'Add New Customer',
-                  style: context.headlineSmall?.copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: AppColors.onBackground,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
                   'Enter customer information to create a new profile',
-                  style: context.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
@@ -186,7 +186,7 @@ class _AddClientPageState extends State<AddClientPage> {
         const SizedBox(width: 12),
         Text(
           title,
-          style: context.titleMedium?.copyWith(
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: AppColors.onBackground,
             fontWeight: FontWeight.w700,
           ),
@@ -312,7 +312,7 @@ class _AddClientPageState extends State<AddClientPage> {
               Expanded(
                 child: Text(
                   'Customer will be created in the database. You can modify their profile and add orders later.',
-                  style: context.bodySmall?.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppColors.info,
                     fontWeight: FontWeight.w500,
                   ),
@@ -348,7 +348,7 @@ class _AddClientPageState extends State<AddClientPage> {
               ),
               child: Text(
                 'Cancel',
-                style: context.labelLarge?.copyWith(
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   color: AppColors.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
@@ -379,7 +379,7 @@ class _AddClientPageState extends State<AddClientPage> {
                     )
                   : Text(
                       'Save Customer',
-                      style: context.labelLarge?.copyWith(
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: AppColors.onPrimary,
                         fontWeight: FontWeight.w600,
                       ),

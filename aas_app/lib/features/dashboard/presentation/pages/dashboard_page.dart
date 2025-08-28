@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/index.dart';
-import '../../../../core/services/auth_service.dart';
+import '../../../../core/config/supabase_config.dart';
 import '../widgets/executive_dashboard.dart';
 import '../widgets/operations_dashboard.dart';
 import '../widgets/technician_dashboard.dart';
 import '../widgets/sales_dashboard.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
-  const DashboardPage({super.key});
+  final int initialTab;
+  final bool showUserManagement;
+  
+  const DashboardPage({
+    super.key,
+    this.initialTab = 0,
+    this.showUserManagement = false,
+  });
 
   @override
   ConsumerState<DashboardPage> createState() => _DashboardPageState();
@@ -22,7 +29,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 4, vsync: this, initialIndex: widget.initialTab);
     _tabController.addListener(() {
       setState(() {
         _selectedIndex = _tabController.index;
@@ -91,14 +98,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
               children: [
                 Text(
                   'AAS Dashboard',
-                  style: context.headlineSmall?.copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: AppColors.onBackground,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
                   'Equipment Repair Management',
-                  style: context.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
@@ -135,7 +142,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
                   children: [
                     Icon(Icons.person, color: AppColors.primary, size: 20),
                     const SizedBox(width: 8),
-                    Text('Profile', style: context.bodyMedium),
+                    Text('Profile', style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
               ),
@@ -145,7 +152,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
                   children: [
                     Icon(Icons.settings, color: AppColors.primary, size: 20),
                     const SizedBox(width: 8),
-                    Text('Settings', style: context.bodyMedium),
+                    Text('Settings', style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
               ),
@@ -156,7 +163,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
                   children: [
                     Icon(Icons.logout, color: AppColors.error, size: 20),
                     const SizedBox(width: 8),
-                    Text('Sign Out', style: context.bodyMedium?.copyWith(
+                    Text('Sign Out', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.error,
                     )),
                   ],
@@ -192,10 +199,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
         indicatorSize: TabBarIndicatorSize.tab,
         labelColor: AppColors.onPrimary,
         unselectedLabelColor: AppColors.onSurfaceVariant,
-        labelStyle: context.labelLarge?.copyWith(
+        labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
           fontWeight: FontWeight.w600,
         ),
-        unselectedLabelStyle: context.labelLarge?.copyWith(
+        unselectedLabelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
           fontWeight: FontWeight.w500,
         ),
         tabs: const [
@@ -234,7 +241,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
 
   Future<void> _signOut() async {
     try {
-      await AuthService.signOut();
+              await SupabaseConfig.auth.signOut();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

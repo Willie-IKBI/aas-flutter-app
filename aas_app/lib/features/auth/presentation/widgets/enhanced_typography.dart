@@ -42,7 +42,7 @@ class ModernHeading extends StatelessWidget {
             child: Text(
               text,
               textAlign: textAlign ?? TextAlign.center,
-              style: context.headlineLarge?.copyWith(
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                 fontSize: size,
                 fontWeight: weight,
                 letterSpacing: -0.5,
@@ -61,7 +61,7 @@ class ModernHeading extends StatelessWidget {
           return Text(
             text,
             textAlign: textAlign ?? TextAlign.center,
-            style: context.headlineLarge?.copyWith(
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               fontSize: size,
               fontWeight: weight,
               letterSpacing: -0.5,
@@ -111,7 +111,7 @@ class ModernSubtitle extends StatelessWidget {
         return Text(
           text,
           textAlign: textAlign ?? TextAlign.center,
-          style: context.bodyLarge?.copyWith(
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontSize: size,
             fontWeight: weight,
             height: 1.4,
@@ -332,7 +332,7 @@ class TypographyUtils {
     final height = lineHeight ?? getResponsiveLineHeight(screenWidth);
     final spacing = letterSpacing ?? getResponsiveLetterSpacing(screenWidth);
 
-    return context.bodyMedium?.copyWith(
+    return Theme.of(context).textTheme.bodyMedium?.copyWith(
       fontSize: size,
       fontWeight: fontWeight,
       color: color,

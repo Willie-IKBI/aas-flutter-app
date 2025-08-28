@@ -30,7 +30,7 @@ class ClientFormField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: context.labelLarge?.copyWith(
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
             color: AppColors.onBackground,
             fontWeight: FontWeight.w600,
           ),

@@ -32,7 +32,7 @@ class SupabaseConfig {
   // ===== DATABASE TABLES =====
   
   /// Database table names
-  static const String profilesTable = 'profiles';
+  static const String profilesTable = 'profile';
   static const String customersTable = 'customers';
   static const String ordersTable = 'orders';
   static const String orderStageEventsTable = 'order_stage_events';

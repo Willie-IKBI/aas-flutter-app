@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../config/supabase_config.dart';
@@ -34,10 +33,7 @@ class StorageService {
 
       await SupabaseConfig.storage
           .from(bucket)
-          .upload(storagePath, file, fileOptions: FileOptions(
-            cacheControl: '3600',
-            upsert: false,
-          ));
+          .upload(storagePath, file);
 
       final publicUrl = SupabaseConfig.storage
           .from(bucket)
@@ -60,7 +56,7 @@ class StorageService {
   /// Upload bytes to storage
   static Future<String> uploadBytes({
     required String bucket,
-    required Uint8List bytes,
+    required List<int> bytes,
     required String fileName,
     String? customPath,
     Map<String, String>? metadata,
@@ -73,10 +69,7 @@ class StorageService {
 
       await SupabaseConfig.storage
           .from(bucket)
-          .upload(storagePath, bytes, fileOptions: FileOptions(
-            cacheControl: '3600',
-            upsert: false,
-          ));
+          .upload(storagePath, bytes);
 
       final publicUrl = SupabaseConfig.storage
           .from(bucket)
@@ -98,57 +91,122 @@ class StorageService {
 
   /// Upload order document
   static Future<String> uploadOrderDocument({
-    required String orderId,
     required dynamic file,
-    String? customPath,
+    required String orderId,
+    required String stage,
+    required String category,
+    Map<String, String>? metadata,
   }) async {
-    return uploadFile(
-      bucket: SupabaseConfig.orderFilesBucket,
-      file: file,
-      customPath: customPath ?? 'orders/$orderId/${_uuid.v4()}',
-    );
+    try {
+      final fileName = _getFileName(file);
+      final fileExtension = _getFileExtension(fileName);
+      final uniqueFileName = '${_uuid.v4()}$fileExtension';
+      
+      final storagePath = 'orders/$orderId/$stage/$category/$uniqueFileName';
+
+      final publicUrl = await uploadFile(
+        bucket: SupabaseConfig.orderFilesBucket,
+        file: file,
+        customPath: storagePath,
+        metadata: metadata,
+      );
+
+      if (kDebugMode) {
+        print('✅ Order document uploaded successfully');
+        print('📁 Path: $storagePath');
+      }
+
+      return publicUrl;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Order document upload failed: $error');
+      }
+      rethrow;
+    }
   }
 
   /// Upload profile image
   static Future<String> uploadProfileImage({
-    required String userId,
     required dynamic file,
-    String? customPath,
+    required String userId,
+    Map<String, String>? metadata,
   }) async {
-    return uploadFile(
-      bucket: SupabaseConfig.profileImagesBucket,
-      file: file,
-      customPath: customPath ?? 'profiles/$userId/${_uuid.v4()}',
-    );
+    try {
+      final fileName = _getFileName(file);
+      final fileExtension = _getFileExtension(fileName);
+      final uniqueFileName = '${_uuid.v4()}$fileExtension';
+      
+      final storagePath = 'profiles/$userId/$uniqueFileName';
+
+      final publicUrl = await uploadFile(
+        bucket: SupabaseConfig.profileImagesBucket,
+        file: file,
+        customPath: storagePath,
+        metadata: metadata,
+      );
+
+      if (kDebugMode) {
+        print('✅ Profile image uploaded successfully');
+        print('📁 Path: $storagePath');
+      }
+
+      return publicUrl;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Profile image upload failed: $error');
+      }
+      rethrow;
+    }
   }
 
   /// Upload part image
   static Future<String> uploadPartImage({
-    required String partId,
     required dynamic file,
-    String? customPath,
+    required String partId,
+    Map<String, String>? metadata,
   }) async {
-    return uploadFile(
-      bucket: SupabaseConfig.partImagesBucket,
-      file: file,
-      customPath: customPath ?? 'parts/$partId/${_uuid.v4()}',
-    );
+    try {
+      final fileName = _getFileName(file);
+      final fileExtension = _getFileExtension(fileName);
+      final uniqueFileName = '${_uuid.v4()}$fileExtension';
+      
+      final storagePath = 'parts/$partId/$uniqueFileName';
+
+      final publicUrl = await uploadFile(
+        bucket: SupabaseConfig.partImagesBucket,
+        file: file,
+        customPath: storagePath,
+        metadata: metadata,
+      );
+
+      if (kDebugMode) {
+        print('✅ Part image uploaded successfully');
+        print('📁 Path: $storagePath');
+      }
+
+      return publicUrl;
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Part image upload failed: $error');
+      }
+      rethrow;
+    }
   }
 
   // ===== FILE DOWNLOAD METHODS =====
 
   /// Download file from storage
-  static Future<Uint8List> downloadFile({
+  static Future<List<int>> downloadFile({
     required String bucket,
-    required String filePath,
+    required String path,
   }) async {
     try {
       final response = await SupabaseConfig.storage
           .from(bucket)
-          .download(filePath);
+          .download(path);
 
       if (kDebugMode) {
-        print('✅ File downloaded successfully: $filePath');
+        print('✅ File downloaded successfully: $path');
       }
 
       return response;
@@ -163,32 +221,21 @@ class StorageService {
   /// Get public URL for file
   static String getPublicUrl({
     required String bucket,
-    required String filePath,
+    required String path,
   }) {
-    return SupabaseConfig.storage
-        .from(bucket)
-        .getPublicUrl(filePath);
-  }
-
-  /// Get signed URL for file (with expiration)
-  static Future<String> getSignedUrl({
-    required String bucket,
-    required String filePath,
-    int expiresIn = 3600, // 1 hour default
-  }) async {
     try {
-      final response = await SupabaseConfig.storage
+      final publicUrl = SupabaseConfig.storage
           .from(bucket)
-          .createSignedUrl(filePath, expiresIn);
+          .getPublicUrl(path);
 
       if (kDebugMode) {
-        print('✅ Signed URL created: $filePath');
+        print('✅ Public URL generated: $publicUrl');
       }
 
-      return response;
+      return publicUrl;
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Signed URL creation failed: $error');
+        print('❌ Public URL generation failed: $error');
       }
       rethrow;
     }
@@ -196,49 +243,18 @@ class StorageService {
 
   // ===== FILE MANAGEMENT METHODS =====
 
-  /// List files in bucket
-  static Future<List<FileObject>> listFiles({
-    required String bucket,
-    String? folder,
-    int? limit,
-    int? offset,
-    String? sortBy,
-  }) async {
-    try {
-      final response = await SupabaseConfig.storage
-          .from(bucket)
-          .list(
-            path: folder,
-            limit: limit,
-            offset: offset,
-            sortBy: sortBy != null ? SortBy(sortBy) : null,
-          );
-
-      if (kDebugMode) {
-        print('✅ Files listed successfully: ${response.length} files');
-      }
-
-      return response;
-    } catch (error) {
-      if (kDebugMode) {
-        print('❌ File listing failed: $error');
-      }
-      rethrow;
-    }
-  }
-
   /// Delete file from storage
   static Future<void> deleteFile({
     required String bucket,
-    required String filePath,
+    required String path,
   }) async {
     try {
       await SupabaseConfig.storage
           .from(bucket)
-          .remove([filePath]);
+          .remove([path]);
 
       if (kDebugMode) {
-        print('✅ File deleted successfully: $filePath');
+        print('✅ File deleted successfully: $path');
       }
     } catch (error) {
       if (kDebugMode) {
@@ -248,45 +264,24 @@ class StorageService {
     }
   }
 
-  /// Move file in storage
-  static Future<void> moveFile({
+  /// List files in bucket
+  static Future<List<Map<String, dynamic>>> listFiles({
     required String bucket,
-    required String fromPath,
-    required String toPath,
+    String? folder,
   }) async {
     try {
-      await SupabaseConfig.storage
+      final response = await SupabaseConfig.storage
           .from(bucket)
-          .move(fromPath, toPath);
+          .list(path: folder ?? '');
 
       if (kDebugMode) {
-        print('✅ File moved successfully: $fromPath -> $toPath');
+        print('✅ Files listed successfully in $bucket');
       }
+
+      return response;
     } catch (error) {
       if (kDebugMode) {
-        print('❌ File move failed: $error');
-      }
-      rethrow;
-    }
-  }
-
-  /// Copy file in storage
-  static Future<void> copyFile({
-    required String bucket,
-    required String fromPath,
-    required String toPath,
-  }) async {
-    try {
-      await SupabaseConfig.storage
-          .from(bucket)
-          .copy(fromPath, toPath);
-
-      if (kDebugMode) {
-        print('✅ File copied successfully: $fromPath -> $toPath');
-      }
-    } catch (error) {
-      if (kDebugMode) {
-        print('❌ File copy failed: $error');
+        print('❌ File listing failed: $error');
       }
       rethrow;
     }
@@ -302,67 +297,50 @@ class StorageService {
   /// Get file extension from file name
   static String _getFileExtension(String fileName) {
     final parts = fileName.split('.');
-    return parts.length > 1 ? '.${parts.last}' : '';
-  }
-
-  /// Check if file exists
-  static Future<bool> fileExists({
-    required String bucket,
-    required String filePath,
-  }) async {
-    try {
-      await SupabaseConfig.storage
-          .from(bucket)
-          .download(filePath);
-      return true;
-    } catch (error) {
-      return false;
+    if (parts.length > 1) {
+      return '.${parts.last}';
     }
+    return '';
   }
 
-  /// Get file size
+  /// Generate unique file name
+  static String generateUniqueFileName(String originalName) {
+    final extension = _getFileExtension(originalName);
+    return '${_uuid.v4()}$extension';
+  }
+
+  /// Validate file size (max 10MB)
+  static bool isValidFileSize(dynamic file) {
+    // This would need to be implemented based on the file type
+    // For now, return true as a placeholder
+    return true;
+  }
+
+  /// Validate file type
+  static bool isValidFileType(String fileName, List<String> allowedExtensions) {
+    final extension = _getFileExtension(fileName).toLowerCase();
+    return allowedExtensions.contains(extension);
+  }
+
+  /// Get file size in bytes
   static Future<int> getFileSize({
     required String bucket,
-    required String filePath,
+    required String path,
   }) async {
     try {
       final response = await SupabaseConfig.storage
           .from(bucket)
-          .download(filePath);
-      return response.length;
-    } catch (error) {
-      if (kDebugMode) {
-        print('❌ Could not get file size: $error');
+          .list(path: path);
+
+      if (response.isNotEmpty) {
+        return response.first['metadata']?['size'] ?? 0;
       }
       return 0;
-    }
-  }
-
-  /// Get file metadata
-  static Future<Map<String, dynamic>?> getFileMetadata({
-    required String bucket,
-    required String filePath,
-  }) async {
-    try {
-      final response = await SupabaseConfig.storage
-          .from(bucket)
-          .list(path: filePath);
-      
-      if (response.isNotEmpty) {
-        final file = response.first;
-        return {
-          'name': file.name,
-          'size': file.metadata?['size'],
-          'mimeType': file.metadata?['mimetype'],
-          'lastModified': file.updatedAt,
-        };
-      }
-      return null;
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Could not get file metadata: $error');
+        print('❌ Get file size failed: $error');
       }
-      return null;
+      return 0;
     }
   }
 }

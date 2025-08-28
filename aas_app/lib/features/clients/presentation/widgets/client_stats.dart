@@ -61,7 +61,7 @@ class _ClientStatsState extends State<ClientStats> {
             const SizedBox(height: 16),
             Text(
               'Error loading statistics',
-              style: context.titleMedium?.copyWith(
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: AppColors.error,
                 fontWeight: FontWeight.w600,
               ),
@@ -69,7 +69,7 @@ class _ClientStatsState extends State<ClientStats> {
             const SizedBox(height: 8),
             Text(
               _error!,
-              style: context.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
@@ -146,14 +146,14 @@ class _ClientStatsState extends State<ClientStats> {
               children: [
                 Text(
                   'Customer Analytics',
-                  style: context.headlineSmall?.copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: AppColors.onBackground,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
                   'Insights and trends from your customer base',
-                  style: context.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
@@ -255,7 +255,7 @@ class _ClientStatsState extends State<ClientStats> {
           const SizedBox(height: 16),
           Text(
             value,
-            style: context.headlineMedium?.copyWith(
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
               color: AppColors.onBackground,
               fontWeight: FontWeight.w700,
             ),
@@ -263,7 +263,7 @@ class _ClientStatsState extends State<ClientStats> {
           const SizedBox(height: 4),
           Text(
             title,
-            style: context.bodySmall?.copyWith(
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppColors.onSurfaceVariant,
               fontWeight: FontWeight.w500,
             ),
@@ -295,7 +295,7 @@ class _ClientStatsState extends State<ClientStats> {
           children: [
             Text(
               'Industry Breakdown',
-              style: context.titleLarge?.copyWith(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: AppColors.onBackground,
                 fontWeight: FontWeight.w700,
               ),
@@ -312,7 +312,7 @@ class _ClientStatsState extends State<ClientStats> {
                   const SizedBox(height: 16),
                   Text(
                     'No industry data yet',
-                    style: context.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),
                   ),
@@ -342,7 +342,7 @@ class _ClientStatsState extends State<ClientStats> {
         children: [
           Text(
             'Industry Breakdown',
-            style: context.titleLarge?.copyWith(
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: AppColors.onBackground,
               fontWeight: FontWeight.w700,
             ),
@@ -388,7 +388,7 @@ class _ClientStatsState extends State<ClientStats> {
           children: [
             Text(
               'Contact Channel Breakdown',
-              style: context.titleLarge?.copyWith(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: AppColors.onBackground,
                 fontWeight: FontWeight.w700,
               ),
@@ -405,7 +405,7 @@ class _ClientStatsState extends State<ClientStats> {
                   const SizedBox(height: 16),
                   Text(
                     'No contact channel data yet',
-                    style: context.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.onSurfaceVariant,
                     ),
                   ),
@@ -435,7 +435,7 @@ class _ClientStatsState extends State<ClientStats> {
         children: [
           Text(
             'Contact Channel Breakdown',
-            style: context.titleLarge?.copyWith(
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: AppColors.onBackground,
               fontWeight: FontWeight.w700,
             ),
@@ -484,7 +484,7 @@ class _ClientStatsState extends State<ClientStats> {
               children: [
                 Text(
                   label,
-                  style: context.bodyLarge?.copyWith(
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: AppColors.onBackground,
                     fontWeight: FontWeight.w600,
                   ),
@@ -492,7 +492,7 @@ class _ClientStatsState extends State<ClientStats> {
                 const SizedBox(height: 4),
                 Text(
                   '$count customers ($percentage%)',
-                  style: context.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.onSurfaceVariant,
                   ),
                 ),
@@ -507,7 +507,7 @@ class _ClientStatsState extends State<ClientStats> {
             ),
             child: Text(
               count.toString(),
-              style: context.labelMedium?.copyWith(
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
                 color: color,
                 fontWeight: FontWeight.w700,
               ),

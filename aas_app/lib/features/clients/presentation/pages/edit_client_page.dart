@@ -130,14 +130,14 @@ class _EditClientPageState extends State<EditClientPage> {
               children: [
                 Text(
                   'Edit Customer',
-                  style: context.headlineSmall?.copyWith(
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: AppColors.onBackground,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
                   'Update customer information',
-                  style: context.bodyMedium?.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
@@ -212,7 +212,7 @@ class _EditClientPageState extends State<EditClientPage> {
         const SizedBox(width: 12),
         Text(
           title,
-          style: context.titleMedium?.copyWith(
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: AppColors.onBackground,
             fontWeight: FontWeight.w700,
           ),
@@ -338,7 +338,7 @@ class _EditClientPageState extends State<EditClientPage> {
               Expanded(
                 child: Text(
                   'Changes will be saved to the database. You can continue to modify their profile and add orders.',
-                  style: context.bodySmall?.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppColors.info,
                     fontWeight: FontWeight.w500,
                   ),
@@ -372,13 +372,13 @@ class _EditClientPageState extends State<EditClientPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                'Cancel',
-                style: context.labelLarge?.copyWith(
-                  color: AppColors.onSurface,
-                  fontWeight: FontWeight.w600,
+                              child: Text(
+                  'Cancel',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: AppColors.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
             ),
           ),
           const SizedBox(width: 16),
@@ -412,7 +412,7 @@ class _EditClientPageState extends State<EditClientPage> {
                     )
                   : Text(
                       'Update Customer',
-                      style: context.labelLarge?.copyWith(
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: AppColors.onPrimary,
                         fontWeight: FontWeight.w600,
                       ),

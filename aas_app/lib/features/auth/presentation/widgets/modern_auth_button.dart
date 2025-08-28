@@ -259,7 +259,7 @@ class _ModernAuthButtonState extends State<ModernAuthButton>
   }
 
   TextStyle _getTextStyle(BuildContext context, double fontSize) {
-    final baseStyle = context.labelLarge;
+    final baseStyle = Theme.of(context).textTheme.labelLarge;
     
     return baseStyle?.copyWith(
       color: _getTextColor(),

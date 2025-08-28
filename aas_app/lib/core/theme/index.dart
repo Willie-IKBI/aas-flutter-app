@@ -7,8 +7,12 @@
 /// import 'package:aas_app/core/theme/index.dart';
 /// ```
 
-// Core theme files
+// Core theme exports
 export 'app_colors.dart';
 export 'app_theme.dart';
-export 'status_colors.dart';
-export 'theme_extension.dart';
+export 'responsive_breakpoints.dart';
+
+// Responsive layout exports
+export '../widgets/responsive_layout.dart';
+export '../widgets/responsive_app_bar.dart';
+export '../widgets/responsive_navigation.dart';

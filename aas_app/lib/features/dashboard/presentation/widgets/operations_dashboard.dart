@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
+import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/order_service.dart';
+import '../../../../core/models/user_profile.dart';
 import '../../../parts/presentation/pages/parts_management_page.dart';
+import '../../../admin/presentation/pages/user_management_page.dart';
+import '../../../orders/presentation/pages/create_order_wizard.dart';
+import '../../../orders/presentation/pages/active_jobs_page.dart';
 
 class OperationsDashboard extends StatefulWidget {
   const OperationsDashboard({super.key});
@@ -10,6 +16,55 @@ class OperationsDashboard extends StatefulWidget {
 }
 
 class _OperationsDashboardState extends State<OperationsDashboard> {
+  List<UserProfile> _unassignedUsers = [];
+  bool _isLoadingUsers = true;
+  
+  // Order statistics
+  int _activeOrdersCount = 0;
+  int _pendingApprovalCount = 0;
+  int _completedTodayCount = 0;
+  bool _isLoadingOrders = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUnassignedUsers();
+    _loadOrderStatistics();
+  }
+
+  Future<void> _loadUnassignedUsers() async {
+    try {
+      final users = await AuthService.getUnassignedUsers();
+      setState(() {
+        _unassignedUsers = users;
+        _isLoadingUsers = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingUsers = false;
+      });
+    }
+  }
+
+  Future<void> _loadOrderStatistics() async {
+    try {
+      final activeCount = await OrderService.getActiveOrdersCount();
+      final pendingCount = await OrderService.getPendingApprovalCount();
+      final completedCount = await OrderService.getCompletedTodayCount();
+      
+      setState(() {
+        _activeOrdersCount = activeCount;
+        _pendingApprovalCount = pendingCount;
+        _completedTodayCount = completedCount;
+        _isLoadingOrders = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingOrders = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -97,12 +152,12 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadow.withOpacity(0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -127,10 +182,31 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
             childAspectRatio: 2.2,
             children: [
               _buildActionButton(
+                title: 'User Management',
+                icon: Icons.people,
+                color: AppColors.primary,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UserManagementPage(),
+                    ),
+                  ).then((_) => _loadUnassignedUsers()); // Refresh after returning
+                },
+                badge: _unassignedUsers.isNotEmpty ? _unassignedUsers.length.toString() : null,
+              ),
+              _buildActionButton(
                 title: 'Create Order',
                 icon: Icons.add_circle_outline,
                 color: AppColors.primary,
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CreateOrderWizard(),
+                    ),
+                  ).then((_) => _loadOrderStatistics()); // Refresh after returning
+                },
               ),
               _buildActionButton(
                 title: 'Assign Technician',
@@ -175,6 +251,7 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
     required IconData icon,
     required Color color,
     required VoidCallback onTap,
+    String? badge,
   }) {
     return InkWell(
       onTap: onTap,
@@ -189,24 +266,48 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
             width: 1,
           ),
         ),
-        child: Row(
+        child: Stack(
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 24,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  color: color,
+                  size: 32,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.onBackground,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.onBackground,
+            if (badge != null)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.error,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    badge,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -244,27 +345,38 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
               Expanded(
                 child: _buildStatusCard(
                   title: 'Active Jobs',
-                  count: '23',
+                  count: _isLoadingOrders ? '...' : _activeOrdersCount.toString(),
                   color: AppColors.info,
                   icon: Icons.engineering,
+                  isLoading: _isLoadingOrders,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ActiveJobsPage(),
+                      ),
+                    ).then((_) => _loadOrderStatistics()); // Refresh after returning
+                  },
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: _buildStatusCard(
                   title: 'Pending Approval',
-                  count: '8',
+                  count: _isLoadingOrders ? '...' : _pendingApprovalCount.toString(),
                   color: AppColors.warning,
                   icon: Icons.pending,
+                  isLoading: _isLoadingOrders,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: _buildStatusCard(
                   title: 'Completed Today',
-                  count: '12',
+                  count: _isLoadingOrders ? '...' : _completedTodayCount.toString(),
                   color: AppColors.success,
                   icon: Icons.check_circle,
+                  isLoading: _isLoadingOrders,
                 ),
               ),
             ],
@@ -279,8 +391,10 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
     required String count,
     required Color color,
     required IconData icon,
+    bool isLoading = false,
+    VoidCallback? onTap,
   }) {
-    return Container(
+    Widget cardContent = Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
@@ -298,14 +412,24 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
             size: 32,
           ),
           const SizedBox(height: 12),
-          Text(
-            count,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: AppColors.onBackground,
+          if (isLoading)
+            SizedBox(
+              height: 28,
+              width: 28,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+              ),
+            )
+          else
+            Text(
+              count,
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                color: AppColors.onBackground,
+              ),
             ),
-          ),
           const SizedBox(height: 4),
           Text(
             title,
@@ -319,6 +443,16 @@ class _OperationsDashboardState extends State<OperationsDashboard> {
         ],
       ),
     );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: cardContent,
+      );
+    }
+
+    return cardContent;
   }
 
   Widget _buildEquipmentStatus() {
