@@ -32,8 +32,8 @@ class _ClientManagementPageState extends State<ClientManagementPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
           gradient: AppColors.backgroundGradient,
         ),
         child: SafeArea(
@@ -60,7 +60,7 @@ class _ClientManagementPageState extends State<ClientManagementPage>
         children: [
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
               color: AppColors.onBackground,
             ),
@@ -73,16 +73,16 @@ class _ClientManagementPageState extends State<ClientManagementPage>
                 Text(
                   'Client Management',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.onBackground,
-                    fontWeight: FontWeight.w700,
-                  ),
+                        color: AppColors.onBackground,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 Text(
                   'Manage your clients and their equipment',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ],
             ),
@@ -91,7 +91,7 @@ class _ClientManagementPageState extends State<ClientManagementPage>
             onPressed: () {
               // TODO: Show client management settings
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.settings,
               color: AppColors.onSurface,
             ),
@@ -122,7 +122,7 @@ class _ClientManagementPageState extends State<ClientManagementPage>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -138,11 +138,11 @@ class _ClientManagementPageState extends State<ClientManagementPage>
         labelColor: AppColors.onPrimary,
         unselectedLabelColor: AppColors.onSurfaceVariant,
         labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+              fontWeight: FontWeight.w600,
+            ),
         unselectedLabelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
+              fontWeight: FontWeight.w500,
+            ),
         tabs: const [
           Tab(
             icon: Icon(Icons.people_outline),

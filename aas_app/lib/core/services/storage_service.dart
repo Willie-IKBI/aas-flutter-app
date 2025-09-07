@@ -3,10 +3,11 @@ import 'package:uuid/uuid.dart';
 import '../config/supabase_config.dart';
 
 // Conditional imports for platform-specific functionality
-import 'storage_service_web.dart' if (dart.library.io) 'storage_service_mobile.dart';
+import 'storage_service_web.dart'
+    if (dart.library.io) 'storage_service_mobile.dart';
 
 /// Storage Service
-/// 
+///
 /// Handles file uploads, downloads, and management with Supabase Storage.
 /// Web-compatible with conditional imports for platform-specific functionality.
 class StorageService {
@@ -28,27 +29,19 @@ class StorageService {
       final fileName = _getFileName(file);
       final fileExtension = _getFileExtension(fileName);
       final uniqueFileName = '${_uuid.v4()}$fileExtension';
-      
+
       final storagePath = customPath ?? uniqueFileName;
 
-      await SupabaseConfig.storage
-          .from(bucket)
-          .upload(storagePath, file);
+      await SupabaseConfig.storage.from(bucket).upload(storagePath, file);
 
-      final publicUrl = SupabaseConfig.storage
-          .from(bucket)
-          .getPublicUrl(storagePath);
+      final publicUrl =
+          SupabaseConfig.storage.from(bucket).getPublicUrl(storagePath);
 
-      if (kDebugMode) {
-        print('✅ File uploaded successfully: $storagePath');
-        print('📁 Public URL: $publicUrl');
-      }
+      if (kDebugMode) {}
 
       return publicUrl;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ File upload failed: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -64,27 +57,19 @@ class StorageService {
     try {
       final fileExtension = _getFileExtension(fileName);
       final uniqueFileName = '${_uuid.v4()}$fileExtension';
-      
+
       final storagePath = customPath ?? uniqueFileName;
 
-      await SupabaseConfig.storage
-          .from(bucket)
-          .upload(storagePath, bytes);
+      await SupabaseConfig.storage.from(bucket).upload(storagePath, bytes);
 
-      final publicUrl = SupabaseConfig.storage
-          .from(bucket)
-          .getPublicUrl(storagePath);
+      final publicUrl =
+          SupabaseConfig.storage.from(bucket).getPublicUrl(storagePath);
 
-      if (kDebugMode) {
-        print('✅ Bytes uploaded successfully: $storagePath');
-        print('📁 Public URL: $publicUrl');
-      }
+      if (kDebugMode) {}
 
       return publicUrl;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Bytes upload failed: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -101,7 +86,7 @@ class StorageService {
       final fileName = _getFileName(file);
       final fileExtension = _getFileExtension(fileName);
       final uniqueFileName = '${_uuid.v4()}$fileExtension';
-      
+
       final storagePath = 'orders/$orderId/$stage/$category/$uniqueFileName';
 
       final publicUrl = await uploadFile(
@@ -111,16 +96,11 @@ class StorageService {
         metadata: metadata,
       );
 
-      if (kDebugMode) {
-        print('✅ Order document uploaded successfully');
-        print('📁 Path: $storagePath');
-      }
+      if (kDebugMode) {}
 
       return publicUrl;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Order document upload failed: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -135,7 +115,7 @@ class StorageService {
       final fileName = _getFileName(file);
       final fileExtension = _getFileExtension(fileName);
       final uniqueFileName = '${_uuid.v4()}$fileExtension';
-      
+
       final storagePath = 'profiles/$userId/$uniqueFileName';
 
       final publicUrl = await uploadFile(
@@ -145,16 +125,11 @@ class StorageService {
         metadata: metadata,
       );
 
-      if (kDebugMode) {
-        print('✅ Profile image uploaded successfully');
-        print('📁 Path: $storagePath');
-      }
+      if (kDebugMode) {}
 
       return publicUrl;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Profile image upload failed: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -169,7 +144,7 @@ class StorageService {
       final fileName = _getFileName(file);
       final fileExtension = _getFileExtension(fileName);
       final uniqueFileName = '${_uuid.v4()}$fileExtension';
-      
+
       final storagePath = 'parts/$partId/$uniqueFileName';
 
       final publicUrl = await uploadFile(
@@ -179,16 +154,11 @@ class StorageService {
         metadata: metadata,
       );
 
-      if (kDebugMode) {
-        print('✅ Part image uploaded successfully');
-        print('📁 Path: $storagePath');
-      }
+      if (kDebugMode) {}
 
       return publicUrl;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Part image upload failed: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -201,19 +171,13 @@ class StorageService {
     required String path,
   }) async {
     try {
-      final response = await SupabaseConfig.storage
-          .from(bucket)
-          .download(path);
+      final response = await SupabaseConfig.storage.from(bucket).download(path);
 
-      if (kDebugMode) {
-        print('✅ File downloaded successfully: $path');
-      }
+      if (kDebugMode) {}
 
       return response;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ File download failed: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -224,19 +188,13 @@ class StorageService {
     required String path,
   }) {
     try {
-      final publicUrl = SupabaseConfig.storage
-          .from(bucket)
-          .getPublicUrl(path);
+      final publicUrl = SupabaseConfig.storage.from(bucket).getPublicUrl(path);
 
-      if (kDebugMode) {
-        print('✅ Public URL generated: $publicUrl');
-      }
+      if (kDebugMode) {}
 
       return publicUrl;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Public URL generation failed: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -249,17 +207,11 @@ class StorageService {
     required String path,
   }) async {
     try {
-      await SupabaseConfig.storage
-          .from(bucket)
-          .remove([path]);
+      await SupabaseConfig.storage.from(bucket).remove([path]);
 
-      if (kDebugMode) {
-        print('✅ File deleted successfully: $path');
-      }
+      if (kDebugMode) {}
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ File deletion failed: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -270,19 +222,14 @@ class StorageService {
     String? folder,
   }) async {
     try {
-      final response = await SupabaseConfig.storage
-          .from(bucket)
-          .list(path: folder ?? '');
+      final response =
+          await SupabaseConfig.storage.from(bucket).list(path: folder ?? '');
 
-      if (kDebugMode) {
-        print('✅ Files listed successfully in $bucket');
-      }
+      if (kDebugMode) {}
 
       return response;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ File listing failed: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -328,18 +275,15 @@ class StorageService {
     required String path,
   }) async {
     try {
-      final response = await SupabaseConfig.storage
-          .from(bucket)
-          .list(path: path);
+      final response =
+          await SupabaseConfig.storage.from(bucket).list(path: path);
 
       if (response.isNotEmpty) {
         return response.first['metadata']?['size'] ?? 0;
       }
       return 0;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Get file size failed: $error');
-      }
+      if (kDebugMode) {}
       return 0;
     }
   }

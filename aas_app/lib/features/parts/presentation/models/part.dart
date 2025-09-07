@@ -1,13 +1,4 @@
 class Part {
-  final int? id;
-  final DateTime? createdAt;
-  final String partName;
-  final String? partDescription;
-  final String? partImageUrl;
-  final String? partLocation;
-  final String? partNumber;
-  final String? partStatus;
-
   Part({
     this.id,
     this.createdAt,
@@ -23,7 +14,7 @@ class Part {
   factory Part.fromJson(Map<String, dynamic> json) {
     return Part(
       id: json['id'] as int?,
-      createdAt: json['created_at'] != null 
+      createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,
       partName: json['part_name'] as String,
@@ -34,6 +25,14 @@ class Part {
       partStatus: json['part_status'] as String? ?? 'Active',
     );
   }
+  final int? id;
+  final DateTime? createdAt;
+  final String partName;
+  final String? partDescription;
+  final String? partImageUrl;
+  final String? partLocation;
+  final String? partNumber;
+  final String? partStatus;
 
   // Convert to JSON for Supabase
   Map<String, dynamic> toJson() {
@@ -93,14 +92,14 @@ class Part {
   String get displayStatus => partStatus ?? 'Active';
   bool get isActive => (partStatus ?? 'Active') == 'Active';
   bool get hasImage => partImageUrl != null && partImageUrl!.isNotEmpty;
-  
+
   // Debug method to print part details
-  void debugPrint() {
-    print('🔍 Part Debug Info:');
+  void printDetails() {
+    print('Part Details:');
     print('  ID: $id');
     print('  Name: $partName');
-    print('  Image URL: $partImageUrl');
-    print('  Has Image: $hasImage');
+    print('  Number: $partNumber');
     print('  Status: $partStatus');
+    print('  Location: $partLocation');
   }
 }

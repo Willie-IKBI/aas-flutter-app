@@ -1,15 +1,4 @@
 class Client {
-  final int? id; // bigserial in Supabase
-  final DateTime? createdAt;
-  final String clientName; // required
-  final String? contactName;
-  final String? contactNumber;
-  final String? contactEmail;
-  final String? address;
-  final String? industrySector;
-  final String? contactChannel;
-  final String? notes;
-
   Client({
     this.id,
     this.createdAt,
@@ -27,7 +16,7 @@ class Client {
   factory Client.fromJson(Map<String, dynamic> json) {
     return Client(
       id: json['id'] as int?,
-      createdAt: json['created_at'] != null 
+      createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,
       clientName: json['client_name'] as String,
@@ -40,6 +29,16 @@ class Client {
       notes: json['notes'] as String?,
     );
   }
+  final int? id; // bigserial in Supabase
+  final DateTime? createdAt;
+  final String clientName; // required
+  final String? contactName;
+  final String? contactNumber;
+  final String? contactEmail;
+  final String? address;
+  final String? industrySector;
+  final String? contactChannel;
+  final String? notes;
 
   // Convert to JSON for Supabase
   Map<String, dynamic> toJson() {
@@ -100,7 +99,8 @@ class Client {
 
   // Helper methods for display
   String get displayName => clientName;
-  String get primaryContact => contactName ?? contactEmail ?? contactNumber ?? 'No contact info';
+  String get primaryContact =>
+      contactName ?? contactEmail ?? contactNumber ?? 'No contact info';
   String get contactInfo => contactEmail ?? contactNumber ?? 'No contact info';
   bool get hasContactInfo => contactEmail != null || contactNumber != null;
 }

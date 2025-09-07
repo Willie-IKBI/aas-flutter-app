@@ -17,5 +17,3 @@ class OrdersPage extends StatelessWidget {
     );
   }
 }
-
-

@@ -1,9 +1,9 @@
-import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/index.dart';
 import '../../../../core/services/auth_service.dart';
+import '../../../../core/navigation/app_router.dart';
 import '../../../../core/config/supabase_config.dart';
 import '../widgets/modern_auth_text_field.dart';
 import '../widgets/modern_auth_button.dart';
@@ -11,17 +11,29 @@ import '../widgets/responsive_auth_layout.dart';
 import '../widgets/auth_header.dart';
 
 class PasswordResetConfirmPage extends ConsumerStatefulWidget {
-  const PasswordResetConfirmPage({super.key});
+  const PasswordResetConfirmPage({
+    super.key,
+    this.accessToken,
+    this.refreshToken,
+    this.token,
+    this.code,
+  });
+  final String? accessToken;
+  final String? refreshToken;
+  final String? token;
+  final String? code;
 
   @override
-  ConsumerState<PasswordResetConfirmPage> createState() => _PasswordResetConfirmPageState();
+  ConsumerState<PasswordResetConfirmPage> createState() =>
+      _PasswordResetConfirmPageState();
 }
 
-class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmPage> {
+class _PasswordResetConfirmPageState
+    extends ConsumerState<PasswordResetConfirmPage> {
   final _formKey = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _isSuccess = false;
   bool _obscurePassword = true;
@@ -56,21 +68,19 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
       if (mounted) {
         setState(() => _isSuccess = true);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Password updated successfully! You can now sign in.'),
+          const SnackBar(
+            content:
+                Text('Password updated successfully! You can now sign in.'),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 5),
+            duration: Duration(seconds: 5),
           ),
         );
-        
-        // Clear the URL parameters after successful password update
-        _clearUrlParameters();
-        
+
         // Navigate to sign in page after a short delay
         Future.delayed(const Duration(seconds: 2), () {
           if (mounted) {
-            Navigator.of(context).pushReplacementNamed('/');
+            context.goToSignIn();
           }
         });
       }
@@ -92,33 +102,22 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
   }
 
   void _clearUrlParameters() {
-    try {
-      // Remove URL parameters after successful password reset
-      final currentUri = Uri.parse(html.window.location.href);
-      final cleanUri = Uri(
-        scheme: currentUri.scheme,
-        host: currentUri.host,
-        port: currentUri.port,
-        path: currentUri.path,
-      );
-      html.window.history.pushState({}, '', cleanUri.toString());
-    } catch (e) {
-      print('Error clearing URL parameters: $e');
-    }
+    // Note: URL parameter clearing is now handled by the router
+    // This method is deprecated and will be removed in future versions
   }
 
   void _goToSignIn() {
-    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+    context.goToSignIn();
   }
 
   Widget _buildPasswordStrengthIndicator() {
     final password = _passwordController.text;
     final strengthLevel = AuthService.getPasswordStrengthLevel(password);
     final strengthMessage = AuthService.getPasswordStrengthMessage(password);
-    
+
     Color strengthColor;
     String strengthText;
-    
+
     switch (strengthLevel) {
       case 0:
       case 1:
@@ -145,7 +144,7 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
         strengthColor = AppColors.error;
         strengthText = 'Very Weak';
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -154,15 +153,15 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
             Text(
               'Password Strength: ',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
+                    color: AppColors.onSurfaceVariant,
+                  ),
             ),
             Text(
               strengthText,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: strengthColor,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: strengthColor,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ],
         ),
@@ -177,9 +176,9 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
           Text(
             strengthMessage,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: strengthColor,
-              fontSize: 11,
-            ),
+                  color: strengthColor,
+                  fontSize: 11,
+                ),
           ),
         ],
       ],
@@ -189,17 +188,17 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
   @override
   Widget build(BuildContext context) {
     return ResponsiveAuthLayout(
-      header: AuthHeader(
+      header: const AuthHeader(
         title: 'Set New Password',
         subtitle: 'Enter your new password to complete the reset',
         icon: Icons.lock_outline,
       ),
+      footer: _isSuccess ? _buildBackToSignIn() : null,
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ResponsiveAuthCard(
               child: _isSuccess ? _buildSuccessView() : _buildPasswordForm(),
             ),
-      footer: _isSuccess ? _buildBackToSignIn() : null,
     );
   }
 
@@ -213,16 +212,15 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.info.withOpacity(0.1),
+              color: AppColors.info.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.info.withOpacity(0.2),
-                width: 1,
+                color: AppColors.info.withValues(alpha: 0.2),
               ),
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.info_outline,
                   color: AppColors.info,
                   size: 24,
@@ -232,17 +230,17 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
                   child: Text(
                     'Your new password must be at least 8 characters long',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.info,
-                      fontWeight: FontWeight.w500,
-                    ),
+                          color: AppColors.info,
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                 ),
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // New Password field
           ModernAuthTextField(
             controller: _passwordController,
@@ -250,7 +248,8 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
             hint: 'Enter your new password',
             prefixIcon: Icons.lock_outline,
             suffixIcon: IconButton(
-              icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+              icon: Icon(
+                  _obscurePassword ? Icons.visibility : Icons.visibility_off),
               onPressed: () {
                 setState(() {
                   _obscurePassword = !_obscurePassword;
@@ -279,15 +278,15 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
               return null;
             },
           ),
-          
+
           // Password strength indicator
           if (_passwordController.text.isNotEmpty) ...[
             const SizedBox(height: 8),
             _buildPasswordStrengthIndicator(),
           ],
-          
+
           const SizedBox(height: 16),
-          
+
           // Confirm Password field
           ModernAuthTextField(
             controller: _confirmPasswordController,
@@ -295,7 +294,9 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
             hint: 'Confirm your new password',
             prefixIcon: Icons.lock_outline,
             suffixIcon: IconButton(
-              icon: Icon(_obscureConfirmPassword ? Icons.visibility : Icons.visibility_off),
+              icon: Icon(_obscureConfirmPassword
+                  ? Icons.visibility
+                  : Icons.visibility_off),
               onPressed: () {
                 setState(() {
                   _obscureConfirmPassword = !_obscureConfirmPassword;
@@ -315,16 +316,15 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
               return null;
             },
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Update button
           ModernAuthButton(
             text: 'Update Password',
             onPressed: _isLoading ? null : _updatePassword,
             isLoading: _isLoading,
             icon: Icons.check,
-            variant: ModernButtonVariant.filled,
           ),
         ],
       ),
@@ -343,7 +343,7 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: AppColors.success.withOpacity(0.3),
+                color: AppColors.success.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -355,46 +355,45 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
             color: Colors.white,
           ),
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Success title
         Text(
           'Password Updated!',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: AppColors.onBackground,
-            fontWeight: FontWeight.w700,
-          ),
+                color: AppColors.onBackground,
+                fontWeight: FontWeight.w700,
+              ),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Success message
         Text(
           'Your password has been successfully updated. You can now sign in with your new password.',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.onSurfaceVariant,
-            fontWeight: FontWeight.w500,
-          ),
+                color: AppColors.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
+              ),
           textAlign: TextAlign.center,
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Success info
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.success.withOpacity(0.1),
+            color: AppColors.success.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.success.withOpacity(0.2),
-              width: 1,
+              color: AppColors.success.withValues(alpha: 0.2),
             ),
           ),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.security,
                 color: AppColors.success,
                 size: 20,
@@ -404,9 +403,9 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
                 child: Text(
                   'Your account is now secure with the new password',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.success,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.success,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ),
             ],
@@ -425,19 +424,19 @@ class _PasswordResetConfirmPageState extends ConsumerState<PasswordResetConfirmP
           Text(
             'Ready to sign in? ',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.onSurfaceVariant,
-              fontWeight: FontWeight.w400,
-            ),
+                  color: AppColors.onSurfaceVariant,
+                  fontWeight: FontWeight.w400,
+                ),
           ),
           GestureDetector(
             onTap: _goToSignIn,
             child: Text(
               'Sign In Now',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
             ),
           ),
         ],

@@ -4,22 +4,6 @@ import '../theme/index.dart';
 
 /// Responsive app bar that adapts to screen size
 class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final List<Widget>? actions;
-  final Widget? leading;
-  final bool automaticallyImplyLeading;
-  final bool centerTitle;
-  final Color? backgroundColor;
-  final Color? foregroundColor;
-  final double? elevation;
-  final Widget? flexibleSpace;
-  final PreferredSizeWidget? bottom;
-  final double? titleSpacing;
-  final double? toolbarOpacity;
-  final double? bottomOpacity;
-  final VoidCallback? onMenuPressed;
-  final VoidCallback? onBackPressed;
-
   const ResponsiveAppBar({
     super.key,
     required this.title,
@@ -38,20 +22,39 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onMenuPressed,
     this.onBackPressed,
   });
+  final String title;
+  final List<Widget>? actions;
+  final Widget? leading;
+  final bool automaticallyImplyLeading;
+  final bool centerTitle;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final double? elevation;
+  final Widget? flexibleSpace;
+  final PreferredSizeWidget? bottom;
+  final double? titleSpacing;
+  final double? toolbarOpacity;
+  final double? bottomOpacity;
+  final VoidCallback? onMenuPressed;
+  final VoidCallback? onBackPressed;
 
   @override
   Widget build(BuildContext context) {
     final isMobile = ResponsiveBreakpoints.isMobile(context);
     final isTablet = ResponsiveBreakpoints.isTablet(context);
-    
+
     return AppBar(
       title: Text(
         title,
         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-          color: foregroundColor ?? AppColors.onSurface,
-          fontWeight: FontWeight.w600,
-          fontSize: isMobile ? 18 : isTablet ? 20 : 22,
-        ),
+              color: foregroundColor ?? AppColors.onSurface,
+              fontWeight: FontWeight.w600,
+              fontSize: isMobile
+                  ? 18
+                  : isTablet
+                      ? 20
+                      : 22,
+            ),
       ),
       leading: _buildLeading(context, isMobile),
       actions: _buildActions(context, isMobile),
@@ -71,9 +74,9 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget? _buildLeading(BuildContext context, bool isMobile) {
     if (leading != null) return leading;
-    
+
     if (!automaticallyImplyLeading) return null;
-    
+
     // On mobile, show menu button if onMenuPressed is provided
     if (isMobile && onMenuPressed != null) {
       return IconButton(
@@ -82,7 +85,7 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
         tooltip: 'Menu',
       );
     }
-    
+
     // Show back button if we can pop
     if (Navigator.canPop(context)) {
       return IconButton(
@@ -91,13 +94,13 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
         tooltip: 'Back',
       );
     }
-    
+
     return null;
   }
 
   List<Widget>? _buildActions(BuildContext context, bool isMobile) {
     if (actions == null || actions!.isEmpty) return null;
-    
+
     // On mobile, limit actions to prevent overflow
     if (isMobile && actions!.length > 2) {
       return [
@@ -117,7 +120,7 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ];
     }
-    
+
     return actions;
   }
 
@@ -127,13 +130,6 @@ class ResponsiveAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 /// Mobile-specific app bar with drawer support
 class MobileAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final List<Widget>? actions;
-  final VoidCallback? onMenuPressed;
-  final VoidCallback? onBackPressed;
-  final bool showBackButton;
-  final bool showMenuButton;
-
   const MobileAppBar({
     super.key,
     required this.title,
@@ -143,6 +139,12 @@ class MobileAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.showBackButton = true,
     this.showMenuButton = true,
   });
+  final String title;
+  final List<Widget>? actions;
+  final VoidCallback? onMenuPressed;
+  final VoidCallback? onBackPressed;
+  final bool showBackButton;
+  final bool showMenuButton;
 
   @override
   Widget build(BuildContext context) {
@@ -150,10 +152,10 @@ class MobileAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         title,
         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-          color: AppColors.onSurface,
-          fontWeight: FontWeight.w600,
-          fontSize: 18,
-        ),
+              color: AppColors.onSurface,
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
       ),
       leading: _buildLeading(context),
       actions: actions,
@@ -173,7 +175,7 @@ class MobileAppBar extends StatelessWidget implements PreferredSizeWidget {
         tooltip: 'Back',
       );
     }
-    
+
     if (showMenuButton && onMenuPressed != null) {
       return IconButton(
         icon: const Icon(Icons.menu),
@@ -181,7 +183,7 @@ class MobileAppBar extends StatelessWidget implements PreferredSizeWidget {
         tooltip: 'Menu',
       );
     }
-    
+
     return null;
   }
 
@@ -191,13 +193,6 @@ class MobileAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 /// Desktop-specific app bar with more space
 class DesktopAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-  final List<Widget>? actions;
-  final Widget? leading;
-  final bool centerTitle;
-  final Color? backgroundColor;
-  final Color? foregroundColor;
-
   const DesktopAppBar({
     super.key,
     required this.title,
@@ -207,6 +202,12 @@ class DesktopAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.foregroundColor,
   });
+  final String title;
+  final List<Widget>? actions;
+  final Widget? leading;
+  final bool centerTitle;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -214,10 +215,10 @@ class DesktopAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         title,
         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-          color: foregroundColor ?? AppColors.onSurface,
-          fontWeight: FontWeight.w600,
-          fontSize: 22,
-        ),
+              color: foregroundColor ?? AppColors.onSurface,
+              fontWeight: FontWeight.w600,
+              fontSize: 22,
+            ),
       ),
       leading: leading,
       actions: actions,
@@ -235,12 +236,6 @@ class DesktopAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 /// App bar with search functionality
 class SearchAppBar extends StatefulWidget implements PreferredSizeWidget {
-  final String title;
-  final List<Widget>? actions;
-  final Function(String)? onSearch;
-  final String? searchHint;
-  final bool showSearch;
-
   const SearchAppBar({
     super.key,
     required this.title,
@@ -249,6 +244,11 @@ class SearchAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.searchHint,
     this.showSearch = true,
   });
+  final String title;
+  final List<Widget>? actions;
+  final Function(String)? onSearch;
+  final String? searchHint;
+  final bool showSearch;
 
   @override
   State<SearchAppBar> createState() => _SearchAppBarState();
@@ -280,20 +280,20 @@ class _SearchAppBarState extends State<SearchAppBar> {
   @override
   Widget build(BuildContext context) {
     final isMobile = ResponsiveBreakpoints.isMobile(context);
-    
+
     return AppBar(
       title: _isSearching
           ? TextField(
               controller: _searchController,
               autofocus: true,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.onSurface,
-              ),
+                    color: AppColors.onSurface,
+                  ),
               decoration: InputDecoration(
                 hintText: widget.searchHint ?? 'Search...',
                 hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
+                      color: AppColors.onSurfaceVariant,
+                    ),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
@@ -302,10 +302,10 @@ class _SearchAppBarState extends State<SearchAppBar> {
           : Text(
               widget.title,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: AppColors.onSurface,
-                fontWeight: FontWeight.w600,
-                fontSize: isMobile ? 18 : 20,
-              ),
+                    color: AppColors.onSurface,
+                    fontWeight: FontWeight.w600,
+                    fontSize: isMobile ? 18 : 20,
+                  ),
             ),
       leading: _isSearching
           ? IconButton(

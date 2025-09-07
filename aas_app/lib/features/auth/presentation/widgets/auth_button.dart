@@ -4,14 +4,6 @@ import '../../../../core/theme/index.dart';
 enum ButtonVariant { filled, outlined, text }
 
 class AuthButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final IconData? icon;
-  final ButtonVariant variant;
-  final double? width;
-  final double height;
-
   const AuthButton({
     super.key,
     required this.text,
@@ -22,6 +14,13 @@ class AuthButton extends StatelessWidget {
     this.width,
     this.height = 56,
   });
+  final String text;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final IconData? icon;
+  final ButtonVariant variant;
+  final double? width;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -89,20 +88,22 @@ class AuthButton extends StatelessWidget {
 
   TextStyle _getTextStyle(BuildContext context) {
     final baseStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0.5,
-    );
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        );
 
     switch (variant) {
       case ButtonVariant.filled:
         return baseStyle?.copyWith(
-          color: Theme.of(context).colorScheme.onPrimary,
-        ) ?? const TextStyle();
+              color: Theme.of(context).colorScheme.onPrimary,
+            ) ??
+            const TextStyle();
       case ButtonVariant.outlined:
       case ButtonVariant.text:
         return baseStyle?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
-        ) ?? const TextStyle();
+              color: Theme.of(context).colorScheme.primary,
+            ) ??
+            const TextStyle();
     }
   }
 
@@ -114,9 +115,7 @@ class AuthButton extends StatelessWidget {
         child: CircularProgressIndicator(
           strokeWidth: 2,
           valueColor: AlwaysStoppedAnimation<Color>(
-            variant == ButtonVariant.filled
-                ? Colors.white
-                : AppColors.primary,
+            variant == ButtonVariant.filled ? Colors.white : AppColors.primary,
           ),
         ),
       );

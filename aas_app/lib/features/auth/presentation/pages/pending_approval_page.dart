@@ -7,9 +7,8 @@ import '../widgets/responsive_auth_layout.dart';
 import '../widgets/auth_header.dart';
 
 class PendingApprovalPage extends StatefulWidget {
-  final VoidCallback? onRefresh;
-  
   const PendingApprovalPage({super.key, this.onRefresh});
+  final VoidCallback? onRefresh;
 
   @override
   State<PendingApprovalPage> createState() => _PendingApprovalPageState();
@@ -33,7 +32,7 @@ class _PendingApprovalPageState extends State<PendingApprovalPage> {
         _userProfile = profile;
         _isLoading = false;
       });
-      
+
       // If user now has a role, trigger refresh
       if (profile != null && !profile.isUnassigned) {
         widget.onRefresh?.call();
@@ -52,7 +51,7 @@ class _PendingApprovalPageState extends State<PendingApprovalPage> {
 
     try {
       await _loadUserProfile();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -70,7 +69,7 @@ class _PendingApprovalPageState extends State<PendingApprovalPage> {
 
   Future<void> _signOut() async {
     try {
-      await Supabase.instance.client.auth.signOut();
+      await AuthService.signOut();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,15 +82,16 @@ class _PendingApprovalPageState extends State<PendingApprovalPage> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveAuthLayout(
-      header: AuthHeader(
+      header: const AuthHeader(
         title: 'Access Pending',
-        subtitle: 'Your account is awaiting role assignment by an administrator.',
+        subtitle:
+            'Your account is awaiting role assignment by an administrator.',
         icon: Icons.pending_actions,
       ),
+      footer: _buildFooter(),
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _buildContent(),
-      footer: _buildFooter(),
     );
   }
 
@@ -107,7 +107,7 @@ class _PendingApprovalPageState extends State<PendingApprovalPage> {
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.outline.withOpacity(0.2),
+                color: AppColors.outline.withValues(alpha: 0.2),
               ),
             ),
             child: Column(
@@ -115,12 +115,13 @@ class _PendingApprovalPageState extends State<PendingApprovalPage> {
                 Text(
                   'Account Details',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.onBackground,
-                  ),
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.onBackground,
+                      ),
                 ),
                 const SizedBox(height: 16),
-                _buildInfoRow('Name', _userProfile!.displayName ?? 'Not provided'),
+                _buildInfoRow(
+                    'Name', _userProfile!.displayName ?? 'Not provided'),
                 _buildInfoRow('Email', _userProfile!.email ?? 'Not provided'),
                 _buildInfoRow('Status', 'Pending Approval'),
                 _buildInfoRow('Joined', _formatDate(_userProfile!.createdAt)),
@@ -129,21 +130,21 @@ class _PendingApprovalPageState extends State<PendingApprovalPage> {
           ),
           const SizedBox(height: 24),
         ],
-        
+
         // Contact Info
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.05),
+            color: AppColors.primary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.2),
+              color: AppColors.primary.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
             children: [
-              Icon(
+              const Icon(
                 Icons.contact_support,
                 color: AppColors.primary,
                 size: 32,
@@ -152,16 +153,16 @@ class _PendingApprovalPageState extends State<PendingApprovalPage> {
               Text(
                 'Need Help?',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
-                ),
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Contact your system administrator to request role assignment.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.onBackground.withOpacity(0.7),
-                ),
+                      color: AppColors.onBackground.withValues(alpha: 0.7),
+                    ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -177,7 +178,7 @@ class _PendingApprovalPageState extends State<PendingApprovalPage> {
         Expanded(
           child: ElevatedButton.icon(
             onPressed: _isCheckingRole ? null : _checkRoleStatus,
-            icon: _isCheckingRole 
+            icon: _isCheckingRole
                 ? const SizedBox(
                     width: 16,
                     height: 16,
@@ -231,17 +232,17 @@ class _PendingApprovalPageState extends State<PendingApprovalPage> {
             child: Text(
               '$label:',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: AppColors.onBackground.withOpacity(0.7),
-              ),
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.onBackground.withValues(alpha: 0.7),
+                  ),
             ),
           ),
           Expanded(
             child: Text(
               value,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.onBackground,
-              ),
+                    color: AppColors.onBackground,
+                  ),
             ),
           ),
         ],

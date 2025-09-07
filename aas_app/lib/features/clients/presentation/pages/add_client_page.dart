@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/index.dart';
+import 'package:aas_app/core/theme/index.dart';
+import 'package:aas_app/core/models/customer.dart';
+import 'package:aas_app/core/services/customer_service.dart';
 import '../models/client.dart';
 import '../widgets/client_form_field.dart';
-import '../../data/services/customer_service.dart';
 
 class AddClientPage extends StatefulWidget {
   const AddClientPage({super.key});
@@ -14,7 +15,7 @@ class AddClientPage extends StatefulWidget {
 class _AddClientPageState extends State<AddClientPage> {
   final _formKey = GlobalKey<FormState>();
   final _scrollController = ScrollController();
-  
+
   // Form controllers
   final _clientNameController = TextEditingController();
   final _contactNameController = TextEditingController();
@@ -24,7 +25,7 @@ class _AddClientPageState extends State<AddClientPage> {
   final _industrySectorController = TextEditingController();
   final _contactChannelController = TextEditingController();
   final _notesController = TextEditingController();
-  
+
   // Form state
   bool _isLoading = false;
   bool _isFormValid = false;
@@ -56,7 +57,7 @@ class _AddClientPageState extends State<AddClientPage> {
 
   void _validateForm() {
     final isValid = _clientNameController.text.isNotEmpty;
-    
+
     if (isValid != _isFormValid) {
       setState(() {
         _isFormValid = isValid;
@@ -67,8 +68,8 @@ class _AddClientPageState extends State<AddClientPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
           gradient: AppColors.backgroundGradient,
         ),
         child: SafeArea(
@@ -92,7 +93,7 @@ class _AddClientPageState extends State<AddClientPage> {
         children: [
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
               color: AppColors.onBackground,
             ),
@@ -105,16 +106,16 @@ class _AddClientPageState extends State<AddClientPage> {
                 Text(
                   'Add New Customer',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.onBackground,
-                    fontWeight: FontWeight.w700,
-                  ),
+                        color: AppColors.onBackground,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 Text(
                   'Enter customer information to create a new profile',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ],
             ),
@@ -132,7 +133,7 @@ class _AddClientPageState extends State<AddClientPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -187,9 +188,9 @@ class _AddClientPageState extends State<AddClientPage> {
         Text(
           title,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppColors.onBackground,
-            fontWeight: FontWeight.w700,
-          ),
+                color: AppColors.onBackground,
+                fontWeight: FontWeight.w700,
+              ),
         ),
       ],
     );
@@ -242,7 +243,8 @@ class _AddClientPageState extends State<AddClientPage> {
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value != null && value.isNotEmpty) {
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value)) {
                       return 'Please enter a valid email';
                     }
                   }
@@ -295,15 +297,15 @@ class _AddClientPageState extends State<AddClientPage> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.info.withOpacity(0.1),
+            color: AppColors.info.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.info.withOpacity(0.3),
+              color: AppColors.info.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.info_outline,
                 color: AppColors.info,
                 size: 20,
@@ -313,9 +315,9 @@ class _AddClientPageState extends State<AddClientPage> {
                 child: Text(
                   'Customer will be created in the database. You can modify their profile and add orders later.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.info,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.info,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ),
             ],
@@ -329,7 +331,7 @@ class _AddClientPageState extends State<AddClientPage> {
     return Container(
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: AppColors.surface.withOpacity(0.8),
+        color: AppColors.surface.withValues(alpha: 0.8),
         borderRadius: const BorderRadius.vertical(
           bottom: Radius.circular(20),
         ),
@@ -341,7 +343,7 @@ class _AddClientPageState extends State<AddClientPage> {
               onPressed: () => Navigator.of(context).pop(),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                side: BorderSide(color: AppColors.outline),
+                side: const BorderSide(color: AppColors.outline),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -349,9 +351,9 @@ class _AddClientPageState extends State<AddClientPage> {
               child: Text(
                 'Cancel',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: AppColors.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
+                      color: AppColors.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ),
           ),
@@ -369,20 +371,21 @@ class _AddClientPageState extends State<AddClientPage> {
                 ),
               ),
               child: _isLoading
-                  ? SizedBox(
+                  ? const SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.onPrimary),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(AppColors.onPrimary),
                       ),
                     )
                   : Text(
                       'Save Customer',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: AppColors.onPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                            color: AppColors.onPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
             ),
           ),
@@ -404,31 +407,32 @@ class _AddClientPageState extends State<AddClientPage> {
       // Create new customer object
       final newCustomer = Client(
         clientName: _clientNameController.text.trim(),
-        contactName: _contactNameController.text.trim().isEmpty 
-            ? null 
+        contactName: _contactNameController.text.trim().isEmpty
+            ? null
             : _contactNameController.text.trim(),
-        contactNumber: _contactNumberController.text.trim().isEmpty 
-            ? null 
+        contactNumber: _contactNumberController.text.trim().isEmpty
+            ? null
             : _contactNumberController.text.trim(),
-        contactEmail: _contactEmailController.text.trim().isEmpty 
-            ? null 
+        contactEmail: _contactEmailController.text.trim().isEmpty
+            ? null
             : _contactEmailController.text.trim(),
-        address: _addressController.text.trim().isEmpty 
-            ? null 
+        address: _addressController.text.trim().isEmpty
+            ? null
             : _addressController.text.trim(),
-        industrySector: _industrySectorController.text.trim().isEmpty 
-            ? null 
+        industrySector: _industrySectorController.text.trim().isEmpty
+            ? null
             : _industrySectorController.text.trim(),
-        contactChannel: _contactChannelController.text.trim().isEmpty 
-            ? null 
+        contactChannel: _contactChannelController.text.trim().isEmpty
+            ? null
             : _contactChannelController.text.trim(),
-        notes: _notesController.text.trim().isEmpty 
-            ? null 
+        notes: _notesController.text.trim().isEmpty
+            ? null
             : _notesController.text.trim(),
       );
 
       // Save to Supabase database
-      final savedCustomer = await CustomerService.createCustomer(newCustomer);
+      final customerToCreate = Customer.fromClient(newCustomer);
+      final savedCustomer = await CustomerService.createCustomer(customerToCreate);
 
       // Show success message
       if (mounted) {
@@ -436,7 +440,7 @@ class _AddClientPageState extends State<AddClientPage> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: AppColors.success),
+                const Icon(Icons.check_circle, color: AppColors.success),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -446,7 +450,7 @@ class _AddClientPageState extends State<AddClientPage> {
                 ),
               ],
             ),
-            backgroundColor: AppColors.success.withOpacity(0.1),
+            backgroundColor: AppColors.success.withValues(alpha: 0.1),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -464,7 +468,7 @@ class _AddClientPageState extends State<AddClientPage> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.error, color: AppColors.error),
+                const Icon(Icons.error, color: AppColors.error),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -474,7 +478,7 @@ class _AddClientPageState extends State<AddClientPage> {
                 ),
               ],
             ),
-            backgroundColor: AppColors.error.withOpacity(0.1),
+            backgroundColor: AppColors.error.withValues(alpha: 0.1),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

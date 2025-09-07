@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import '../../../../core/services/document_service.dart';
 import '../../../../core/services/notification_service.dart';
 
 class DocumentUploadWidget extends StatefulWidget {
-  final int orderId;
-  final Function()? onUploadComplete;
-
   const DocumentUploadWidget({
     super.key,
     required this.orderId,
     this.onUploadComplete,
   });
+  final int orderId;
+  final Function()? onUploadComplete;
 
   @override
   State<DocumentUploadWidget> createState() => _DocumentUploadWidgetState();
@@ -21,9 +19,23 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
   bool _isUploading = false;
   String? _selectedCategory;
   final List<String> _allowedExtensions = [
-    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
-    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff',
-    'txt', 'csv', 'zip', 'rar'
+    'pdf',
+    'doc',
+    'docx',
+    'xls',
+    'xlsx',
+    'ppt',
+    'pptx',
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'bmp',
+    'tiff',
+    'txt',
+    'csv',
+    'zip',
+    'rar'
   ];
   final int _maxFileSize = 10 * 1024 * 1024; // 10MB
 
@@ -46,8 +58,8 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                 Text(
                   'Upload Documents',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ],
             ),
@@ -55,7 +67,7 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
 
             // Category selection
             DropdownButtonFormField<String>(
-              value: _selectedCategory,
+              initialValue: _selectedCategory,
               decoration: const InputDecoration(
                 labelText: 'Document Category',
                 border: OutlineInputBorder(),
@@ -160,7 +172,6 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
       // Pick file
       final result = await DocumentService.pickFile(
         allowedExtensions: _allowedExtensions,
-        allowMultiple: false,
       );
 
       if (result == null || result.files.isEmpty) {
@@ -183,11 +194,12 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
           maxSizeBytes: _maxFileSize,
           allowedExtensions: _allowedExtensions,
         );
-        
+
         if (mounted) {
-          NotificationService.showErrorNotification(context, errorMessage ?? 'Invalid file');
+          NotificationService.showErrorNotification(
+              context, errorMessage ?? 'Invalid file');
         }
-        
+
         setState(() {
           _isUploading = false;
         });
@@ -214,7 +226,7 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
             'Document uploaded successfully!',
           );
         }
-        
+
         // Call callback if provided
         widget.onUploadComplete?.call();
       } else {

@@ -1,14 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../../core/models/customer.dart';
 import '../../../../core/models/user_profile.dart';
-import '../../../../core/models/order.dart';
 import '../../../../core/services/order_service.dart';
 import '../../../../core/services/photo_service.dart';
-import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/customer_selection_step.dart';
-import '../widgets/customer_details_modal.dart';
 import '../widgets/job_details_step.dart';
 import '../widgets/equipment_photos_step.dart';
 import '../widgets/sales_rep_step.dart';
@@ -21,7 +17,8 @@ class CreateOrderWizard extends StatefulWidget {
   State<CreateOrderWizard> createState() => _CreateOrderWizardState();
 }
 
-class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProviderStateMixin {
+class _CreateOrderWizardState extends State<CreateOrderWizard>
+    with TickerProviderStateMixin {
   final PageController _pageController = PageController();
   int _currentStep = 0;
   bool _isLoading = false;
@@ -174,7 +171,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
             SnackBar(
               content: Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.white),
+                  const Icon(Icons.check_circle, color: Colors.white),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -189,7 +186,6 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              duration: const Duration(seconds: 4),
             ),
           );
 
@@ -200,11 +196,11 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Row(
+              content: const Row(
                 children: [
                   Icon(Icons.error_outline, color: Colors.white),
-                  const SizedBox(width: 12),
-                  const Expanded(
+                  SizedBox(width: 12),
+                  Expanded(
                     child: Text(
                       'Failed to create order. Please try again.',
                       style: TextStyle(fontWeight: FontWeight.w600),
@@ -227,7 +223,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.error_outline, color: Colors.white),
+                const Icon(Icons.error_outline, color: Colors.white),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -258,9 +254,9 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 768;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Scaffold(
-      body: Container(
+      body: DecoratedBox(
         decoration: const BoxDecoration(
           gradient: AppColors.backgroundGradient,
         ),
@@ -277,7 +273,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                   gradient: AppColors.cardGradient,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.shadow.withOpacity(0.3),
+                      color: AppColors.shadow.withValues(alpha: 0.3),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),
@@ -289,17 +285,17 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                     Row(
                       children: [
                         // Back Button
-                        Container(
+                        DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: AppColors.glassGradient,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: AppColors.outline.withOpacity(0.2),
+                              color: AppColors.outline.withValues(alpha: 0.2),
                             ),
                           ),
                           child: IconButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.arrow_back_ios_new,
                               color: AppColors.onSurface,
                               size: 20,
@@ -310,7 +306,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                           ),
                         ),
                         const SizedBox(width: 16),
-                        
+
                         // Title
                         Expanded(
                           child: Column(
@@ -327,7 +323,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                               const SizedBox(height: 4),
                               Text(
                                 'Step ${_currentStep + 1} of ${_stepTitles.length}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 14,
                                   color: AppColors.onSurfaceVariant,
                                 ),
@@ -335,7 +331,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                             ],
                           ),
                         ),
-                        
+
                         // Step Progress (Desktop)
                         if (isDesktop) ...[
                           Container(
@@ -347,13 +343,13 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                               gradient: AppColors.glassGradient,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: AppColors.outline.withOpacity(0.2),
+                                color: AppColors.outline.withValues(alpha: 0.2),
                               ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.timeline,
                                   color: AppColors.primary,
                                   size: 18,
@@ -361,7 +357,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                                 const SizedBox(width: 8),
                                 Text(
                                   '${_currentStep + 1}/${_stepTitles.length}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: AppColors.onSurface,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -372,16 +368,17 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                         ],
                       ],
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Progress Steps
                     Row(
                       children: List.generate(_stepTitles.length, (index) {
                         final isActive = index == _currentStep;
                         final isCompleted = index < _currentStep;
-                        final isAccessible = index <= _currentStep || isCompleted;
-                        
+                        final isAccessible =
+                            index <= _currentStep || isCompleted;
+
                         return Expanded(
                           child: GestureDetector(
                             onTap: isAccessible ? () => _goToStep(index) : null,
@@ -404,13 +401,15 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                                       border: Border.all(
                                         color: isActive
                                             ? AppColors.primary
-                                            : AppColors.outline.withOpacity(0.3),
+                                            : AppColors.outline
+                                                .withValues(alpha: 0.3),
                                         width: 2,
                                       ),
                                       boxShadow: isActive
                                           ? [
                                               BoxShadow(
-                                                color: AppColors.primary.withOpacity(0.3),
+                                                color: AppColors.primary
+                                                    .withValues(alpha: 0.3),
                                                 blurRadius: 12,
                                                 offset: const Offset(0, 4),
                                               ),
@@ -434,13 +433,15 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                                     ),
                                   ),
                                   const SizedBox(height: 12),
-                                  
+
                                   // Step Title
                                   Text(
                                     _stepTitles[index],
                                     style: TextStyle(
                                       fontSize: isDesktop ? 14 : 12,
-                                      fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                                      fontWeight: isActive
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
                                       color: isActive
                                           ? AppColors.primary
                                           : isCompleted
@@ -456,9 +457,9 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                         );
                       }),
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // Progress Bar
                     AnimatedBuilder(
                       animation: _progressAnimation,
@@ -485,7 +486,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                   ],
                 ),
               ),
-              
+
               // Content Area
               Expanded(
                 child: Container(
@@ -495,7 +496,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.shadow.withOpacity(0.2),
+                        color: AppColors.shadow.withValues(alpha: 0.2),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -521,7 +522,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                             });
                           },
                         ),
-                        
+
                         // Step 2: Job Details
                         JobDetailsStep(
                           equipmentType: _equipmentType,
@@ -555,7 +556,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                             });
                           },
                         ),
-                        
+
                         // Step 3: Equipment Photos
                         EquipmentPhotosStep(
                           photos: _photos,
@@ -567,7 +568,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                           onNext: _nextStep,
                           onPrevious: _previousStep,
                         ),
-                        
+
                         // Step 4: Sales Representative
                         SalesRepStep(
                           selectedSalesRep: _selectedSalesRep,
@@ -577,7 +578,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                             });
                           },
                         ),
-                        
+
                         // Step 5: Review
                         ReviewStep(
                           customer: _selectedCustomer,
@@ -594,7 +595,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                   ),
                 ),
               ),
-              
+
               // Modern Navigation Footer
               Container(
                 margin: EdgeInsets.all(isDesktop ? 24 : 16),
@@ -604,7 +605,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.shadow.withOpacity(0.3),
+                      color: AppColors.shadow.withValues(alpha: 0.3),
                       blurRadius: 20,
                       offset: const Offset(0, -4),
                     ),
@@ -621,7 +622,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                             gradient: AppColors.glassGradient,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: AppColors.outline.withOpacity(0.2),
+                              color: AppColors.outline.withValues(alpha: 0.2),
                             ),
                           ),
                           child: Material(
@@ -629,7 +630,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                             child: InkWell(
                               onTap: _isLoading ? null : _previousStep,
                               borderRadius: BorderRadius.circular(16),
-                              child: Center(
+                              child: const Center(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -638,7 +639,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                                       color: AppColors.onSurface,
                                       size: 18,
                                     ),
-                                    const SizedBox(width: 8),
+                                    SizedBox(width: 8),
                                     Text(
                                       'Previous',
                                       style: TextStyle(
@@ -656,7 +657,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                       ),
                       SizedBox(width: isDesktop ? 20 : 16),
                     ],
-                    
+
                     // Next/Create Button
                     Expanded(
                       flex: _currentStep > 0 ? 1 : 1,
@@ -670,7 +671,8 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                           boxShadow: _canProceedToNextStep()
                               ? [
                                   BoxShadow(
-                                    color: AppColors.primary.withOpacity(0.3),
+                                    color: AppColors.primary
+                                        .withValues(alpha: 0.3),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
                                   ),
@@ -688,18 +690,20 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                             borderRadius: BorderRadius.circular(16),
                             child: Center(
                               child: _isLoading
-                                  ? SizedBox(
+                                  ? const SizedBox(
                                       height: 24,
                                       width: 24,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
                                           AppColors.onPrimary,
                                         ),
                                       ),
                                     )
                                   : Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           _currentStep == _stepTitles.length - 1
@@ -713,7 +717,8 @@ class _CreateOrderWizardState extends State<CreateOrderWizard> with TickerProvid
                                             fontSize: 16,
                                           ),
                                         ),
-                                        if (_currentStep < _stepTitles.length - 1) ...[
+                                        if (_currentStep <
+                                            _stepTitles.length - 1) ...[
                                           const SizedBox(width: 8),
                                           Icon(
                                             Icons.arrow_forward_ios,

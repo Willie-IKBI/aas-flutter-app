@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
+import '../navigation/app_router.dart';
 
 class NotificationService {
   static final SupabaseClient _supabase = SupabaseConfig.client;
-  
+
   // Listen for profile changes
   static RealtimeChannel? _profileChannel;
   static RealtimeChannel? _orderChannel;
-  
-  static void initializeProfileListener(String userId, VoidCallback onProfileUpdate) {
+
+  static void initializeProfileListener(
+      String userId, VoidCallback onProfileUpdate) {
     try {
       _profileChannel = _supabase
           .channel('profile_changes')
@@ -23,20 +25,19 @@ class NotificationService {
               value: userId,
             ),
             callback: (payload) {
-              print('Profile updated: $payload');
               onProfileUpdate();
             },
           )
           .subscribe();
     } catch (e) {
-      print('Error setting up real-time listener: $e');
-      // Fallback: use polling instead
+// Fallback: use polling instead
       _startPolling(onProfileUpdate);
     }
   }
-  
+
   // Initialize order notifications for sales reps
-  static void initializeOrderListener(String salesRepId, VoidCallback onNewOrder) {
+  static void initializeOrderListener(
+      String salesRepId, VoidCallback onNewOrder) {
     try {
       _orderChannel = _supabase
           .channel('order_notifications')
@@ -50,41 +51,34 @@ class NotificationService {
               value: salesRepId,
             ),
             callback: (payload) {
-              print('New order assigned: $payload');
               onNewOrder();
             },
           )
           .subscribe();
-    } catch (e) {
-      print('Error setting up order listener: $e');
-    }
+    } catch (e) {}
   }
-  
+
   static void _startPolling(VoidCallback onProfileUpdate) {
     // Simple polling fallback if real-time fails
     Future.delayed(const Duration(seconds: 5), () {
       onProfileUpdate();
     });
   }
-  
+
   static void disposeProfileListener() {
     try {
       _profileChannel?.unsubscribe();
       _profileChannel = null;
-    } catch (e) {
-      print('Error disposing profile listener: $e');
-    }
+    } catch (e) {}
   }
-  
+
   static void disposeOrderListener() {
     try {
       _orderChannel?.unsubscribe();
       _orderChannel = null;
-    } catch (e) {
-      print('Error disposing order listener: $e');
-    }
+    } catch (e) {}
   }
-  
+
   // Show notification for role assignment
   static void showRoleAssignedNotification(BuildContext context, String role) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -102,7 +96,7 @@ class NotificationService {
       ),
     );
   }
-  
+
   // Show notification for pending users
   static void showPendingUsersNotification(BuildContext context, int count) {
     if (count > 0) {
@@ -116,34 +110,35 @@ class NotificationService {
             textColor: Colors.white,
             onPressed: () {
               // Navigate to user management
-              Navigator.pushNamed(context, '/user-management');
+              context.goToUserManagement();
             },
           ),
         ),
       );
     }
   }
-  
+
   // Show notification for new order assignment to sales rep
-  static void showNewOrderNotification(BuildContext context, String orderId, String customerName) {
+  static void showNewOrderNotification(
+      BuildContext context, String orderId, String customerName) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            Icon(Icons.assignment, color: Colors.white),
+            const Icon(Icons.assignment, color: Colors.white),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  const Text(
                     'New Order Assigned',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
                     'Order #$orderId for $customerName',
-                    style: TextStyle(fontSize: 12),
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ],
               ),
@@ -157,25 +152,26 @@ class NotificationService {
           textColor: Colors.white,
           onPressed: () {
             // Navigate to order details
-            Navigator.pushNamed(context, '/order-details', arguments: orderId);
+            context.goToOrderDetails(orderId);
           },
         ),
       ),
     );
   }
-  
+
   // Show notification for order status changes
-  static void showOrderStatusNotification(BuildContext context, String orderId, String status) {
+  static void showOrderStatusNotification(
+      BuildContext context, String orderId, String status) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            Icon(Icons.update, color: Colors.white),
+            const Icon(Icons.update, color: Colors.white),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Order #$orderId status updated to: $status',
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -186,31 +182,30 @@ class NotificationService {
           label: 'View',
           textColor: Colors.white,
           onPressed: () {
-            Navigator.pushNamed(context, '/order-details', arguments: orderId);
+            context.goToOrderDetails(orderId);
           },
         ),
       ),
     );
   }
-  
+
   // Show success notification
   static void showSuccessNotification(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.white),
+            const Icon(Icons.check_circle, color: Colors.white),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 message,
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ],
         ),
         backgroundColor: Colors.green,
-        duration: const Duration(seconds: 4),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -218,19 +213,19 @@ class NotificationService {
       ),
     );
   }
-  
+
   // Show error notification
   static void showErrorNotification(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            Icon(Icons.error_outline, color: Colors.white),
+            const Icon(Icons.error_outline, color: Colors.white),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 message,
-                style: TextStyle(fontWeight: FontWeight.w600),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ],

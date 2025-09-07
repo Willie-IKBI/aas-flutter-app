@@ -4,7 +4,7 @@ import '../../../../core/theme/index.dart';
 import 'modern_auth_button.dart';
 
 /// Accessibility helpers and final polish components
-/// 
+///
 /// Features:
 /// - Screen reader support
 /// - Keyboard navigation
@@ -14,13 +14,6 @@ import 'modern_auth_button.dart';
 
 /// Accessibility-aware container with proper semantics
 class AccessibleContainer extends StatelessWidget {
-  final Widget child;
-  final String? label;
-  final String? hint;
-  final bool isButton;
-  final VoidCallback? onTap;
-  final bool excludeSemantics;
-
   const AccessibleContainer({
     super.key,
     required this.child,
@@ -30,6 +23,12 @@ class AccessibleContainer extends StatelessWidget {
     this.onTap,
     this.excludeSemantics = false,
   });
+  final Widget child;
+  final String? label;
+  final String? hint;
+  final bool isButton;
+  final VoidCallback? onTap;
+  final bool excludeSemantics;
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +47,6 @@ class AccessibleContainer extends StatelessWidget {
 
 /// Accessibility-aware text with proper semantics
 class AccessibleText extends StatelessWidget {
-  final String text;
-  final TextStyle? style;
-  final TextAlign? textAlign;
-  final String? semanticsLabel;
-  final bool excludeSemantics;
-
   const AccessibleText({
     super.key,
     required this.text,
@@ -62,6 +55,11 @@ class AccessibleText extends StatelessWidget {
     this.semanticsLabel,
     this.excludeSemantics = false,
   });
+  final String text;
+  final TextStyle? style;
+  final TextAlign? textAlign;
+  final String? semanticsLabel;
+  final bool excludeSemantics;
 
   @override
   Widget build(BuildContext context) {
@@ -79,12 +77,6 @@ class AccessibleText extends StatelessWidget {
 
 /// Focus-aware button with keyboard support
 class FocusAwareButton extends StatefulWidget {
-  final Widget child;
-  final VoidCallback? onPressed;
-  final bool enabled;
-  final String? tooltip;
-  final FocusNode? focusNode;
-
   const FocusAwareButton({
     super.key,
     required this.child,
@@ -93,6 +85,11 @@ class FocusAwareButton extends StatefulWidget {
     this.tooltip,
     this.focusNode,
   });
+  final Widget child;
+  final VoidCallback? onPressed;
+  final bool enabled;
+  final String? tooltip;
+  final FocusNode? focusNode;
 
   @override
   State<FocusAwareButton> createState() => _FocusAwareButtonState();
@@ -141,13 +138,6 @@ class _FocusAwareButtonState extends State<FocusAwareButton> {
 
 /// High contrast aware container
 class HighContrastContainer extends StatelessWidget {
-  final Widget child;
-  final Color? backgroundColor;
-  final Color? borderColor;
-  final double? borderWidth;
-  final BorderRadius? borderRadius;
-  final EdgeInsetsGeometry? padding;
-
   const HighContrastContainer({
     super.key,
     required this.child,
@@ -157,12 +147,18 @@ class HighContrastContainer extends StatelessWidget {
     this.borderRadius,
     this.padding,
   });
+  final Widget child;
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final double? borderWidth;
+  final BorderRadius? borderRadius;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isHighContrast = mediaQuery.highContrast;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -182,11 +178,6 @@ class HighContrastContainer extends StatelessWidget {
 
 /// Reduced motion aware animation
 class ReducedMotionAnimation extends StatelessWidget {
-  final Widget child;
-  final Duration? duration;
-  final Curve? curve;
-  final bool Function()? shouldAnimate;
-
   const ReducedMotionAnimation({
     super.key,
     required this.child,
@@ -194,18 +185,23 @@ class ReducedMotionAnimation extends StatelessWidget {
     this.curve,
     this.shouldAnimate,
   });
+  final Widget child;
+  final Duration? duration;
+  final Curve? curve;
+  final bool Function()? shouldAnimate;
 
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final prefersReducedMotion = mediaQuery.platformBrightness == Brightness.dark ||
-        mediaQuery.accessibleNavigation ||
-        (shouldAnimate?.call() ?? false);
-    
+    final prefersReducedMotion =
+        mediaQuery.platformBrightness == Brightness.dark ||
+            mediaQuery.accessibleNavigation ||
+            (shouldAnimate?.call() ?? false);
+
     if (prefersReducedMotion) {
       return child;
     }
-    
+
     return AnimatedContainer(
       duration: duration ?? const Duration(milliseconds: 300),
       curve: curve ?? Curves.easeInOut,
@@ -230,7 +226,7 @@ class AccessibilityUtils {
   /// Check if reduced motion is preferred
   static bool prefersReducedMotion(BuildContext context) {
     return MediaQuery.of(context).platformBrightness == Brightness.dark ||
-           MediaQuery.of(context).accessibleNavigation;
+        MediaQuery.of(context).accessibleNavigation;
   }
 
   /// Get accessible color with proper contrast
@@ -256,7 +252,7 @@ class AccessibilityUtils {
       minFontSize ?? 12.0,
       maxFontSize ?? 24.0,
     );
-    
+
     return baseStyle.copyWith(
       fontSize: finalFontSize,
       color: getAccessibleColor(context, baseStyle.color ?? Colors.black),
@@ -283,7 +279,7 @@ class PolishComponents {
               end: Alignment.bottomRight,
               colors: [
                 Colors.transparent,
-                shimmerColor ?? AppColors.primary.withOpacity(0.1),
+                shimmerColor ?? AppColors.primary.withValues(alpha: 0.1),
                 Colors.transparent,
               ],
               stops: [
@@ -335,12 +331,11 @@ class PolishComponents {
         gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.error.withOpacity(0.2),
-          width: 1,
+          color: AppColors.error.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.2),
+            color: AppColors.shadow.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -353,10 +348,10 @@ class PolishComponents {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.1),
+              color: AppColors.error.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(24),
             ),
-            child: Icon(
+            child: const Icon(
               Icons.error_outline,
               color: AppColors.error,
               size: 24,
@@ -366,7 +361,7 @@ class PolishComponents {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               color: AppColors.onBackground,
               fontWeight: FontWeight.w600,
               fontSize: 16,
@@ -399,12 +394,11 @@ class PolishComponents {
         gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.success.withOpacity(0.2),
-          width: 1,
+          color: AppColors.success.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.2),
+            color: AppColors.shadow.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -421,7 +415,7 @@ class PolishComponents {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.success.withOpacity(0.3),
+                  color: AppColors.success.withValues(alpha: 0.3),
                   blurRadius: 15,
                   offset: const Offset(0, 8),
                 ),
@@ -437,7 +431,7 @@ class PolishComponents {
           Flexible(
             child: Text(
               message,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.onBackground,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
@@ -460,8 +454,8 @@ class PolishComponents {
       children: [
         child,
         if (isLoading)
-          Container(
-            color: Colors.black.withOpacity(0.4),
+          ColoredBox(
+            color: Colors.black.withValues(alpha: 0.4),
             child: Center(
               child: Semantics(
                 label: loadingMessage ?? 'Loading',
@@ -471,12 +465,11 @@ class PolishComponents {
                     gradient: AppColors.cardGradient,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppColors.outline.withOpacity(0.1),
-                      width: 1,
+                      color: AppColors.outline.withValues(alpha: 0.1),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.shadow.withOpacity(0.3),
+                        color: AppColors.shadow.withValues(alpha: 0.3),
                         blurRadius: 30,
                         offset: const Offset(0, 15),
                       ),
@@ -494,7 +487,7 @@ class PolishComponents {
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primary.withOpacity(0.3),
+                              color: AppColors.primary.withValues(alpha: 0.3),
                               blurRadius: 15,
                               offset: const Offset(0, 8),
                             ),
@@ -502,14 +495,15 @@ class PolishComponents {
                         ),
                         child: const CircularProgressIndicator(
                           strokeWidth: 3,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       ),
                       if (loadingMessage != null) ...[
                         const SizedBox(height: 20),
                         Text(
                           loadingMessage,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppColors.onBackground,
                             fontWeight: FontWeight.w600,
                             fontSize: 16,

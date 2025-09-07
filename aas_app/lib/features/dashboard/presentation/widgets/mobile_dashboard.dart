@@ -87,9 +87,9 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
           ),
         ],
       ),
-              drawer: MobileDrawerNavigation(
+      drawer: MobileDrawerNavigation(
         items: _navigationItems,
-                  userEmail: _userProfile?.email,
+        userEmail: _userProfile?.email,
         userName: _userProfile?.displayName,
         onSignOut: () async {
           await AuthService.signOut();
@@ -137,11 +137,13 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
                 radius: 24,
                 backgroundColor: AppColors.primary,
                 child: Text(
-                  (_userProfile?.displayName ?? 'U').substring(0, 1).toUpperCase(),
+                  (_userProfile?.displayName ?? 'U')
+                      .substring(0, 1)
+                      .toUpperCase(),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppColors.onPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: AppColors.onPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -152,15 +154,15 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
                     Text(
                       'Welcome back!',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.onSurface,
-                        fontWeight: FontWeight.w600,
-                      ),
+                            color: AppColors.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                     Text(
                       _userProfile?.displayName ?? 'User',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.onSurfaceVariant,
-                      ),
+                            color: AppColors.onSurfaceVariant,
+                          ),
                     ),
                   ],
                 ),
@@ -171,12 +173,12 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.today,
                   color: AppColors.primary,
                   size: 20,
@@ -185,9 +187,9 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
                 Text(
                   'Today is ${DateTime.now().toString().split(' ')[0]}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ],
             ),
@@ -200,8 +202,16 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
   Widget _buildQuickActions() {
     final actions = [
       {'icon': Icons.add, 'title': 'New Order', 'color': AppColors.primary},
-      {'icon': Icons.person_add, 'title': 'New Customer', 'color': AppColors.success},
-      {'icon': Icons.inventory, 'title': 'Add Part', 'color': AppColors.warning},
+      {
+        'icon': Icons.person_add,
+        'title': 'New Customer',
+        'color': AppColors.success
+      },
+      {
+        'icon': Icons.inventory,
+        'title': 'Add Part',
+        'color': AppColors.warning
+      },
       {'icon': Icons.analytics, 'title': 'Reports', 'color': AppColors.info},
     ];
 
@@ -211,9 +221,9 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
           Text(
             'Quick Actions',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppColors.onSurface,
-              fontWeight: FontWeight.w600,
-            ),
+                  color: AppColors.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
           const SizedBox(height: 16),
           GridView.builder(
@@ -255,11 +265,10 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: color.withOpacity(0.2),
-            width: 1,
+            color: color.withValues(alpha: 0.2),
           ),
         ),
         child: ResponsiveColumn(
@@ -274,9 +283,9 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
             Text(
               title,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -287,10 +296,30 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
 
   Widget _buildStatsGrid() {
     final stats = [
-      {'title': 'Total Orders', 'value': '24', 'icon': Icons.assignment, 'color': AppColors.primary},
-      {'title': 'Active Orders', 'value': '8', 'icon': Icons.pending, 'color': AppColors.warning},
-      {'title': 'Customers', 'value': '156', 'icon': Icons.people, 'color': AppColors.success},
-      {'title': 'Parts', 'value': '342', 'icon': Icons.inventory, 'color': AppColors.info},
+      {
+        'title': 'Total Orders',
+        'value': '24',
+        'icon': Icons.assignment,
+        'color': AppColors.primary
+      },
+      {
+        'title': 'Active Orders',
+        'value': '8',
+        'icon': Icons.pending,
+        'color': AppColors.warning
+      },
+      {
+        'title': 'Customers',
+        'value': '156',
+        'icon': Icons.people,
+        'color': AppColors.success
+      },
+      {
+        'title': 'Parts',
+        'value': '342',
+        'icon': Icons.inventory,
+        'color': AppColors.info
+      },
     ];
 
     return ResponsiveCard(
@@ -299,9 +328,9 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
           Text(
             'Statistics',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppColors.onSurface,
-              fontWeight: FontWeight.w600,
-            ),
+                  color: AppColors.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
           const SizedBox(height: 16),
           GridView.builder(
@@ -338,11 +367,10 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: ResponsiveColumn(
@@ -357,16 +385,16 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
           Text(
             value,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                ),
           ),
           Text(
             title,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
+                  color: color,
+                  fontWeight: FontWeight.w500,
+                ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -376,10 +404,26 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
 
   Widget _buildRecentActivity() {
     final activities = [
-      {'title': 'Order #1234 created', 'time': '2 hours ago', 'icon': Icons.add_circle},
-      {'title': 'Customer John Doe updated', 'time': '4 hours ago', 'icon': Icons.edit},
-      {'title': 'Part ABC123 added to inventory', 'time': '6 hours ago', 'icon': Icons.inventory},
-      {'title': 'Order #1230 completed', 'time': '1 day ago', 'icon': Icons.check_circle},
+      {
+        'title': 'Order #1234 created',
+        'time': '2 hours ago',
+        'icon': Icons.add_circle
+      },
+      {
+        'title': 'Customer John Doe updated',
+        'time': '4 hours ago',
+        'icon': Icons.edit
+      },
+      {
+        'title': 'Part ABC123 added to inventory',
+        'time': '6 hours ago',
+        'icon': Icons.inventory
+      },
+      {
+        'title': 'Order #1230 completed',
+        'time': '1 day ago',
+        'icon': Icons.check_circle
+      },
     ];
 
     return ResponsiveCard(
@@ -391,9 +435,9 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
               Text(
                 'Recent Activity',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
+                      color: AppColors.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
               TextButton(
                 onPressed: () {
@@ -405,10 +449,10 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
           ),
           const SizedBox(height: 16),
           ...activities.map((activity) => _buildActivityItem(
-            title: activity['title'] as String,
-            time: activity['time'] as String,
-            icon: activity['icon'] as IconData,
-          )),
+                title: activity['title'] as String,
+                time: activity['time'] as String,
+                icon: activity['icon'] as IconData,
+              )),
         ],
       ),
     );
@@ -427,7 +471,7 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Icon(
@@ -444,15 +488,15 @@ class _MobileDashboardState extends ConsumerState<MobileDashboard> {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurface,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.onSurface,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
                 Text(
                   time,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                      ),
                 ),
               ],
             ),

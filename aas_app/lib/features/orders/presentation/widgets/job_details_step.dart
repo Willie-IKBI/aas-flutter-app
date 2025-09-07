@@ -1,17 +1,6 @@
 import 'package:flutter/material.dart';
 
 class JobDetailsStep extends StatelessWidget {
-  final String? equipmentType;
-  final String? equipmentModel;
-  final String? equipmentSerialNumber;
-  final String jobDescription;
-  final DateTime orderDate;
-  final Function(String?) onEquipmentTypeChanged;
-  final Function(String?) onEquipmentModelChanged;
-  final Function(String?) onEquipmentSerialNumberChanged;
-  final Function(String) onJobDescriptionChanged;
-  final Function(DateTime) onOrderDateChanged;
-
   const JobDetailsStep({
     super.key,
     this.equipmentType,
@@ -25,6 +14,16 @@ class JobDetailsStep extends StatelessWidget {
     required this.onJobDescriptionChanged,
     required this.onOrderDateChanged,
   });
+  final String? equipmentType;
+  final String? equipmentModel;
+  final String? equipmentSerialNumber;
+  final String jobDescription;
+  final DateTime orderDate;
+  final Function(String?) onEquipmentTypeChanged;
+  final Function(String?) onEquipmentModelChanged;
+  final Function(String?) onEquipmentSerialNumberChanged;
+  final Function(String) onJobDescriptionChanged;
+  final Function(DateTime) onOrderDateChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +36,16 @@ class JobDetailsStep extends StatelessWidget {
           Text(
             'Job Details',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).primaryColor,
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             'Enter equipment details and job description',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey.shade600,
-            ),
+                  color: Colors.grey.shade600,
+                ),
           ),
           const SizedBox(height: 24),
 
@@ -59,8 +58,8 @@ class JobDetailsStep extends StatelessWidget {
                   Text(
                     'Order Date',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   InkWell(
@@ -68,7 +67,8 @@ class JobDetailsStep extends StatelessWidget {
                       final date = await showDatePicker(
                         context: context,
                         initialDate: orderDate,
-                        firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                        firstDate:
+                            DateTime.now().subtract(const Duration(days: 365)),
                         lastDate: DateTime.now().add(const Duration(days: 365)),
                       );
                       if (date != null) {
@@ -104,15 +104,15 @@ class JobDetailsStep extends StatelessWidget {
                   Text(
                     'Equipment Information',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Provide details about the equipment being serviced',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
+                          color: Colors.grey.shade600,
+                        ),
                   ),
                   const SizedBox(height: 16),
 
@@ -159,15 +159,15 @@ class JobDetailsStep extends StatelessWidget {
                   Text(
                     'Job Description',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Describe the work to be performed',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
+                          color: Colors.grey.shade600,
+                        ),
                   ),
                   const SizedBox(height: 16),
 
@@ -175,7 +175,8 @@ class JobDetailsStep extends StatelessWidget {
                     initialValue: jobDescription,
                     decoration: const InputDecoration(
                       labelText: 'Job Description *',
-                      hintText: 'Describe the work, repairs, or services needed...',
+                      hintText:
+                          'Describe the work, repairs, or services needed...',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.description),
                       alignLabelWithHint: true,
@@ -228,5 +229,3 @@ class JobDetailsStep extends StatelessWidget {
     );
   }
 }
-
-

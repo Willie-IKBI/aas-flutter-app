@@ -4,6 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image/image.dart' as img;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/order_photo.dart';
+import 'tenant_context_service.dart';
+import 'error_service.dart';
 
 class PhotoService {
   static final SupabaseClient _supabase = Supabase.instance.client;
@@ -26,7 +28,8 @@ class PhotoService {
       if (photoFile is File) {
         // Mobile platform
         bytes = await photoFile.readAsBytes();
-        fileName = '${DateTime.now().millisecondsSinceEpoch}_${photoFile.path.split('/').last}';
+        fileName =
+            '${DateTime.now().millisecondsSinceEpoch}_${photoFile.path.split('/').last}';
       } else if (photoFile is PlatformFile) {
         // Web platform
         bytes = photoFile.bytes!;
@@ -41,19 +44,20 @@ class PhotoService {
 
       // Compress and resize image
       final compressedBytes = await _compressImageBytes(bytes);
-      
-      // Upload to Supabase Storage
-      final filePath = 'orders/$orderId/$fileName';
-      
+
+      // Upload to Supabase Storage with tenant-scoped path
+      final filePath = TenantContextService.getTenantStoragePath(
+          'orders', orderId.toString(),
+          subPath: fileName);
+
       // For web, we need to use uploadBinary for bytes
       await _supabase.storage
           .from('equipment-photos')
           .uploadBinary(filePath, compressedBytes);
 
       // Get public URL
-      final photoUrl = _supabase.storage
-          .from('equipment-photos')
-          .getPublicUrl(filePath);
+      final photoUrl =
+          _supabase.storage.from('equipment-photos').getPublicUrl(filePath);
 
       // Save photo record to database
       final response = await _supabase
@@ -69,48 +73,38 @@ class PhotoService {
           .single();
 
       return OrderPhoto.fromJson(response);
-    } catch (e) {
-      print('Error uploading photo: $e');
-      return null;
+    } catch (error) {
+      ErrorService.logError(error, StackTrace.current,
+          context: 'PhotoService.uploadPhoto');
+      throw Exception(ErrorService.mapSupabaseError(error));
     }
   }
 
   // Get photos for an order
   static Future<List<OrderPhoto>> getOrderPhotos(int orderId) async {
     try {
-      print('Getting photos for order: $orderId');
-      
-      // Try direct query first to check if table exists
+// Try direct query first to check if table exists
       try {
         final directResponse = await _supabase
             .from('order_photos')
-            .select('*')
+            .select()
             .eq('order_id', orderId);
-        
-        print('Direct query response: $directResponse');
-        
-        if (directResponse != null) {
-          // Convert the response to OrderPhoto objects, handling missing uploader_name
-          return (directResponse as List).map((photo) {
-            // Add uploader_name field if it doesn't exist
-            if (photo['uploader_name'] == null) {
-              photo['uploader_name'] = 'Unknown User';
-            }
-            return OrderPhoto.fromJson(photo);
-          }).toList();
-        }
-      } catch (directError) {
-        print('Direct query failed: $directError');
-      }
-      
+
+        // Convert the response to OrderPhoto objects, handling missing uploader_name
+        return (directResponse as List).map((photo) {
+          // Add uploader_name field if it doesn't exist
+          if (photo['uploader_name'] == null) {
+            photo['uploader_name'] = 'Unknown User';
+          }
+          return OrderPhoto.fromJson(photo);
+        }).toList();
+      } catch (directError) {}
+
       // Fallback to RPC function
       final response = await _supabase
           .rpc('get_order_photos', params: {'order_id_param': orderId});
 
-      print('RPC response: $response');
-      
       if (response == null) {
-        print('RPC response is null');
         return [];
       }
 
@@ -118,7 +112,6 @@ class PhotoService {
           .map((photo) => OrderPhoto.fromJson(photo))
           .toList();
     } catch (e) {
-      print('Error getting order photos: $e');
       return [];
     }
   }
@@ -144,31 +137,25 @@ class PhotoService {
       // Delete from storage
       final photoUrl = photoResponse['photo_url'] as String;
       final fileName = photoUrl.split('/').last;
-      await _supabase.storage
-          .from('equipment-photos')
-          .remove([fileName]);
+      await _supabase.storage.from('equipment-photos').remove([fileName]);
 
       // Delete from database
-      await _supabase
-          .from('order_photos')
-          .delete()
-          .eq('id', photoId);
+      await _supabase.from('order_photos').delete().eq('id', photoId);
 
       return true;
     } catch (e) {
-      print('Error deleting photo: $e');
       return false;
     }
   }
 
   // Pick image from gallery or camera
-  static Future<dynamic?> pickImage({
+  static Future<dynamic> pickImage({
     bool allowMultiple = false,
     bool fromCamera = false,
   }) async {
     try {
       FilePickerResult? result;
-      
+
       if (fromCamera) {
         result = await FilePicker.platform.pickFiles(
           type: FileType.image,
@@ -215,10 +202,9 @@ class PhotoService {
           }
         }
       }
-      
+
       return null;
     } catch (e) {
-      print('Error picking image: $e');
       return null;
     }
   }
@@ -227,11 +213,11 @@ class PhotoService {
   static Future<Uint8List> _compressImageBytes(Uint8List bytes) async {
     try {
       final image = img.decodeImage(bytes);
-      
+
       if (image == null) return bytes;
 
       // Resize if too large (max 1920x1080)
-      img.Image resizedImage = image;
+      var resizedImage = image;
       if (image.width > 1920 || image.height > 1080) {
         resizedImage = img.copyResize(
           image,
@@ -244,7 +230,6 @@ class PhotoService {
       final compressedBytes = img.encodeJpg(resizedImage, quality: 85);
       return Uint8List.fromList(compressedBytes);
     } catch (e) {
-      print('Error compressing image: $e');
       return bytes; // Return original if compression fails
     }
   }
@@ -255,15 +240,15 @@ class PhotoService {
       // Read image
       final bytes = await file.readAsBytes();
       final compressedBytes = await _compressImageBytes(bytes);
-      
+
       // Create temporary file
       final tempDir = Directory.systemTemp;
-      final tempFile = File('${tempDir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      final tempFile = File(
+          '${tempDir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg');
       await tempFile.writeAsBytes(compressedBytes);
-      
+
       return tempFile;
     } catch (e) {
-      print('Error compressing image: $e');
       return file; // Return original if compression fails
     }
   }
@@ -278,7 +263,6 @@ class PhotoService {
 
       return response.length;
     } catch (e) {
-      print('Error getting photo count: $e');
       return 0;
     }
   }
@@ -304,7 +288,6 @@ class PhotoService {
 
       return true;
     } catch (e) {
-      print('Error updating photo details: $e');
       return false;
     }
   }

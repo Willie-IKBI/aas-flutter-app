@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 /// Status Colors for AAS App
-/// 
+///
 /// This file defines colors and utilities for different order statuses and stages.
 class StatusColors {
   // Private constructor to prevent instantiation
@@ -114,10 +114,9 @@ class StatusColors {
     double fontSize = 12,
     EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
   }) {
-    final color = isStage 
-        ? getOrderStageColor(status)
-        : getOrderStatusColor(status);
-    final backgroundColor = isStage 
+    final color =
+        isStage ? getOrderStageColor(status) : getOrderStatusColor(status);
+    final backgroundColor = isStage
         ? getOrderStageBackgroundColor(status)
         : getOrderStatusBackgroundColor(status);
 
@@ -127,8 +126,7 @@ class StatusColors {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
+          color: color.withValues(alpha: 0.3),
         ),
       ),
       child: Text(
@@ -149,26 +147,18 @@ class StatusColors {
     bool isStage = false,
     VoidCallback? onTap,
   }) {
-    final color = isStage 
-        ? getOrderStageColor(status)
-        : getOrderStatusColor(status);
-    final backgroundColor = isStage 
+    final color =
+        isStage ? getOrderStageColor(status) : getOrderStatusColor(status);
+    final backgroundColor = isStage
         ? getOrderStageBackgroundColor(status)
         : getOrderStatusBackgroundColor(status);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: color.withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-        child: Row(
+    return Semantics(
+      label: '${isStage ? 'Stage' : 'Status'}: $label',
+      hint: onTap != null ? 'Tap to interact' : null,
+      button: onTap != null,
+      child: FilterChip(
+        label: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
@@ -190,6 +180,16 @@ class StatusColors {
             ),
           ],
         ),
+        onSelected: onTap != null ? (_) => onTap() : null,
+        backgroundColor: backgroundColor,
+        selectedColor: backgroundColor,
+        side: BorderSide(
+          color: color.withValues(alpha: 0.3),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       ),
     );
   }
@@ -206,9 +206,8 @@ class StatusColors {
     final currentIndex = allStages.indexWhere(
       (stage) => stage.toLowerCase() == currentStage.toLowerCase(),
     );
-    final progress = currentIndex >= 0 
-        ? (currentIndex + 1) / allStages.length 
-        : 0.0;
+    final progress =
+        currentIndex >= 0 ? (currentIndex + 1) / allStages.length : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +215,7 @@ class StatusColors {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'Progress',
               style: TextStyle(
                 fontSize: 12,
@@ -226,7 +225,7 @@ class StatusColors {
             ),
             Text(
               '${((progress * 100).round())}%',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: AppColors.primary,

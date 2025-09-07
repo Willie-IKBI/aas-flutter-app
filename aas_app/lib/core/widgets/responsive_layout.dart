@@ -4,11 +4,6 @@ import '../theme/index.dart';
 
 /// Responsive layout wrapper that adapts to screen size
 class ResponsiveLayout extends StatelessWidget {
-  final Widget mobile;
-  final Widget? tablet;
-  final Widget? desktop;
-  final Widget? desktopLarge;
-
   const ResponsiveLayout({
     super.key,
     required this.mobile,
@@ -16,6 +11,10 @@ class ResponsiveLayout extends StatelessWidget {
     this.desktop,
     this.desktopLarge,
   });
+  final Widget mobile;
+  final Widget? tablet;
+  final Widget? desktop;
+  final Widget? desktopLarge;
 
   @override
   Widget build(BuildContext context) {
@@ -36,17 +35,6 @@ class ResponsiveLayout extends StatelessWidget {
 
 /// Mobile-first scaffold with responsive behavior
 class ResponsiveScaffold extends StatelessWidget {
-  final PreferredSizeWidget? appBar;
-  final Widget? body;
-  final Widget? drawer;
-  final Widget? endDrawer;
-  final Widget? bottomNavigationBar;
-  final Widget? floatingActionButton;
-  final FloatingActionButtonLocation? floatingActionButtonLocation;
-  final Color? backgroundColor;
-  final bool? resizeToAvoidBottomInset;
-  final bool primary;
-
   const ResponsiveScaffold({
     super.key,
     this.appBar,
@@ -60,6 +48,16 @@ class ResponsiveScaffold extends StatelessWidget {
     this.resizeToAvoidBottomInset,
     this.primary = true,
   });
+  final PreferredSizeWidget? appBar;
+  final Widget? body;
+  final Widget? drawer;
+  final Widget? endDrawer;
+  final Widget? bottomNavigationBar;
+  final Widget? floatingActionButton;
+  final FloatingActionButtonLocation? floatingActionButtonLocation;
+  final Color? backgroundColor;
+  final bool? resizeToAvoidBottomInset;
+  final bool primary;
 
   @override
   Widget build(BuildContext context) {
@@ -80,16 +78,6 @@ class ResponsiveScaffold extends StatelessWidget {
 
 /// Responsive container with adaptive padding and margins
 class ResponsiveContainer extends StatelessWidget {
-  final Widget child;
-  final EdgeInsets? padding;
-  final EdgeInsets? margin;
-  final double? width;
-  final double? height;
-  final Color? color;
-  final Decoration? decoration;
-  final AlignmentGeometry? alignment;
-  final Clip? clipBehavior;
-
   const ResponsiveContainer({
     super.key,
     required this.child,
@@ -102,6 +90,15 @@ class ResponsiveContainer extends StatelessWidget {
     this.alignment,
     this.clipBehavior,
   });
+  final Widget child;
+  final EdgeInsets? padding;
+  final EdgeInsets? margin;
+  final double? width;
+  final double? height;
+  final Color? color;
+  final Decoration? decoration;
+  final AlignmentGeometry? alignment;
+  final Clip? clipBehavior;
 
   @override
   Widget build(BuildContext context) {
@@ -121,15 +118,6 @@ class ResponsiveContainer extends StatelessWidget {
 
 /// Responsive card with adaptive styling
 class ResponsiveCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsets? padding;
-  final EdgeInsets? margin;
-  final Color? color;
-  final double? elevation;
-  final ShapeBorder? shape;
-  final Clip? clipBehavior;
-  final bool semanticContainer;
-
   const ResponsiveCard({
     super.key,
     required this.child,
@@ -141,6 +129,14 @@ class ResponsiveCard extends StatelessWidget {
     this.clipBehavior,
     this.semanticContainer = true,
   });
+  final Widget child;
+  final EdgeInsets? padding;
+  final EdgeInsets? margin;
+  final Color? color;
+  final double? elevation;
+  final ShapeBorder? shape;
+  final Clip? clipBehavior;
+  final bool semanticContainer;
 
   @override
   Widget build(BuildContext context) {
@@ -148,11 +144,12 @@ class ResponsiveCard extends StatelessWidget {
       margin: margin ?? ResponsiveBreakpoints.getResponsiveMargin(context),
       color: color ?? AppColors.surface,
       elevation: elevation ?? 2,
-      shape: shape ?? RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(
-          ResponsiveBreakpoints.getCardRadius(context),
-        ),
-      ),
+      shape: shape ??
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              ResponsiveBreakpoints.getCardRadius(context),
+            ),
+          ),
       clipBehavior: clipBehavior ?? Clip.none,
       semanticContainer: semanticContainer,
       child: Padding(
@@ -165,16 +162,6 @@ class ResponsiveCard extends StatelessWidget {
 
 /// Responsive grid layout
 class ResponsiveGrid extends StatelessWidget {
-  final List<Widget> children;
-  final double? spacing;
-  final double? runSpacing;
-  final EdgeInsets? padding;
-  final EdgeInsets? margin;
-  final int? crossAxisCount;
-  final double? childAspectRatio;
-  final double? crossAxisSpacing;
-  final double? mainAxisSpacing;
-
   const ResponsiveGrid({
     super.key,
     required this.children,
@@ -187,14 +174,23 @@ class ResponsiveGrid extends StatelessWidget {
     this.crossAxisSpacing,
     this.mainAxisSpacing,
   });
+  final List<Widget> children;
+  final double? spacing;
+  final double? runSpacing;
+  final EdgeInsets? padding;
+  final EdgeInsets? margin;
+  final int? crossAxisCount;
+  final double? childAspectRatio;
+  final double? crossAxisSpacing;
+  final double? mainAxisSpacing;
 
   @override
   Widget build(BuildContext context) {
-    final responsiveCrossAxisCount = crossAxisCount ?? 
-        ResponsiveBreakpoints.getGridColumns(context);
-    
-    final responsiveSpacing = spacing ?? 
-        ResponsiveBreakpoints.getResponsiveSpacing(context);
+    final responsiveCrossAxisCount =
+        crossAxisCount ?? ResponsiveBreakpoints.getGridColumns(context);
+
+    final responsiveSpacing =
+        spacing ?? ResponsiveBreakpoints.getResponsiveSpacing(context);
 
     return Padding(
       padding: padding ?? ResponsiveBreakpoints.getResponsivePadding(context),
@@ -216,14 +212,6 @@ class ResponsiveGrid extends StatelessWidget {
 
 /// Responsive list layout
 class ResponsiveList extends StatelessWidget {
-  final List<Widget> children;
-  final EdgeInsets? padding;
-  final EdgeInsets? margin;
-  final double? spacing;
-  final ScrollPhysics? physics;
-  final bool shrinkWrap;
-  final bool primary;
-
   const ResponsiveList({
     super.key,
     required this.children,
@@ -234,11 +222,18 @@ class ResponsiveList extends StatelessWidget {
     this.shrinkWrap = false,
     this.primary = true,
   });
+  final List<Widget> children;
+  final EdgeInsets? padding;
+  final EdgeInsets? margin;
+  final double? spacing;
+  final ScrollPhysics? physics;
+  final bool shrinkWrap;
+  final bool primary;
 
   @override
   Widget build(BuildContext context) {
-    final responsiveSpacing = spacing ?? 
-        ResponsiveBreakpoints.getResponsiveSpacing(context);
+    final responsiveSpacing =
+        spacing ?? ResponsiveBreakpoints.getResponsiveSpacing(context);
 
     return Padding(
       padding: padding ?? ResponsiveBreakpoints.getResponsivePadding(context),
@@ -248,7 +243,8 @@ class ResponsiveList extends StatelessWidget {
         shrinkWrap: shrinkWrap,
         primary: primary,
         itemCount: children.length,
-        separatorBuilder: (context, index) => SizedBox(height: responsiveSpacing),
+        separatorBuilder: (context, index) =>
+            SizedBox(height: responsiveSpacing),
         itemBuilder: (context, index) => children[index],
       ),
     );
@@ -257,15 +253,6 @@ class ResponsiveList extends StatelessWidget {
 
 /// Responsive row layout
 class ResponsiveRow extends StatelessWidget {
-  final List<Widget> children;
-  final MainAxisAlignment? mainAxisAlignment;
-  final CrossAxisAlignment? crossAxisAlignment;
-  final MainAxisSize? mainAxisSize;
-  final TextDirection? textDirection;
-  final VerticalDirection? verticalDirection;
-  final TextBaseline? textBaseline;
-  final double? spacing;
-
   const ResponsiveRow({
     super.key,
     required this.children,
@@ -277,11 +264,19 @@ class ResponsiveRow extends StatelessWidget {
     this.textBaseline,
     this.spacing,
   });
+  final List<Widget> children;
+  final MainAxisAlignment? mainAxisAlignment;
+  final CrossAxisAlignment? crossAxisAlignment;
+  final MainAxisSize? mainAxisSize;
+  final TextDirection? textDirection;
+  final VerticalDirection? verticalDirection;
+  final TextBaseline? textBaseline;
+  final double? spacing;
 
   @override
   Widget build(BuildContext context) {
-    final responsiveSpacing = spacing ?? 
-        ResponsiveBreakpoints.getResponsiveSpacing(context);
+    final responsiveSpacing =
+        spacing ?? ResponsiveBreakpoints.getResponsiveSpacing(context);
 
     if (spacing != null) {
       return Row(
@@ -308,9 +303,9 @@ class ResponsiveRow extends StatelessWidget {
 
   List<Widget> _addSpacing(List<Widget> widgets, double spacing) {
     if (widgets.isEmpty) return widgets;
-    
+
     final result = <Widget>[];
-    for (int i = 0; i < widgets.length; i++) {
+    for (var i = 0; i < widgets.length; i++) {
       result.add(widgets[i]);
       if (i < widgets.length - 1) {
         result.add(SizedBox(width: spacing));
@@ -322,15 +317,6 @@ class ResponsiveRow extends StatelessWidget {
 
 /// Responsive column layout
 class ResponsiveColumn extends StatelessWidget {
-  final List<Widget> children;
-  final MainAxisAlignment? mainAxisAlignment;
-  final CrossAxisAlignment? crossAxisAlignment;
-  final MainAxisSize? mainAxisSize;
-  final TextDirection? textDirection;
-  final VerticalDirection? verticalDirection;
-  final TextBaseline? textBaseline;
-  final double? spacing;
-
   const ResponsiveColumn({
     super.key,
     required this.children,
@@ -342,11 +328,19 @@ class ResponsiveColumn extends StatelessWidget {
     this.textBaseline,
     this.spacing,
   });
+  final List<Widget> children;
+  final MainAxisAlignment? mainAxisAlignment;
+  final CrossAxisAlignment? crossAxisAlignment;
+  final MainAxisSize? mainAxisSize;
+  final TextDirection? textDirection;
+  final VerticalDirection? verticalDirection;
+  final TextBaseline? textBaseline;
+  final double? spacing;
 
   @override
   Widget build(BuildContext context) {
-    final responsiveSpacing = spacing ?? 
-        ResponsiveBreakpoints.getResponsiveSpacing(context);
+    final responsiveSpacing =
+        spacing ?? ResponsiveBreakpoints.getResponsiveSpacing(context);
 
     if (spacing != null) {
       return Column(
@@ -373,9 +367,9 @@ class ResponsiveColumn extends StatelessWidget {
 
   List<Widget> _addSpacing(List<Widget> widgets, double spacing) {
     if (widgets.isEmpty) return widgets;
-    
+
     final result = <Widget>[];
-    for (int i = 0; i < widgets.length; i++) {
+    for (var i = 0; i < widgets.length; i++) {
       result.add(widgets[i]);
       if (i < widgets.length - 1) {
         result.add(SizedBox(height: spacing));

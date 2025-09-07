@@ -1,5 +1,3 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 enum OrderStatus {
   draft,
   inProgress,
@@ -146,24 +144,6 @@ enum OrderStage {
 }
 
 class Order {
-  final int id;
-  final DateTime createdAt;
-  final DateTime orderDate;
-  final String description;
-  final String capturedBy;
-  final int customerId;
-  final String? salesRepId;
-  final OrderStatus status;
-  final OrderStage currentStage;
-  final String? pdfUrl;
-  final String? equipmentType;
-  final String? equipmentModel;
-  final String? equipmentSerialNumber;
-  final String? customerName;
-  final String? customerContactName;
-  final String? salesRepName;
-  final String? salesRepEmail;
-
   Order({
     required this.id,
     required this.createdAt,
@@ -188,7 +168,7 @@ class Order {
     // Extract customer information from the joined data
     final customerData = json['customers'] as Map<String, dynamic>?;
     final salesRepData = json['sales_rep'] as Map<String, dynamic>?;
-    
+
     return Order(
       id: json['id'] as int,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -203,12 +183,30 @@ class Order {
       equipmentType: json['equipment_type'] as String?,
       equipmentModel: json['equipment_model'] as String?,
       equipmentSerialNumber: json['equipment_serial_number'] as String?,
-      customerName: customerData?['client_name'] as String?,
+      customerName: customerData?['client_name'] as String? ??
+          'Customer #${json['customer_id']}',
       customerContactName: customerData?['contact_name'] as String?,
       salesRepName: salesRepData?['display_name'] as String?,
       salesRepEmail: salesRepData?['user_email'] as String?,
     );
   }
+  final int id;
+  final DateTime createdAt;
+  final DateTime orderDate;
+  final String description;
+  final String capturedBy;
+  final int customerId;
+  final String? salesRepId;
+  final OrderStatus status;
+  final OrderStage currentStage;
+  final String? pdfUrl;
+  final String? equipmentType;
+  final String? equipmentModel;
+  final String? equipmentSerialNumber;
+  final String? customerName;
+  final String? customerContactName;
+  final String? salesRepName;
+  final String? salesRepEmail;
 
   Map<String, dynamic> toJson() {
     return {
@@ -264,7 +262,8 @@ class Order {
       pdfUrl: pdfUrl ?? this.pdfUrl,
       equipmentType: equipmentType ?? this.equipmentType,
       equipmentModel: equipmentModel ?? this.equipmentModel,
-      equipmentSerialNumber: equipmentSerialNumber ?? this.equipmentSerialNumber,
+      equipmentSerialNumber:
+          equipmentSerialNumber ?? this.equipmentSerialNumber,
       customerName: customerName ?? this.customerName,
       customerContactName: customerContactName ?? this.customerContactName,
       salesRepName: salesRepName ?? this.salesRepName,
@@ -272,4 +271,3 @@ class Order {
     );
   }
 }
-

@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
 
 class ClientSearch extends StatefulWidget {
-  final Function(String) onSearchChanged;
-
   const ClientSearch({
     super.key,
     required this.onSearchChanged,
   });
+  final Function(String) onSearchChanged;
 
   @override
   State<ClientSearch> createState() => _ClientSearchState();
@@ -24,13 +23,13 @@ class _ClientSearchState extends State<ClientSearch> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -39,17 +38,17 @@ class _ClientSearchState extends State<ClientSearch> {
       child: TextField(
         controller: _controller,
         onChanged: widget.onSearchChanged,
-        style: TextStyle(
+        style: const TextStyle(
           color: AppColors.onBackground,
           fontSize: 16,
         ),
         decoration: InputDecoration(
           hintText: 'Search clients...',
-          hintStyle: TextStyle(
+          hintStyle: const TextStyle(
             color: AppColors.onSurfaceVariant,
             fontSize: 16,
           ),
-          prefixIcon: Icon(
+          prefixIcon: const Icon(
             Icons.search,
             color: AppColors.onSurfaceVariant,
           ),
@@ -59,7 +58,7 @@ class _ClientSearchState extends State<ClientSearch> {
                     _controller.clear();
                     widget.onSearchChanged('');
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.clear,
                     color: AppColors.onSurfaceVariant,
                   ),

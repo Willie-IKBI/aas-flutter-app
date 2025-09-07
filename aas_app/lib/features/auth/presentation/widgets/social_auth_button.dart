@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
 
 class SocialAuthButton extends StatelessWidget {
-  final String text;
-  final String icon; // Path to SVG icon
-  final VoidCallback? onPressed;
-  final bool isLoading;
-
   const SocialAuthButton({
     super.key,
     required this.text,
@@ -14,6 +9,10 @@ class SocialAuthButton extends StatelessWidget {
     this.onPressed,
     this.isLoading = false,
   });
+  final String text;
+  final String icon; // Path to SVG icon
+  final VoidCallback? onPressed;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +61,9 @@ class SocialAuthButton extends StatelessWidget {
                   Text(
                     text,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: _getTextColor(),
-                      fontWeight: FontWeight.w600,
-                    ),
+                          color: _getTextColor(),
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ],
               ),
@@ -90,18 +89,18 @@ class SocialAuthButton extends StatelessWidget {
       case 'apple':
         return Colors.white;
       default:
-        return AppColors.surfaceVariant.withOpacity(0.3);
+        return AppColors.surfaceVariant.withValues(alpha: 0.3);
     }
   }
 
   Color _getBorderColor() {
     switch (text.toLowerCase()) {
       case 'google':
-        return AppColors.googleBlue.withOpacity(0.3);
+        return AppColors.googleBlue.withValues(alpha: 0.3);
       case 'apple':
-        return AppColors.appleGray.withOpacity(0.3);
+        return AppColors.appleGray.withValues(alpha: 0.3);
       default:
-        return AppColors.outline.withOpacity(0.3);
+        return AppColors.outline.withValues(alpha: 0.3);
     }
   }
 

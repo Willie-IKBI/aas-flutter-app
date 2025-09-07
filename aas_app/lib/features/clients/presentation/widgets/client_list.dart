@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/index.dart';
+import 'package:aas_app/core/theme/index.dart';
+import 'package:aas_app/core/models/customer.dart';
+import 'package:aas_app/core/services/customer_service.dart';
 import '../models/client.dart';
-import '../../data/services/customer_service.dart';
 import '../pages/edit_client_page.dart';
 
 class ClientList extends StatefulWidget {
-  final String filter;
-  final String searchQuery;
-
   const ClientList({
     super.key,
     required this.filter,
     required this.searchQuery,
   });
+  final String filter;
+  final String searchQuery;
 
   @override
   State<ClientList> createState() => _ClientListState();
@@ -44,13 +44,16 @@ class _ClientListState extends State<ClientList> {
     });
 
     try {
-      List<Client> clients;
-      
+      List<Customer> customers;
+
       if (widget.searchQuery.isNotEmpty) {
-        clients = await CustomerService.searchCustomers(widget.searchQuery);
+        customers = await CustomerService.searchCustomers(widget.searchQuery);
       } else {
-        clients = await CustomerService.getAllCustomers();
+        customers = await CustomerService.getAllCustomers();
       }
+
+      // Convert Customer objects to Client objects
+      final clients = customers.map((customer) => Client.fromJson(customer.toJson())).toList();
 
       setState(() {
         _clients = _filterClients(clients);
@@ -67,7 +70,8 @@ class _ClientListState extends State<ClientList> {
   List<Client> _filterClients(List<Client> clients) {
     // Sort clients alphabetically by client name
     final sortedClients = List<Client>.from(clients);
-    sortedClients.sort((a, b) => a.clientName.toLowerCase().compareTo(b.clientName.toLowerCase()));
+    sortedClients.sort((a, b) =>
+        a.clientName.toLowerCase().compareTo(b.clientName.toLowerCase()));
     return sortedClients;
   }
 
@@ -84,7 +88,7 @@ class _ClientListState extends State<ClientList> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.error_outline,
               size: 64,
               color: AppColors.error,
@@ -93,16 +97,16 @@ class _ClientListState extends State<ClientList> {
             Text(
               'Error loading customers',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppColors.error,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(
               _error!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
+                    color: AppColors.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -120,20 +124,20 @@ class _ClientListState extends State<ClientList> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.people_outline,
               size: 64,
               color: AppColors.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
             Text(
-              widget.searchQuery.isNotEmpty 
+              widget.searchQuery.isNotEmpty
                   ? 'No customers found for "${widget.searchQuery}"'
                   : 'No customers yet',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppColors.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: AppColors.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -141,8 +145,8 @@ class _ClientListState extends State<ClientList> {
                   ? 'Try a different search term'
                   : 'Add your first customer to get started',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
+                    color: AppColors.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -171,7 +175,7 @@ class _ClientListState extends State<ClientList> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -195,17 +199,19 @@ class _ClientListState extends State<ClientList> {
                       children: [
                         Text(
                           client.clientName,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: AppColors.onBackground,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: AppColors.onBackground,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           client.primaryContact,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.onSurfaceVariant,
+                                  ),
                         ),
                       ],
                     ),
@@ -234,34 +240,34 @@ class _ClientListState extends State<ClientList> {
                         ),
                       ),
                     ],
-                    child: Icon(
+                    child: const Icon(
                       Icons.more_vert,
                       color: AppColors.onSurfaceVariant,
                     ),
                   ),
                 ],
               ),
-                             if (client.address != null || client.industrySector != null) ...[
-                 const SizedBox(height: 16),
-                 Wrap(
-                   spacing: 16,
-                   runSpacing: 8,
-                   children: [
-                     if (client.industrySector != null)
-                       _buildInfoItem(
-                         Icons.work,
-                         client.industrySector!,
-                         AppColors.primary,
-                       ),
-                     if (client.contactChannel != null)
-                       _buildInfoItem(
-                         Icons.chat,
-                         client.contactChannel!,
-                         AppColors.info,
-                       ),
-                   ],
-                 ),
-               ],
+              if (client.address != null || client.industrySector != null) ...[
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  children: [
+                    if (client.industrySector != null)
+                      _buildInfoItem(
+                        Icons.work,
+                        client.industrySector!,
+                        AppColors.primary,
+                      ),
+                    if (client.contactChannel != null)
+                      _buildInfoItem(
+                        Icons.chat,
+                        client.contactChannel!,
+                        AppColors.info,
+                      ),
+                  ],
+                ),
+              ],
               if (client.address != null) ...[
                 const SizedBox(height: 12),
                 _buildInfoItem(
@@ -275,9 +281,9 @@ class _ClientListState extends State<ClientList> {
                 Text(
                   'Added ${_formatDate(client.createdAt!)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ],
             ],
@@ -297,7 +303,7 @@ class _ClientListState extends State<ClientList> {
       ),
       child: Center(
         child: Text(
-          client.clientName.isNotEmpty 
+          client.clientName.isNotEmpty
               ? client.clientName[0].toUpperCase()
               : '?',
           style: const TextStyle(
@@ -323,9 +329,9 @@ class _ClientListState extends State<ClientList> {
           child: Text(
             text,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
+                  color: AppColors.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -355,10 +361,10 @@ class _ClientListState extends State<ClientList> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
+      builder: (context) => DecoratedBox(
+        decoration: const BoxDecoration(
           gradient: AppColors.cardGradient,
-          borderRadius: const BorderRadius.vertical(
+          borderRadius: BorderRadius.vertical(
             top: Radius.circular(20),
           ),
         ),
@@ -380,9 +386,9 @@ class _ClientListState extends State<ClientList> {
               child: Text(
                 client.clientName,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: AppColors.onBackground,
-                  fontWeight: FontWeight.w700,
-                ),
+                      color: AppColors.onBackground,
+                      fontWeight: FontWeight.w700,
+                    ),
               ),
             ),
             const SizedBox(height: 20),
@@ -452,17 +458,17 @@ class _ClientListState extends State<ClientList> {
             child: Text(
               label,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: AppColors.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ),
           Expanded(
             child: Text(
               value,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.onBackground,
-              ),
+                    color: AppColors.onBackground,
+                  ),
             ),
           ),
         ],
@@ -476,7 +482,7 @@ class _ClientListState extends State<ClientList> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EditClientPage(client: client),
+            builder: (context) => EditClientPage(clientId: client.id.toString()),
           ),
         ).then((updatedClient) {
           if (updatedClient != null) {
@@ -494,7 +500,7 @@ class _ClientListState extends State<ClientList> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Delete Customer'),
+        title: const Text('Delete Customer'),
         content: Text(
           'Are you sure you want to delete "${client.clientName}"? This action cannot be undone.',
         ),
@@ -524,7 +530,7 @@ class _ClientListState extends State<ClientList> {
 
     try {
       await CustomerService.deleteCustomer(client.id!);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

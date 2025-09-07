@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../core/models/order.dart';
 import '../../../../core/services/order_service.dart';
-import '../../../../core/services/notification_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/responsive_layout.dart';
+import '../../../../core/navigation/app_router.dart';
 import '../widgets/order_list.dart';
-import 'create_order_wizard.dart';
-import 'order_details_page.dart';
+import '../widgets/job_summary_dialog.dart';
 
 class ActiveJobsPage extends StatefulWidget {
   const ActiveJobsPage({super.key});
@@ -38,24 +37,20 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
     });
 
     try {
-      print('🔍 Loading active orders...');
-      
       // Use the new getActiveOrders method that gets all non-completed/non-cancelled orders
       final orders = await OrderService.getActiveOrders();
-      print('📊 Found ${orders.length} active orders');
-      
       // Debug: Print each order with its status
-      for (var order in orders) {
-        print('  - Order #${order.id}: ${order.description} (${order.status})');
+      for (final order in orders) {
+        print(
+            'Order ${order.id}: ${order.description} - Status: ${order.status}');
       }
-      
+
       setState(() {
         _activeOrders = orders;
         _displayedOrders = orders;
         _isLoading = false;
       });
     } catch (e) {
-      print('❌ Error loading active orders: $e');
       setState(() {
         _errorMessage = 'Failed to load active jobs: $e';
         _isLoading = false;
@@ -78,26 +73,28 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
   }
 
   void _applyFilters() {
-    List<Order> filtered = List.from(_activeOrders);
+    var filtered = List<Order>.from(_activeOrders);
 
     // Apply search filter
     if (_searchQuery.isNotEmpty) {
       final query = _searchQuery.toLowerCase();
       filtered = filtered.where((order) {
         return order.description.toLowerCase().contains(query) ||
-               (order.equipmentType?.toLowerCase().contains(query) ?? false) ||
-               (order.equipmentModel?.toLowerCase().contains(query) ?? false) ||
-               order.id.toString().contains(query);
+            (order.equipmentType?.toLowerCase().contains(query) ?? false) ||
+            (order.equipmentModel?.toLowerCase().contains(query) ?? false) ||
+            order.id.toString().contains(query);
       }).toList();
     }
 
     // Apply date filter
     if (_selectedFilter == 'This Week') {
       final weekAgo = DateTime.now().subtract(const Duration(days: 7));
-      filtered = filtered.where((order) => order.createdAt.isAfter(weekAgo)).toList();
+      filtered =
+          filtered.where((order) => order.createdAt.isAfter(weekAgo)).toList();
     } else if (_selectedFilter == 'This Month') {
       final monthAgo = DateTime.now().subtract(const Duration(days: 30));
-      filtered = filtered.where((order) => order.createdAt.isAfter(monthAgo)).toList();
+      filtered =
+          filtered.where((order) => order.createdAt.isAfter(monthAgo)).toList();
     }
 
     setState(() {
@@ -106,29 +103,17 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
   }
 
   void _onOrderTap(Order order) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => OrderDetailsPage(orderId: order.id),
-      ),
-    ).then((_) => _loadActiveOrders()); // Refresh after returning
+    // Show job summary dialog
+    showDialog(
+      context: context,
+      builder: (context) => JobSummaryDialog(order: order),
+    ).then((_) => _loadActiveOrders()); // Refresh after dialog closes
   }
 
   void _onCreateNewOrder() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const CreateOrderWizard(),
-      ),
-    );
-
-    if (result != null) {
-      NotificationService.showSuccessNotification(
-        context,
-        'Order created successfully!',
-      );
-      await _loadActiveOrders();
-    }
+    context.goToOrderCreate();
+    // Note: Order creation success will be handled by the CreateOrderWizard
+    // and the user will be navigated back automatically
   }
 
   @override
@@ -179,13 +164,13 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.error_outline,
             size: 64,
             color: AppColors.error,
           ),
           const SizedBox(height: 16),
-          Text(
+          const Text(
             'Error Loading Active Jobs',
             style: TextStyle(
               fontSize: 20,
@@ -196,21 +181,17 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
           const SizedBox(height: 8),
           Text(
             _errorMessage!,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               color: AppColors.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          ElevatedButton.icon(
+          FilledButton.icon(
             onPressed: _loadActiveOrders,
             icon: const Icon(Icons.refresh),
             label: const Text('Retry'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
-            ),
           ),
         ],
       ),
@@ -289,7 +270,7 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -315,7 +296,7 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Active Jobs',
                   style: TextStyle(
                     fontSize: 24,
@@ -326,7 +307,7 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
                 const SizedBox(height: 4),
                 Text(
                   'Currently in progress - ${_activeOrders.length} jobs',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: AppColors.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
@@ -341,21 +322,21 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
   }
 
   Widget _buildSearchBar() {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.outline.withOpacity(0.2),
+          color: AppColors.outline.withValues(alpha: 0.2),
         ),
       ),
       child: TextField(
         onChanged: _onSearchChanged,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           hintText: 'Search active jobs...',
-          prefixIcon: const Icon(Icons.search, color: AppColors.onSurfaceVariant),
+          prefixIcon: Icon(Icons.search, color: AppColors.onSurfaceVariant),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
     );
@@ -376,7 +357,7 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
                 if (selected) _onFilterChanged(filter);
               },
               backgroundColor: AppColors.surface,
-              selectedColor: AppColors.primary.withOpacity(0.2),
+              selectedColor: AppColors.primary.withValues(alpha: 0.2),
               checkmarkColor: AppColors.primary,
               labelStyle: TextStyle(
                 color: isSelected ? AppColors.primary : AppColors.onSurface,
@@ -396,7 +377,7 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.outline.withOpacity(0.2),
+          color: AppColors.outline.withValues(alpha: 0.2),
         ),
       ),
       child: DropdownButtonHideUnderline(
@@ -411,8 +392,9 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
               child: Text(filter),
             );
           }).toList(),
-          icon: const Icon(Icons.arrow_drop_down, color: AppColors.onSurfaceVariant),
-          style: TextStyle(
+          icon: const Icon(Icons.arrow_drop_down,
+              color: AppColors.onSurfaceVariant),
+          style: const TextStyle(
             color: AppColors.onSurface,
             fontSize: 16,
           ),
@@ -427,61 +409,70 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
     }
 
     return Expanded(
-      child: OrderList(
-        orders: _displayedOrders,
-        onOrderTap: _onOrderTap,
-        showActions: false,
+      child: RefreshIndicator(
+        onRefresh: _loadActiveOrders,
+        color: AppColors.primary,
+        child: OrderList(
+          orders: _displayedOrders,
+          onOrderTap: _onOrderTap,
+          showActions: false,
+        ),
       ),
     );
   }
 
   Widget _buildEmptyState() {
     return Expanded(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.assignment_outlined,
-              size: 64,
-              color: AppColors.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _searchQuery.isNotEmpty || _selectedFilter != 'All'
-                  ? 'No active jobs found'
-                  : 'No active jobs',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.onSurfaceVariant,
+      child: RefreshIndicator(
+        onRefresh: _loadActiveOrders,
+        color: AppColors.primary,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.assignment_outlined,
+                    size: 64,
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _searchQuery.isNotEmpty || _selectedFilter != 'All'
+                        ? 'No active jobs found'
+                        : 'No active jobs',
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _searchQuery.isNotEmpty || _selectedFilter != 'All'
+                        ? 'Try adjusting your search or filter criteria'
+                        : 'Create a new order to get started',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  if (_searchQuery.isEmpty && _selectedFilter == 'All') ...[
+                    const SizedBox(height: 24),
+                    FilledButton.icon(
+                      onPressed: _onCreateNewOrder,
+                      icon: const Icon(Icons.add),
+                      label: const Text('Create First Order'),
+                    ),
+                  ],
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              _searchQuery.isNotEmpty || _selectedFilter != 'All'
-                  ? 'Try adjusting your search or filter criteria'
-                  : 'Create a new order to get started',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (_searchQuery.isEmpty && _selectedFilter == 'All') ...[
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: _onCreateNewOrder,
-                icon: const Icon(Icons.add),
-                label: const Text('Create First Order'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.onPrimary,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                ),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );

@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'secure_config.dart';
 
 /// Supabase Configuration
-/// 
+///
 /// This file contains the configuration for Supabase integration.
 /// Uses SecureConfig for secure key management.
 class SupabaseConfig {
@@ -11,7 +11,7 @@ class SupabaseConfig {
   SupabaseConfig._();
 
   // ===== SUPABASE CREDENTIALS =====
-  
+
   /// Supabase URL - Retrieved securely
   static String get supabaseUrl => SecureConfig.supabaseUrl;
 
@@ -19,18 +19,18 @@ class SupabaseConfig {
   static String get supabaseAnonKey => SecureConfig.supabaseAnonKey;
 
   // ===== STORAGE BUCKETS =====
-  
+
   /// Order files bucket name
   static const String orderFilesBucket = 'order-files';
-  
+
   /// Profile images bucket name
   static const String profileImagesBucket = 'profile-images';
-  
+
   /// Part images bucket name
   static const String partImagesBucket = 'AAS';
 
   // ===== DATABASE TABLES =====
-  
+
   /// Database table names
   static const String profilesTable = 'profile';
   static const String customersTable = 'customers';
@@ -49,15 +49,11 @@ class SupabaseConfig {
     try {
       // Initialize secure configuration first
       await SecureConfig.initialize();
-      
+
       await Supabase.initialize(
         url: supabaseUrl,
         anonKey: supabaseAnonKey,
         debug: kDebugMode,
-        authOptions: const FlutterAuthClientOptions(
-          authFlowType: AuthFlowType.pkce,
-          autoRefreshToken: true,
-        ),
         storageOptions: const StorageClientOptions(
           retryAttempts: 3,
         ),
@@ -65,16 +61,10 @@ class SupabaseConfig {
           logLevel: RealtimeLogLevel.info,
         ),
       );
-      
-      if (kDebugMode) {
-        print('✅ Supabase initialized successfully');
-        print('📊 URL: $supabaseUrl');
-        print('🔐 Configuration status: ${SecureConfig.configurationStatus}');
-      }
+
+      if (kDebugMode) {}
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Failed to initialize Supabase: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }

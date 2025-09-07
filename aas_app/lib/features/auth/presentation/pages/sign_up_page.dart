@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:ui';
 import '../../../../core/theme/index.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/config/supabase_config.dart';
 import '../widgets/modern_auth_text_field.dart';
 import '../widgets/modern_auth_button.dart';
-
 import '../widgets/responsive_auth_layout.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/enhanced_typography.dart';
@@ -27,12 +24,12 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _fullNameController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _agreeToTerms = false;
-  
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -84,7 +81,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please agree to the terms and conditions'),
-                      backgroundColor: Theme.of(context).colorScheme.error,
+          backgroundColor: Theme.of(context).colorScheme.error,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -96,9 +93,8 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
     try {
       // Debug logging
       final displayName = _fullNameController.text.trim();
-      print('Signup - Full name entered: "$displayName"');
-      print('Signup - Email entered: "${_emailController.text.trim()}"');
-      
+      print('Signing up user: $displayName');
+
       await AuthService.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
@@ -110,13 +106,14 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Account created successfully! Please check your email to verify your account.'),
+            content: const Text(
+                'Account created successfully! Please check your email to verify your account.'),
             backgroundColor: Theme.of(context).colorScheme.primary,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 5),
           ),
         );
-        
+
         // Navigate back to sign in page
         Navigator.pop(context);
       }
@@ -137,8 +134,6 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return PolishComponents.loadingOverlay(
@@ -148,11 +143,17 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
         header: ReducedMotionAnimation(
           child: FadeTransition(
             opacity: _fadeAnimation,
-            child: AuthHeader(
+            child: const AuthHeader(
               title: 'Create Account',
               subtitle: 'Join us to get started with your account',
               icon: Icons.person_add,
             ),
+          ),
+        ),
+        footer: ReducedMotionAnimation(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: _buildSignInLink(),
           ),
         ),
         child: ReducedMotionAnimation(
@@ -164,12 +165,6 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
                 child: _buildSignUpForm(),
               ),
             ),
-          ),
-        ),
-        footer: ReducedMotionAnimation(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: _buildSignInLink(),
           ),
         ),
       ),
@@ -205,9 +200,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
               },
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Email field
           Semantics(
             label: 'Email Address',
@@ -224,16 +219,17 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email';
                 }
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                    .hasMatch(value)) {
                   return 'Please enter a valid email';
                 }
                 return null;
               },
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Password field
           Semantics(
             label: 'Password',
@@ -251,7 +247,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
                 button: true,
                 child: IconButton(
                   icon: Icon(
-                    _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                    _obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
                     color: AppColors.onSurfaceVariant,
                   ),
                   onPressed: () {
@@ -268,16 +266,17 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
                 if (value.length < 8) {
                   return 'Password must be at least 8 characters';
                 }
-                if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
+                if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)')
+                    .hasMatch(value)) {
                   return 'Password must contain uppercase, lowercase, and number';
                 }
                 return null;
               },
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Confirm Password field
           Semantics(
             label: 'Confirm Password',
@@ -291,11 +290,14 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
               obscureText: _obscureConfirmPassword,
               textInputAction: TextInputAction.done,
               suffixIcon: Semantics(
-                label: _obscureConfirmPassword ? 'Show password' : 'Hide password',
+                label:
+                    _obscureConfirmPassword ? 'Show password' : 'Hide password',
                 button: true,
                 child: IconButton(
                   icon: Icon(
-                    _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                    _obscureConfirmPassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
                     color: AppColors.onSurfaceVariant,
                   ),
                   onPressed: () {
@@ -316,9 +318,9 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
               },
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Terms and conditions
           Row(
             children: [
@@ -340,11 +342,11 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
                 child: RichText(
                   text: TextSpan(
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.onSurface,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    children: [
-                      const TextSpan(text: 'I agree to the '),
+                          color: AppColors.onSurface,
+                          fontWeight: FontWeight.w500,
+                        ),
+                    children: const [
+                      TextSpan(text: 'I agree to the '),
                       TextSpan(
                         text: 'Terms of Service',
                         style: TextStyle(
@@ -352,7 +354,7 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const TextSpan(text: ' and '),
+                      TextSpan(text: ' and '),
                       TextSpan(
                         text: 'Privacy Policy',
                         style: TextStyle(
@@ -366,16 +368,15 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
               ),
             ],
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Sign up button
           ModernAuthButton(
             text: 'Create Account',
             onPressed: _isLoading ? null : _signUp,
             isLoading: _isLoading,
             icon: Icons.person_add,
-            variant: ModernButtonVariant.filled,
           ),
         ],
       ),
@@ -391,25 +392,27 @@ class _SignUpPageState extends ConsumerState<SignUpPage>
           Text(
             'Already have an account? ',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.onSurfaceVariant,
-              fontWeight: FontWeight.w400,
-            ),
+                  color: AppColors.onSurfaceVariant,
+                  fontWeight: FontWeight.w400,
+                ),
           ),
           InteractiveText(
             text: 'Sign In',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
             hoverStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.primary.withOpacity(0.8),
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-            onTap: _isLoading ? null : () {
-              Navigator.pop(context);
-            },
+                  color: AppColors.primary.withValues(alpha: 0.8),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+            onTap: _isLoading
+                ? null
+                : () {
+                    Navigator.pop(context);
+                  },
           ),
         ],
       ),

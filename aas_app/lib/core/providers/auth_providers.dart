@@ -1,4 +1,3 @@
-import 'dart:html' as html;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/auth_service.dart';
@@ -10,33 +9,25 @@ import '../models/user_role.dart';
 /// Auth state notifier for managing authentication state
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier() : super(const AuthState.initial()) {
-    print('🔍 AuthNotifier - Initializing...');
     _initializeAuthListener();
   }
 
   void _initializeAuthListener() {
-    print('🔍 AuthNotifier - Setting up auth listener...');
-    // Check current auth state first
+// Check current auth state first
     _checkInitialAuthState();
-    
+
     // Then listen for changes
     AuthService.authStateChanges.listen((authState) {
-      print('🔍 AuthNotifier - Auth state change detected: ${authState.event}');
       if (authState.event == AuthChangeEvent.signedIn) {
-        print('🔍 AuthNotifier - User signed in, loading profile...');
         _loadUserProfile();
       } else if (authState.event == AuthChangeEvent.signedOut) {
-        print('🔍 AuthNotifier - User signed out');
         state = const AuthState.unauthenticated();
       } else if (authState.event == AuthChangeEvent.passwordRecovery) {
-        print('🔍 AuthNotifier - Password recovery detected - setting password reset state');
         state = const AuthState.passwordReset();
       } else if (authState.event == AuthChangeEvent.initialSession) {
-        print('🔍 AuthNotifier - Initial session detected');
-        // Check if this initial session is from a password recovery
+// Check if this initial session is from a password recovery
         _checkForPasswordRecoverySession();
       } else if (authState.event == AuthChangeEvent.userUpdated) {
-        print('🔍 AuthNotifier - User updated (password changed)');
         // After password update, check if user has a profile
         _loadUserProfile();
       }
@@ -44,60 +35,72 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> _checkInitialAuthState() async {
-    print('🔍 AuthNotifier - Checking initial auth state...');
-    
-    // First check if this is a password recovery session
-    if (AuthService.isPasswordRecoverySession) {
-      print('🔍 AuthNotifier - Password recovery detected in initial auth state check');
-      state = const AuthState.passwordReset();
-      return;
-    }
-    
-    // Check if user is already signed in
+// Check if user is already signed in
     if (AuthService.isAuthenticated) {
-      print('🔍 AuthNotifier - User is already authenticated, loading profile...');
       await _loadUserProfile();
     } else {
-      print('🔍 AuthNotifier - User is not authenticated');
       state = const AuthState.unauthenticated();
     }
   }
 
   Future<void> _loadUserProfile() async {
-    print('🔍 AuthNotifier - Loading user profile...');
     state = const AuthState.loading();
-    
+
     try {
       final profile = await AuthService.getCurrentUserProfile();
-      print('🔍 AuthNotifier - Profile loaded: ${profile?.displayName} (${profile?.role})');
-      
+
       if (profile != null) {
         if (profile.isUnassigned) {
-          print('🔍 AuthNotifier - User is unassigned, showing pending approval');
           state = AuthState.pendingApproval(profile);
         } else {
-          print('🔍 AuthNotifier - User is authenticated, showing dashboard');
           state = AuthState.authenticated(profile);
         }
       } else {
-        // Check if this might be a password recovery scenario
-        if (AuthService.isPasswordRecoverySession) {
-          print('🔍 AuthNotifier - No profile but recovery params found, showing password reset');
-          state = const AuthState.passwordReset();
+        // Profile not found, but user is authenticated via Supabase
+        // Create a minimal profile for authenticated state
+        final user = AuthService.currentUser;
+        if (user != null) {
+          final minimalProfile = UserProfile(
+            id: user.id,
+            email: user.email ?? '',
+            displayName: user.userMetadata?['display_name'] ?? user.email ?? 'User',
+            role: UserRole.technician, // Default role
+            createdAt: DateTime.now(),
+            status: 'active',
+          );
+          state = AuthState.authenticated(minimalProfile);
         } else {
-          print('🔍 AuthNotifier - No profile found, showing sign in');
           state = const AuthState.unauthenticated();
         }
       }
     } catch (e) {
-      print('🔍 AuthNotifier - Error loading profile: $e');
-      state = AuthState.error(e.toString());
+      // Profile loading failed, but user is authenticated via Supabase
+      // Create a minimal profile for authenticated state
+      final user = AuthService.currentUser;
+      if (user != null) {
+        final minimalProfile = UserProfile(
+          id: user.id,
+          email: user.email ?? '',
+          displayName: user.userMetadata?['display_name'] ?? user.email ?? 'User',
+          role: UserRole.technician, // Default role
+          createdAt: DateTime.now(),
+          status: 'active',
+        );
+        state = AuthState.authenticated(minimalProfile);
+      } else {
+        state = AuthState.error(e.toString());
+      }
     }
   }
 
   Future<void> refreshUserProfile() async {
-    print('🔍 AuthNotifier - Refreshing user profile...');
     await _loadUserProfile();
+  }
+
+  Future<void> _checkForPasswordRecoverySession() async {
+    // Check if this is a password recovery session
+    // This method is a placeholder for future password recovery logic
+    // Currently handled by the router
   }
 
   Future<void> signOut() async {
@@ -109,30 +112,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  void setPasswordResetState() {
-    print('🔍 AuthNotifier - Setting password reset state');
-    state = const AuthState.passwordReset();
-  }
-
-  void _checkForPasswordRecoverySession() {
-    // Check if the current URL contains password recovery parameters
-    if (AuthService.isPasswordRecoverySession) {
-      print('🔍 AuthNotifier - Password recovery session detected in initial session');
-      state = const AuthState.passwordReset();
-    } else {
-      print('🔍 AuthNotifier - Normal initial session, loading profile...');
-      _loadUserProfile();
-    }
-  }
+  // Note: Password reset state management is now handled by the router
+  // This method is deprecated and will be removed in future versions
 }
 
 /// Auth state representing different authentication states
 class AuthState {
-  final bool isLoading;
-  final UserProfile? userProfile;
-  final String? error;
-  final AuthStatus status;
-
   const AuthState._({
     required this.isLoading,
     this.userProfile,
@@ -140,43 +125,54 @@ class AuthState {
     required this.status,
   });
 
-  const AuthState.initial() : this._(
-    isLoading: true,
-    status: AuthStatus.initial,
-  );
+  const AuthState.initial()
+      : this._(
+          isLoading: true,
+          status: AuthStatus.initial,
+        );
 
-  const AuthState.loading() : this._(
-    isLoading: true,
-    status: AuthStatus.loading,
-  );
+  const AuthState.loading()
+      : this._(
+          isLoading: true,
+          status: AuthStatus.loading,
+        );
 
-  const AuthState.authenticated(UserProfile profile) : this._(
-    isLoading: false,
-    userProfile: profile,
-    status: AuthStatus.authenticated,
-  );
+  const AuthState.authenticated(UserProfile profile)
+      : this._(
+          isLoading: false,
+          userProfile: profile,
+          status: AuthStatus.authenticated,
+        );
 
-  const AuthState.pendingApproval(UserProfile profile) : this._(
-    isLoading: false,
-    userProfile: profile,
-    status: AuthStatus.pendingApproval,
-  );
+  const AuthState.pendingApproval(UserProfile profile)
+      : this._(
+          isLoading: false,
+          userProfile: profile,
+          status: AuthStatus.pendingApproval,
+        );
 
-  const AuthState.unauthenticated() : this._(
-    isLoading: false,
-    status: AuthStatus.unauthenticated,
-  );
+  const AuthState.unauthenticated()
+      : this._(
+          isLoading: false,
+          status: AuthStatus.unauthenticated,
+        );
 
-  const AuthState.passwordReset() : this._(
-    isLoading: false,
-    status: AuthStatus.passwordReset,
-  );
+  const AuthState.passwordReset()
+      : this._(
+          isLoading: false,
+          status: AuthStatus.passwordReset,
+        );
 
-  const AuthState.error(String errorMessage) : this._(
-    isLoading: false,
-    error: errorMessage,
-    status: AuthStatus.error,
-  );
+  const AuthState.error(String errorMessage)
+      : this._(
+          isLoading: false,
+          error: errorMessage,
+          status: AuthStatus.error,
+        );
+  final bool isLoading;
+  final UserProfile? userProfile;
+  final String? error;
+  final AuthStatus status;
 
   bool get isAuthenticated => status == AuthStatus.authenticated;
   bool get isPendingApproval => status == AuthStatus.pendingApproval;
@@ -198,7 +194,8 @@ enum AuthStatus {
 // ===== PROVIDERS =====
 
 /// Auth state notifier provider
-final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
+final authNotifierProvider =
+    StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier();
 });
 

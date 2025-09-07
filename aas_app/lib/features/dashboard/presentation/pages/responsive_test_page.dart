@@ -92,7 +92,8 @@ class _ResponsiveTestPageState extends ConsumerState<ResponsiveTestPage> {
       child: ResponsiveColumn(
         children: [
           _buildInfoCard('Mobile Layout', 'This is the mobile-first design'),
-          _buildInfoCard('Screen Size', 'Mobile: ${ResponsiveBreakpoints.mobileLarge}px'),
+          _buildInfoCard(
+              'Screen Size', 'Mobile: ${ResponsiveBreakpoints.mobileLarge}px'),
           _buildInfoCard('Grid Columns', '1 column layout'),
           _buildInfoCard('Navigation', 'Bottom navigation bar'),
           _buildInfoCard('App Bar', 'Centered title with menu'),
@@ -106,7 +107,8 @@ class _ResponsiveTestPageState extends ConsumerState<ResponsiveTestPage> {
       child: ResponsiveGrid(
         children: [
           _buildInfoCard('Tablet Layout', 'This is the tablet design'),
-          _buildInfoCard('Screen Size', 'Tablet: ${ResponsiveBreakpoints.tabletLarge}px'),
+          _buildInfoCard(
+              'Screen Size', 'Tablet: ${ResponsiveBreakpoints.tabletLarge}px'),
           _buildInfoCard('Grid Columns', '2 column layout'),
           _buildInfoCard('Navigation', 'Sidebar navigation'),
           _buildInfoCard('App Bar', 'Left-aligned title'),
@@ -121,7 +123,8 @@ class _ResponsiveTestPageState extends ConsumerState<ResponsiveTestPage> {
       child: ResponsiveGrid(
         children: [
           _buildInfoCard('Desktop Layout', 'This is the desktop design'),
-          _buildInfoCard('Screen Size', 'Desktop: ${ResponsiveBreakpoints.desktopMedium}px'),
+          _buildInfoCard('Screen Size',
+              'Desktop: ${ResponsiveBreakpoints.desktopMedium}px'),
           _buildInfoCard('Grid Columns', '3 column layout'),
           _buildInfoCard('Navigation', 'Full sidebar navigation'),
           _buildInfoCard('App Bar', 'Large title and actions'),
@@ -144,17 +147,17 @@ class _ResponsiveTestPageState extends ConsumerState<ResponsiveTestPage> {
           Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppColors.onSurface,
-              fontWeight: FontWeight.w600,
-            ),
+                  color: AppColors.onSurface,
+                  fontWeight: FontWeight.w600,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
             content,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
+                  color: AppColors.onSurfaceVariant,
+                ),
             textAlign: TextAlign.center,
           ),
         ],

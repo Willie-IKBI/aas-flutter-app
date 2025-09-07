@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../../core/theme/index.dart';
 
 /// Modern auth text field with floating labels
-/// 
+///
 /// Features:
 /// - Floating labels that animate smoothly
 /// - Clean, minimal design
@@ -11,25 +11,6 @@ import '../../../../core/theme/index.dart';
 /// - Proper focus states
 /// - Error handling with smooth animations
 class ModernAuthTextField extends StatefulWidget {
-  final TextEditingController? controller;
-  final String label;
-  final String? hint;
-  final String? errorText;
-  final IconData? prefixIcon;
-  final Widget? suffixIcon;
-  final TextInputType? keyboardType;
-  final TextInputAction? textInputAction;
-  final bool obscureText;
-  final bool enabled;
-  final int? maxLines;
-  final int? maxLength;
-  final List<TextInputFormatter>? inputFormatters;
-  final String? Function(String?)? validator;
-  final VoidCallback? onTap;
-  final ValueChanged<String>? onChanged;
-  final ValueChanged<String>? onSubmitted;
-  final FocusNode? focusNode;
-
   const ModernAuthTextField({
     super.key,
     this.controller,
@@ -51,6 +32,24 @@ class ModernAuthTextField extends StatefulWidget {
     this.onSubmitted,
     this.focusNode,
   });
+  final TextEditingController? controller;
+  final String label;
+  final String? hint;
+  final String? errorText;
+  final IconData? prefixIcon;
+  final Widget? suffixIcon;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final bool obscureText;
+  final bool enabled;
+  final int? maxLines;
+  final int? maxLength;
+  final List<TextInputFormatter>? inputFormatters;
+  final String? Function(String?)? validator;
+  final VoidCallback? onTap;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final FocusNode? focusNode;
 
   @override
   State<ModernAuthTextField> createState() => _ModernAuthTextFieldState();
@@ -72,7 +71,7 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
     super.initState();
     _focusNode = widget.focusNode ?? FocusNode();
     _controller = widget.controller ?? TextEditingController();
-    
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -96,7 +95,7 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
 
     _focusNode.addListener(_onFocusChange);
     _controller.addListener(_onTextChange);
-    
+
     // Initialize state
     _hasContent = _controller.text.isNotEmpty;
     if (_hasContent || _hasFocus) {
@@ -120,7 +119,7 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
     setState(() {
       _hasFocus = _focusNode.hasFocus;
     });
-    
+
     if (_hasFocus || _hasContent) {
       _animationController.forward();
     } else {
@@ -134,7 +133,7 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
       setState(() {
         _hasContent = hasContent;
       });
-      
+
       if (_hasContent || _hasFocus) {
         _animationController.forward();
       } else {
@@ -157,29 +156,46 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 1200;
-        final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
-        
+        final isTablet =
+            constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Main text field container
-            Container(
+            DecoratedBox(
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(
-                  isDesktop ? 16.0 : isTablet ? 14.0 : 12.0,
+                  isDesktop
+                      ? 16.0
+                      : isTablet
+                          ? 14.0
+                          : 12.0,
                 ),
                 border: Border.all(
                   color: _getBorderColor(),
                   width: _hasFocus ? 2.0 : 1.0,
                 ),
-                boxShadow: _hasFocus ? [
-                  BoxShadow(
-                    color: AppColors.primary.withOpacity(0.1),
-                    blurRadius: isDesktop ? 12.0 : isTablet ? 10.0 : 8.0,
-                    offset: Offset(0, isDesktop ? 4.0 : isTablet ? 3.0 : 2.0),
-                  ),
-                ] : null,
+                boxShadow: _hasFocus
+                    ? [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          blurRadius: isDesktop
+                              ? 12.0
+                              : isTablet
+                                  ? 10.0
+                                  : 8.0,
+                          offset: Offset(
+                              0,
+                              isDesktop
+                                  ? 4.0
+                                  : isTablet
+                                      ? 3.0
+                                      : 2.0),
+                        ),
+                      ]
+                    : null,
               ),
               child: Stack(
                 children: [
@@ -212,19 +228,31 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
                       prefixIcon: widget.prefixIcon != null
                           ? Padding(
                               padding: EdgeInsets.all(
-                                isDesktop ? 16.0 : isTablet ? 14.0 : 12.0,
+                                isDesktop
+                                    ? 16.0
+                                    : isTablet
+                                        ? 14.0
+                                        : 12.0,
                               ),
                               child: Icon(
                                 widget.prefixIcon,
                                 color: _getIconColor(),
-                                size: isDesktop ? 24.0 : isTablet ? 22.0 : 20.0,
+                                size: isDesktop
+                                    ? 24.0
+                                    : isTablet
+                                        ? 22.0
+                                        : 20.0,
                               ),
                             )
                           : null,
                       suffixIcon: widget.suffixIcon != null
                           ? Padding(
                               padding: EdgeInsets.all(
-                                isDesktop ? 8.0 : isTablet ? 6.0 : 4.0,
+                                isDesktop
+                                    ? 8.0
+                                    : isTablet
+                                        ? 6.0
+                                        : 4.0,
                               ),
                               child: widget.suffixIcon!,
                             )
@@ -237,23 +265,55 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
                       disabledBorder: InputBorder.none,
                       contentPadding: EdgeInsets.fromLTRB(
                         widget.prefixIcon != null
-                            ? (isDesktop ? 56.0 : isTablet ? 52.0 : 48.0)
-                            : (isDesktop ? 20.0 : isTablet ? 18.0 : 16.0),
-                        isDesktop ? 24.0 : isTablet ? 20.0 : 18.0,
+                            ? (isDesktop
+                                ? 56.0
+                                : isTablet
+                                    ? 52.0
+                                    : 48.0)
+                            : (isDesktop
+                                ? 20.0
+                                : isTablet
+                                    ? 18.0
+                                    : 16.0),
+                        isDesktop
+                            ? 24.0
+                            : isTablet
+                                ? 20.0
+                                : 18.0,
                         widget.suffixIcon != null
-                            ? (isDesktop ? 40.0 : isTablet ? 36.0 : 32.0)
-                            : (isDesktop ? 20.0 : isTablet ? 18.0 : 16.0),
-                        isDesktop ? 24.0 : isTablet ? 20.0 : 18.0,
+                            ? (isDesktop
+                                ? 40.0
+                                : isTablet
+                                    ? 36.0
+                                    : 32.0)
+                            : (isDesktop
+                                ? 20.0
+                                : isTablet
+                                    ? 18.0
+                                    : 16.0),
+                        isDesktop
+                            ? 24.0
+                            : isTablet
+                                ? 20.0
+                                : 18.0,
                       ),
                       counterText: '', // Hide character counter
                     ),
                   ),
-                  
+
                   // Floating label
                   Positioned(
                     left: widget.prefixIcon != null
-                        ? (isDesktop ? 56.0 : isTablet ? 52.0 : 48.0)
-                        : (isDesktop ? 20.0 : isTablet ? 18.0 : 16.0),
+                        ? (isDesktop
+                            ? 56.0
+                            : isTablet
+                                ? 52.0
+                                : 48.0)
+                        : (isDesktop
+                            ? 20.0
+                            : isTablet
+                                ? 18.0
+                                : 16.0),
                     top: 0,
                     child: AnimatedBuilder(
                       animation: _labelAnimation,
@@ -263,14 +323,16 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
                           child: Opacity(
                             opacity: _labelAnimation.value,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
                               decoration: BoxDecoration(
                                 color: AppColors.surface,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 widget.label,
-                                style: _getLabelStyle(context, isDesktop, isTablet),
+                                style: _getLabelStyle(
+                                    context, isDesktop, isTablet),
                               ),
                             ),
                           ),
@@ -281,10 +343,15 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
                 ],
               ),
             ),
-            
+
             // Error text
             if (widget.errorText != null && widget.errorText!.isNotEmpty) ...[
-              SizedBox(height: isDesktop ? 8.0 : isTablet ? 6.0 : 4.0),
+              SizedBox(
+                  height: isDesktop
+                      ? 8.0
+                      : isTablet
+                          ? 6.0
+                          : 4.0),
               AnimatedBuilder(
                 animation: _errorAnimation,
                 builder: (context, child) {
@@ -294,7 +361,11 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
                       opacity: _errorAnimation.value,
                       child: Padding(
                         padding: EdgeInsets.only(
-                          left: isDesktop ? 20.0 : isTablet ? 18.0 : 16.0,
+                          left: isDesktop
+                              ? 20.0
+                              : isTablet
+                                  ? 18.0
+                                  : 16.0,
                         ),
                         child: Text(
                           widget.errorText!,
@@ -313,9 +384,9 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
   }
 
   Color _getBorderColor() {
-    if (_hasError) return AppColors.error.withOpacity(0.7);
+    if (_hasError) return AppColors.error.withValues(alpha: 0.7);
     if (_hasFocus) return AppColors.primary;
-    return AppColors.outline.withOpacity(0.3);
+    return AppColors.outline.withValues(alpha: 0.3);
   }
 
   Color _getIconColor() {
@@ -326,69 +397,91 @@ class _ModernAuthTextFieldState extends State<ModernAuthTextField>
 
   TextStyle _getTextStyle(BuildContext context, bool isDesktop, bool isTablet) {
     final baseStyle = Theme.of(context).textTheme.bodyLarge;
-    final fontSize = isDesktop ? 16.0 : isTablet ? 15.0 : 14.0;
-    
+    final fontSize = isDesktop
+        ? 16.0
+        : isTablet
+            ? 15.0
+            : 14.0;
+
     return baseStyle?.copyWith(
-      color: AppColors.onSurface,
-      fontWeight: FontWeight.w500,
-      fontSize: fontSize,
-      height: 1.4,
-    ) ?? TextStyle(
-      color: AppColors.onSurface,
-      fontWeight: FontWeight.w500,
-      fontSize: fontSize,
-      height: 1.4,
-    );
+          color: AppColors.onSurface,
+          fontWeight: FontWeight.w500,
+          fontSize: fontSize,
+          height: 1.4,
+        ) ??
+        TextStyle(
+          color: AppColors.onSurface,
+          fontWeight: FontWeight.w500,
+          fontSize: fontSize,
+          height: 1.4,
+        );
   }
 
   TextStyle _getHintStyle(BuildContext context, bool isDesktop, bool isTablet) {
     final baseStyle = Theme.of(context).textTheme.bodyLarge;
-    final fontSize = isDesktop ? 16.0 : isTablet ? 15.0 : 14.0;
-    
+    final fontSize = isDesktop
+        ? 16.0
+        : isTablet
+            ? 15.0
+            : 14.0;
+
     return baseStyle?.copyWith(
-      color: AppColors.onSurfaceVariant.withOpacity(0.6),
-      fontWeight: FontWeight.w400,
-      fontSize: fontSize,
-      height: 1.4,
-    ) ?? TextStyle(
-      color: AppColors.onSurfaceVariant.withOpacity(0.6),
-      fontWeight: FontWeight.w400,
-      fontSize: fontSize,
-      height: 1.4,
-    );
+          color: AppColors.onSurfaceVariant.withValues(alpha: 0.6),
+          fontWeight: FontWeight.w400,
+          fontSize: fontSize,
+          height: 1.4,
+        ) ??
+        TextStyle(
+          color: AppColors.onSurfaceVariant.withValues(alpha: 0.6),
+          fontWeight: FontWeight.w400,
+          fontSize: fontSize,
+          height: 1.4,
+        );
   }
 
-  TextStyle _getLabelStyle(BuildContext context, bool isDesktop, bool isTablet) {
+  TextStyle _getLabelStyle(
+      BuildContext context, bool isDesktop, bool isTablet) {
     final baseStyle = Theme.of(context).textTheme.bodyMedium;
-    final fontSize = isDesktop ? 14.0 : isTablet ? 13.0 : 12.0;
-    
+    final fontSize = isDesktop
+        ? 14.0
+        : isTablet
+            ? 13.0
+            : 12.0;
+
     return baseStyle?.copyWith(
-      color: _hasError ? AppColors.error : AppColors.primary,
-      fontWeight: FontWeight.w600,
-      fontSize: fontSize,
-      height: 1.2,
-    ) ?? TextStyle(
-      color: _hasError ? AppColors.error : AppColors.primary,
-      fontWeight: FontWeight.w600,
-      fontSize: fontSize,
-      height: 1.2,
-    );
+          color: _hasError ? AppColors.error : AppColors.primary,
+          fontWeight: FontWeight.w600,
+          fontSize: fontSize,
+          height: 1.2,
+        ) ??
+        TextStyle(
+          color: _hasError ? AppColors.error : AppColors.primary,
+          fontWeight: FontWeight.w600,
+          fontSize: fontSize,
+          height: 1.2,
+        );
   }
 
-  TextStyle _getErrorStyle(BuildContext context, bool isDesktop, bool isTablet) {
+  TextStyle _getErrorStyle(
+      BuildContext context, bool isDesktop, bool isTablet) {
     final baseStyle = Theme.of(context).textTheme.bodySmall;
-    final fontSize = isDesktop ? 13.0 : isTablet ? 12.0 : 11.0;
-    
+    final fontSize = isDesktop
+        ? 13.0
+        : isTablet
+            ? 12.0
+            : 11.0;
+
     return baseStyle?.copyWith(
-      color: AppColors.error,
-      fontWeight: FontWeight.w500,
-      fontSize: fontSize,
-      height: 1.2,
-    ) ?? TextStyle(
-      color: AppColors.error,
-      fontWeight: FontWeight.w500,
-      fontSize: fontSize,
-      height: 1.2,
-    );
+          color: AppColors.error,
+          fontWeight: FontWeight.w500,
+          fontSize: fontSize,
+          height: 1.2,
+        ) ??
+        TextStyle(
+          color: AppColors.error,
+          fontWeight: FontWeight.w500,
+          fontSize: fontSize,
+          height: 1.2,
+        );
   }
 }

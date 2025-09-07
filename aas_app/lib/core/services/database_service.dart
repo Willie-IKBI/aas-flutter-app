@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 
 /// Database Service
-/// 
+///
 /// Handles database operations with Supabase.
 class DatabaseService {
   // Private constructor to prevent instantiation
@@ -12,7 +12,7 @@ class DatabaseService {
   // ===== CRUD OPERATIONS =====
 
   /// Insert a single record
-  static Future<PostgrestResponse> insert({
+  static Future<PostgrestList> insert({
     required String table,
     required Map<String, dynamic> data,
     String? returning,
@@ -21,23 +21,19 @@ class DatabaseService {
       final response = await SupabaseConfig.database
           .from(table)
           .insert(data)
-          .select(returning);
+          .select(returning ?? '*');
 
-      if (kDebugMode) {
-        print('✅ Record inserted successfully in $table');
-      }
+      if (kDebugMode) {}
 
       return response;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Insert failed in $table: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
 
   /// Insert multiple records
-  static Future<PostgrestResponse> insertMany({
+  static Future<PostgrestList> insertMany({
     required String table,
     required List<Map<String, dynamic>> data,
     String? returning,
@@ -46,23 +42,19 @@ class DatabaseService {
       final response = await SupabaseConfig.database
           .from(table)
           .insert(data)
-          .select(returning);
+          .select(returning ?? '*');
 
-      if (kDebugMode) {
-        print('✅ ${data.length} records inserted successfully in $table');
-      }
+      if (kDebugMode) {}
 
       return response;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Bulk insert failed in $table: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
 
   /// Select records with optional filters
-  static Future<PostgrestResponse> select({
+  static Future<PostgrestList> select({
     required String table,
     String? columns,
     String? filter,
@@ -71,7 +63,7 @@ class DatabaseService {
     int? offset,
   }) async {
     try {
-      var query = SupabaseConfig.database.from(table).select(columns);
+      var query = SupabaseConfig.database.from(table).select(columns ?? '*');
 
       if (filter != null) {
         query = query.eq(filter, true);
@@ -91,15 +83,11 @@ class DatabaseService {
 
       final response = await query;
 
-      if (kDebugMode) {
-        print('✅ Records selected successfully from $table');
-      }
+      if (kDebugMode) {}
 
       return response;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Select failed in $table: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -112,10 +100,8 @@ class DatabaseService {
     String? returning,
   }) async {
     try {
-      var query = SupabaseConfig.database
-          .from(table)
-          .update(data)
-          .select(returning);
+      var query =
+          SupabaseConfig.database.from(table).update(data).select(returning);
 
       if (filter != null) {
         query = query.eq(filter, true);
@@ -123,15 +109,11 @@ class DatabaseService {
 
       final response = await query;
 
-      if (kDebugMode) {
-        print('✅ Records updated successfully in $table');
-      }
+      if (kDebugMode) {}
 
       return response;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Update failed in $table: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -143,10 +125,8 @@ class DatabaseService {
     String? returning,
   }) async {
     try {
-      var query = SupabaseConfig.database
-          .from(table)
-          .delete()
-          .select(returning);
+      var query =
+          SupabaseConfig.database.from(table).delete().select(returning);
 
       if (filter != null) {
         query = query.eq(filter, true);
@@ -154,15 +134,11 @@ class DatabaseService {
 
       final response = await query;
 
-      if (kDebugMode) {
-        print('✅ Records deleted successfully from $table');
-      }
+      if (kDebugMode) {}
 
       return response;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Delete failed in $table: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -272,24 +248,19 @@ class DatabaseService {
     required String event,
     required Function(Map<String, dynamic>) onData,
   }) {
-    final channel = SupabaseConfig.realtime
-        .channel('public:$table')
-        .on(
-          RealtimeListenTypes.postgresChanges,
-          ChannelFilter(
-            event: event,
-            schema: 'public',
-            table: table,
-          ),
-          (payload, [ref]) {
-            onData(payload);
-          },
-        )
-        .subscribe();
+    final channel = SupabaseConfig.realtime.channel('public:$table').on(
+      RealtimeListenTypes.postgresChanges,
+      ChannelFilter(
+        event: event,
+        schema: 'public',
+        table: table,
+      ),
+      (payload, [ref]) {
+        onData(payload);
+      },
+    ).subscribe();
 
-    if (kDebugMode) {
-      print('✅ Subscribed to $table:$event');
-    }
+    if (kDebugMode) {}
 
     return channel;
   }
@@ -336,15 +307,11 @@ class DatabaseService {
         'query': query,
       });
 
-      if (kDebugMode) {
-        print('✅ Raw query executed successfully');
-      }
+      if (kDebugMode) {}
 
       return response;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Raw query failed: $error');
-      }
+      if (kDebugMode) {}
       rethrow;
     }
   }
@@ -354,13 +321,11 @@ class DatabaseService {
     try {
       final response = await SupabaseConfig.database
           .from(table)
-          .select('*', const FetchOptions(count: CountOption.exact));
+          .select(const FetchOptions(count: CountOption.exact));
 
       return response.count ?? 0;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Get count failed for $table: $error');
-      }
+      if (kDebugMode) {}
       return 0;
     }
   }
@@ -380,9 +345,7 @@ class DatabaseService {
 
       return response.isNotEmpty;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Check existence failed: $error');
-      }
+      if (kDebugMode) {}
       return false;
     }
   }
@@ -401,9 +364,7 @@ class DatabaseService {
       }
       return null;
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Get last ID failed: $error');
-      }
+      if (kDebugMode) {}
       return null;
     }
   }

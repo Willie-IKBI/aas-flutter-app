@@ -1,13 +1,4 @@
 class OrderPhoto {
-  final String id;
-  final int orderId;
-  final String photoUrl;
-  final String? photoName;
-  final String? photoDescription;
-  final DateTime uploadedAt;
-  final String uploadedBy;
-  final String? uploaderName;
-
   OrderPhoto({
     required this.id,
     required this.orderId,
@@ -31,6 +22,14 @@ class OrderPhoto {
       uploaderName: json['uploader_name'] as String?,
     );
   }
+  final String id;
+  final int orderId;
+  final String photoUrl;
+  final String? photoName;
+  final String? photoDescription;
+  final DateTime uploadedAt;
+  final String uploadedBy;
+  final String? uploaderName;
 
   Map<String, dynamic> toJson() {
     return {

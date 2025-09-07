@@ -1,9 +1,8 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
-import '../models/order.dart';
+import 'tenant_context_service.dart';
 
 class DocumentService {
   static final SupabaseClient _supabase = SupabaseConfig.client;
@@ -24,7 +23,9 @@ class DocumentService {
       // Generate unique file path
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final fileExtension = filename.split('.').last;
-      final storagePath = 'orders/$orderId/$category/${timestamp}_$filename';
+      final storagePath = TenantContextService.getTenantStoragePath(
+          'orders', orderId.toString(),
+          subPath: '$category/${timestamp}_$filename');
 
       // Upload file to Supabase Storage
       await _supabase.storage
@@ -32,9 +33,8 @@ class DocumentService {
           .uploadBinary(storagePath, fileBytes);
 
       // Get public URL
-      final publicUrl = _supabase.storage
-          .from('documents')
-          .getPublicUrl(storagePath);
+      final publicUrl =
+          _supabase.storage.from('documents').getPublicUrl(storagePath);
 
       // Save document record to database
       final response = await _supabase
@@ -53,26 +53,21 @@ class DocumentService {
 
       return publicUrl;
     } catch (e) {
-      print('Error uploading document: $e');
       return null;
     }
   }
 
   // Get documents for an order
-  static Future<List<Map<String, dynamic>>> getOrderDocuments(int orderId) async {
+  static Future<List<Map<String, dynamic>>> getOrderDocuments(
+      int orderId) async {
     try {
-      final response = await _supabase
-          .from('order_documents')
-          .select('''
+      final response = await _supabase.from('order_documents').select('''
             *,
             uploaded_by_user:profile!order_documents_uploaded_by_fkey(display_name, user_email)
-          ''')
-          .eq('order_id', orderId)
-          .order('created_at', ascending: false);
+          ''').eq('order_id', orderId).order('created_at', ascending: false);
 
       return (response as List).cast<Map<String, dynamic>>();
     } catch (e) {
-      print('Error getting order documents: $e');
       return [];
     }
   }
@@ -90,19 +85,13 @@ class DocumentService {
       final storagePath = documentResponse['storage_path'] as String;
 
       // Delete from storage
-      await _supabase.storage
-          .from('documents')
-          .remove([storagePath]);
+      await _supabase.storage.from('documents').remove([storagePath]);
 
       // Delete from database
-      await _supabase
-          .from('order_documents')
-          .delete()
-          .eq('id', documentId);
+      await _supabase.from('order_documents').delete().eq('id', documentId);
 
       return true;
     } catch (e) {
-      print('Error deleting document: $e');
       return false;
     }
   }
@@ -119,7 +108,6 @@ class DocumentService {
         allowMultiple: allowMultiple,
       );
     } catch (e) {
-      print('Error picking file: $e');
       return null;
     }
   }
@@ -128,7 +116,8 @@ class DocumentService {
   static String getFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -139,14 +128,17 @@ class DocumentService {
     if (mimeType.startsWith('audio/')) return '🎵';
     if (mimeType.contains('pdf')) return '📄';
     if (mimeType.contains('word') || mimeType.contains('document')) return '📝';
-    if (mimeType.contains('excel') || mimeType.contains('spreadsheet')) return '📊';
-    if (mimeType.contains('powerpoint') || mimeType.contains('presentation')) return '📈';
+    if (mimeType.contains('excel') || mimeType.contains('spreadsheet'))
+      return '📊';
+    if (mimeType.contains('powerpoint') || mimeType.contains('presentation'))
+      return '📈';
     if (mimeType.contains('zip') || mimeType.contains('archive')) return '📦';
     return '📎';
   }
 
   // Validate file
-  static bool isValidFile(PlatformFile file, {
+  static bool isValidFile(
+    PlatformFile file, {
     int? maxSizeBytes,
     List<String>? allowedExtensions,
   }) {
@@ -167,7 +159,8 @@ class DocumentService {
   }
 
   // Get validation error message
-  static String? getValidationErrorMessage(PlatformFile file, {
+  static String? getValidationErrorMessage(
+    PlatformFile file, {
     int? maxSizeBytes,
     List<String>? allowedExtensions,
   }) {
@@ -188,13 +181,11 @@ class DocumentService {
   // Download document
   static Future<Uint8List?> downloadDocument(String storagePath) async {
     try {
-      final response = await _supabase.storage
-          .from('documents')
-          .download(storagePath);
+      final response =
+          await _supabase.storage.from('documents').download(storagePath);
 
       return response;
     } catch (e) {
-      print('Error downloading document: $e');
       return null;
     }
   }

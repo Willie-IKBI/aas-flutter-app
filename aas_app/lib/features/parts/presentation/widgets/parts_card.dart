@@ -3,11 +3,6 @@ import '../../../../core/theme/index.dart';
 import '../models/part.dart';
 
 class PartsCard extends StatelessWidget {
-  final Part part;
-  final VoidCallback? onTap;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
-
   const PartsCard({
     super.key,
     required this.part,
@@ -15,17 +10,17 @@ class PartsCard extends StatelessWidget {
     this.onEdit,
     this.onDelete,
   });
+  final Part part;
+  final VoidCallback? onTap;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -38,9 +33,9 @@ class PartsCard extends StatelessWidget {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: part.isActive 
-                          ? AppColors.primary.withOpacity(0.1)
-                          : AppColors.onSurfaceVariant.withOpacity(0.1),
+                      color: part.isActive
+                          ? AppColors.primary.withValues(alpha: 0.1)
+                          : AppColors.onSurfaceVariant.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: part.hasImage
@@ -49,13 +44,16 @@ class PartsCard extends StatelessWidget {
                             child: Image.network(
                               part.partImageUrl!,
                               fit: BoxFit.cover,
-                              loadingBuilder: (context, child, loadingProgress) {
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
                                 if (loadingProgress == null) return child;
                                 return Center(
                                   child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress.cumulativeBytesLoaded / 
-                                          loadingProgress.expectedTotalBytes!
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
                                         : null,
                                     strokeWidth: 2,
                                     color: AppColors.primary,
@@ -63,12 +61,13 @@ class PartsCard extends StatelessWidget {
                                 );
                               },
                               errorBuilder: (context, error, stackTrace) {
-                                return Container(
+                                return DecoratedBox(
                                   decoration: BoxDecoration(
-                                    color: AppColors.surfaceVariant.withOpacity(0.3),
+                                    color: AppColors.surfaceVariant
+                                        .withValues(alpha: 0.3),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.broken_image,
                                     color: AppColors.onSurfaceVariant,
                                     size: 24,
@@ -77,14 +76,15 @@ class PartsCard extends StatelessWidget {
                               },
                             ),
                           )
-                        : Container(
+                        : DecoratedBox(
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceVariant.withOpacity(0.3),
+                              color: AppColors.surfaceVariant
+                                  .withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
                               Icons.inventory_2,
-                              color: part.isActive 
+                              color: part.isActive
                                   ? AppColors.primary
                                   : AppColors.onSurfaceVariant,
                               size: 24,
@@ -92,7 +92,7 @@ class PartsCard extends StatelessWidget {
                           ),
                   ),
                   const SizedBox(width: 16),
-                  
+
                   // Part details
                   Expanded(
                     child: Column(
@@ -103,7 +103,7 @@ class PartsCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 part.partName,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.onBackground,
@@ -120,14 +120,13 @@ class PartsCard extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: part.isActive
-                                    ? AppColors.success.withOpacity(0.1)
-                                    : AppColors.error.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
+                                    ? AppColors.success.withValues(alpha: 0.1)
+                                    : AppColors.error.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                   color: part.isActive
-                                      ? AppColors.success.withOpacity(0.3)
-                                      : AppColors.error.withOpacity(0.3),
-                                  width: 1,
+                                      ? AppColors.success.withValues(alpha: 0.3)
+                                      : AppColors.error.withValues(alpha: 0.3),
                                 ),
                               ),
                               child: Text(
@@ -147,7 +146,7 @@ class PartsCard extends StatelessWidget {
                         if (part.partNumber != null) ...[
                           Text(
                             'Part #: ${part.partNumber}',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 14,
                               color: AppColors.onSurfaceVariant,
                               fontWeight: FontWeight.w500,
@@ -158,7 +157,7 @@ class PartsCard extends StatelessWidget {
                         if (part.partLocation != null) ...[
                           Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.location_on_outlined,
                                 size: 16,
                                 color: AppColors.onSurfaceVariant,
@@ -167,7 +166,7 @@ class PartsCard extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   part.partLocation!,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     color: AppColors.onSurfaceVariant,
                                   ),
@@ -182,7 +181,7 @@ class PartsCard extends StatelessWidget {
                         if (part.partDescription != null) ...[
                           Text(
                             part.partDescription!,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 14,
                               color: AppColors.onSurfaceVariant,
                             ),
@@ -193,10 +192,10 @@ class PartsCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   // Actions menu
                   PopupMenuButton<String>(
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.more_vert,
                       color: AppColors.onSurfaceVariant,
                     ),
@@ -221,7 +220,7 @@ class PartsCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
@@ -229,7 +228,7 @@ class PartsCard extends StatelessWidget {
                               Icons.delete_outline,
                               color: AppColors.error,
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Text(
                               'Delete',
                               style: TextStyle(color: AppColors.error),

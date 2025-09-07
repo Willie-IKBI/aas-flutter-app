@@ -2,16 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
 
 class PartFormField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final IconData prefixIcon;
-  final String? Function(String?)? validator;
-  final TextInputType? keyboardType;
-  final TextInputAction? textInputAction;
-  final int? maxLines;
-  final Widget? suffixIcon;
-
   const PartFormField({
     super.key,
     required this.controller,
@@ -24,16 +14,24 @@ class PartFormField extends StatelessWidget {
     this.maxLines = 1,
     this.suffixIcon,
   });
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final IconData prefixIcon;
+  final String? Function(String?)? validator;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final int? maxLines;
+  final Widget? suffixIcon;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.outline.withOpacity(0.2),
-          width: 1,
+          color: AppColors.outline.withValues(alpha: 0.2),
         ),
       ),
       child: TextFormField(
@@ -55,15 +53,15 @@ class PartFormField extends StatelessWidget {
             horizontal: 16,
             vertical: 12,
           ),
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
             color: AppColors.onSurfaceVariant,
           ),
-          hintStyle: TextStyle(
+          hintStyle: const TextStyle(
             color: AppColors.onSurfaceVariant,
             fontSize: 14,
           ),
         ),
-        style: TextStyle(
+        style: const TextStyle(
           color: AppColors.onBackground,
           fontSize: 14,
         ),

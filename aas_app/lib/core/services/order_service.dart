@@ -6,6 +6,8 @@ import '../models/user_profile.dart';
 import 'auth_service.dart';
 import '../models/user_role.dart';
 import 'notification_service.dart';
+import 'error_service.dart';
+import 'tenant_context_service.dart';
 
 class OrderService {
   static final SupabaseClient _supabase = SupabaseConfig.client;
@@ -21,8 +23,8 @@ class OrderService {
     String? equipmentSerialNumber,
   }) async {
     try {
-      final user = _supabase.auth.currentUser;
-      if (user == null) return null;
+      final businessFilter = TenantContextService.getBusinessFilter();
+      final userFilter = TenantContextService.getUserFilter();
 
       // Insert the order
       final orderResponse = await _supabase
@@ -30,9 +32,10 @@ class OrderService {
           .insert({
             'order_date': orderDate.toIso8601String(),
             'description': description,
-            'captured_by': user.id,
+            'captured_by': userFilter['user_id'],
             'customer_id': customerId,
             'sales_rep_id': salesRepId,
+            'business_id': businessFilter['business_id'],
             'status': 'in_progress',
             'current_stage': 'order_captured',
             'equipment_type': equipmentType,
@@ -45,15 +48,13 @@ class OrderService {
       final order = Order.fromJson(orderResponse);
 
       // Create the initial stage event
-      await _supabase
-          .from('order_stage_events')
-          .insert({
-            'order_id': order.id,
-            'stage': 'order_captured',
-            'opened_at': DateTime.now().toIso8601String(),
-            'actor_id': user.id,
-            'notes': 'Order created',
-          });
+      await _supabase.from('order_stage_events').insert({
+        'order_id': order.id,
+        'stage': 'order_captured',
+        'opened_at': DateTime.now().toIso8601String(),
+        'actor_id': userFilter['user_id'],
+        'notes': 'Order created',
+      });
 
       // Get customer details for notification
       if (salesRepId != null) {
@@ -63,26 +64,27 @@ class OrderService {
               .select('client_name')
               .eq('id', customerId)
               .single();
-          
-          final customerName = customerResponse['client_name'] as String? ?? 'Unknown Customer';
-          
+
+          final customerName =
+              customerResponse['client_name'] as String? ?? 'Unknown Customer';
+
           // The notification will be handled by the real-time listener
-          print('Order #${order.id} created and assigned to sales rep $salesRepId for customer $customerName');
-        } catch (e) {
-          print('Error getting customer details for notification: $e');
-        }
+        } catch (e) {}
       }
 
       return order;
-    } catch (e) {
-      print('Error creating order: $e');
-      return null;
+    } catch (error) {
+      ErrorService.logError(error, StackTrace.current,
+          context: 'OrderService.createOrder');
+      throw Exception(ErrorService.mapSupabaseError(error));
     }
   }
 
   // Get all orders
   static Future<List<Order>> getAllOrders() async {
     try {
+      final businessFilter = TenantContextService.getBusinessFilter();
+
       final response = await _supabase
           .from('orders')
           .select('''
@@ -90,33 +92,28 @@ class OrderService {
             customers:customer_id(client_name, contact_name),
             sales_rep:profile!orders_sales_rep_id_fkey(display_name, user_email)
           ''')
+          .eq('business_id', businessFilter['business_id'])
           .order('created_at', ascending: false);
 
-      return (response as List)
-          .map((order) => Order.fromJson(order))
-          .toList();
-    } catch (e) {
-      print('Error getting all orders: $e');
-      return [];
+      return (response as List).map((order) => Order.fromJson(order)).toList();
+    } catch (error) {
+      ErrorService.logError(error, StackTrace.current,
+          context: 'OrderService.getAllOrders');
+      throw Exception(ErrorService.mapSupabaseError(error));
     }
   }
 
   // Get order by ID
   static Future<Order?> getOrderById(int orderId) async {
     try {
-      final response = await _supabase
-          .from('orders')
-          .select('''
+      final response = await _supabase.from('orders').select('''
             *,
             customers:customer_id(client_name, contact_name, contact_email, contact_number),
             sales_rep:profile!orders_sales_rep_id_fkey(display_name, user_email)
-          ''')
-          .eq('id', orderId)
-          .single();
+          ''').eq('id', orderId).single();
 
       return Order.fromJson(response);
     } catch (e) {
-      print('Error getting order by ID: $e');
       return null;
     }
   }
@@ -134,11 +131,8 @@ class OrderService {
           .eq('customer_id', customerId)
           .order('created_at', ascending: false);
 
-      return (response as List)
-          .map((order) => Order.fromJson(order))
-          .toList();
+      return (response as List).map((order) => Order.fromJson(order)).toList();
     } catch (e) {
-      print('Error getting orders by customer ID: $e');
       return [];
     }
   }
@@ -156,11 +150,8 @@ class OrderService {
           .eq('sales_rep_id', salesRepId)
           .order('created_at', ascending: false);
 
-      return (response as List)
-          .map((order) => Order.fromJson(order))
-          .toList();
+      return (response as List).map((order) => Order.fromJson(order)).toList();
     } catch (e) {
-      print('Error getting orders by sales rep ID: $e');
       return [];
     }
   }
@@ -168,84 +159,67 @@ class OrderService {
   // Get orders by status
   static Future<List<Order>> getOrdersByStatus(String status) async {
     try {
-      final response = await _supabase
-          .from('orders')
-          .select('''
+      final response = await _supabase.from('orders').select('''
             *,
             customers:customer_id(client_name, contact_name)
-          ''')
-          .eq('status', status)
-          .order('created_at', ascending: false);
+          ''').eq('status', status).order('created_at', ascending: false);
 
-      return (response as List)
-          .map((order) => Order.fromJson(order))
-          .toList();
+      return (response as List).map((order) => Order.fromJson(order)).toList();
     } catch (e) {
-      print('Error getting orders by status: $e');
       return [];
     }
   }
 
   // Update order status
-  static Future<bool> updateOrderStatus(int orderId, String status, String? notes) async {
+  static Future<bool> updateOrderStatus(
+      int orderId, String status, String? notes) async {
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) return false;
 
-      await _supabase
-          .from('orders')
-          .update({
-            'status': status,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', orderId);
+      await _supabase.from('orders').update({
+        'status': status,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', orderId);
 
       // Create stage event for status change
-      await _supabase
-          .from('order_stage_events')
-          .insert({
-            'order_id': orderId,
-            'stage': status,
-            'opened_at': DateTime.now().toIso8601String(),
-            'actor_id': user.id,
-            'notes': notes ?? 'Status updated to $status',
-          });
+      await _supabase.from('order_stage_events').insert({
+        'order_id': orderId,
+        'stage': status,
+        'opened_at': DateTime.now().toIso8601String(),
+        'actor_id': user.id,
+        'notes': notes ?? 'Status updated to $status',
+      });
 
       return true;
     } catch (e) {
-      print('Error updating order status: $e');
       return false;
     }
   }
 
   // Update order stage
-  static Future<bool> updateOrderStage(int orderId, String stage, String? notes) async {
+  static Future<bool> updateOrderStage(
+      int orderId, String stage, String? notes) async {
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) return false;
 
-      await _supabase
-          .from('orders')
-          .update({
-            'current_stage': stage,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', orderId);
+      await _supabase.from('orders').update({
+        'current_stage': stage,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', orderId);
 
       // Create stage event
-      await _supabase
-          .from('order_stage_events')
-          .insert({
-            'order_id': orderId,
-            'stage': stage,
-            'opened_at': DateTime.now().toIso8601String(),
-            'actor_id': user.id,
-            'notes': notes ?? 'Stage updated to $stage',
-          });
+      await _supabase.from('order_stage_events').insert({
+        'order_id': orderId,
+        'stage': stage,
+        'opened_at': DateTime.now().toIso8601String(),
+        'actor_id': user.id,
+        'notes': notes ?? 'Stage updated to $stage',
+      });
 
       return true;
     } catch (e) {
-      print('Error updating order stage: $e');
       return false;
     }
   }
@@ -256,28 +230,62 @@ class OrderService {
       final user = _supabase.auth.currentUser;
       if (user == null) return false;
 
-      await _supabase
-          .from('orders')
-          .update({
-            'sales_rep_id': salesRepId,
-            'updated_at': DateTime.now().toIso8601String(),
-          })
-          .eq('id', orderId);
+      await _supabase.from('orders').update({
+        'sales_rep_id': salesRepId,
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('id', orderId);
 
       // Create stage event for assignment
-      await _supabase
-          .from('order_stage_events')
-          .insert({
-            'order_id': orderId,
-            'stage': 'order_captured',
-            'opened_at': DateTime.now().toIso8601String(),
-            'actor_id': user.id,
-            'notes': 'Sales rep assigned',
-          });
+      await _supabase.from('order_stage_events').insert({
+        'order_id': orderId,
+        'stage': 'order_captured',
+        'opened_at': DateTime.now().toIso8601String(),
+        'actor_id': user.id,
+        'notes': 'Sales rep assigned',
+      });
 
       return true;
     } catch (e) {
-      print('Error assigning sales rep: $e');
+      return false;
+    }
+  }
+
+  // Update order details (comprehensive update method)
+  static Future<bool> updateOrder({
+    required int orderId,
+    String? description,
+    String? equipmentType,
+    String? equipmentModel,
+    String? equipmentSerialNumber,
+    String? notes,
+  }) async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) return false;
+
+      final updates = <String, dynamic>{
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      if (description != null) updates['description'] = description;
+      if (equipmentType != null) updates['equipment_type'] = equipmentType;
+      if (equipmentModel != null) updates['equipment_model'] = equipmentModel;
+      if (equipmentSerialNumber != null)
+        updates['equipment_serial_number'] = equipmentSerialNumber;
+
+      await _supabase.from('orders').update(updates).eq('id', orderId);
+
+      // Create stage event for update
+      await _supabase.from('order_stage_events').insert({
+        'order_id': orderId,
+        'stage': 'order_captured',
+        'opened_at': DateTime.now().toIso8601String(),
+        'actor_id': user.id,
+        'notes': notes ?? 'Order details updated',
+      });
+
+      return true;
+    } catch (e) {
       return false;
     }
   }
@@ -285,12 +293,10 @@ class OrderService {
   // Get order statistics
   static Future<Map<String, dynamic>> getOrderStatistics() async {
     try {
-      final response = await _supabase
-          .rpc('get_order_statistics');
+      final response = await _supabase.rpc('get_order_statistics');
 
       return response as Map<String, dynamic>;
     } catch (e) {
-      print('Error getting order statistics: $e');
       return {
         'total_orders': 0,
         'in_progress': 0,
@@ -314,11 +320,8 @@ class OrderService {
           .or('description.ilike.%$query%,equipment_type.ilike.%$query%,equipment_model.ilike.%$query%')
           .order('created_at', ascending: false);
 
-      return (response as List)
-          .map((order) => Order.fromJson(order))
-          .toList();
+      return (response as List).map((order) => Order.fromJson(order)).toList();
     } catch (e) {
-      print('Error searching orders: $e');
       return [];
     }
   }
@@ -326,21 +329,17 @@ class OrderService {
   // Get active orders (not completed or cancelled)
   static Future<List<Order>> getActiveOrders() async {
     try {
-      final response = await _supabase
-          .from('orders')
-          .select('''
+      final response = await _supabase.from('orders').select('''
             *,
             customers:customer_id(client_name, contact_name),
             sales_rep:profile!orders_sales_rep_id_fkey(display_name, user_email)
-          ''')
-          .not('status', 'in', ['complete', 'cancelled'])
-          .order('created_at', ascending: false);
+          ''').not('status', 'in', [
+        'complete',
+        'cancelled'
+      ]).order('created_at', ascending: false);
 
-      return (response as List)
-          .map((order) => Order.fromJson(order))
-          .toList();
+      return (response as List).map((order) => Order.fromJson(order)).toList();
     } catch (e) {
-      print('Error getting active orders: $e');
       return [];
     }
   }
@@ -355,7 +354,6 @@ class OrderService {
 
       return response.length;
     } catch (e) {
-      print('Error getting active orders count: $e');
       return 0;
     }
   }
@@ -370,7 +368,6 @@ class OrderService {
 
       return response.length;
     } catch (e) {
-      print('Error getting pending approval count: $e');
       return 0;
     }
   }
@@ -391,8 +388,79 @@ class OrderService {
 
       return response.length;
     } catch (e) {
-      print('Error getting completed today count: $e');
       return 0;
     }
+  }
+
+  // Stage Management Methods
+  Future<List<Order>> getOrdersByStage(String stage) async {
+    try {
+      final response = await _supabase.from('orders').select('''
+            *,
+            customers!inner(*),
+            profiles!orders_captured_by_fkey(*)
+          ''').eq('current_stage', stage).order('created_at', ascending: false);
+
+      return response.map((json) => Order.fromJson(json)).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Note: moveOrderToStage method moved to StageManagementService
+  // This method was causing errors due to non-existent database function
+
+  Future<Map<String, int>> getStageCounts() async {
+    try {
+      final response = await _supabase
+          .from('orders')
+          .select('current_stage')
+          .inFilter('status',
+              ['in_progress', 'waiting_approval', 'approved', 'in_production']);
+
+      final counts = <String, int>{};
+      for (final order in response) {
+        final stage = order['current_stage'] as String;
+        counts[stage] = (counts[stage] ?? 0) + 1;
+      }
+
+      return counts;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getStageEvents(int orderId) async {
+    try {
+      final response = await _supabase.from('order_stage_events').select('''
+            *,
+            profiles!order_stage_events_created_by_fkey(*)
+          ''').eq('order_id', orderId).order('created_at', ascending: false);
+
+      return response;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<bool> canMoveToStage(String currentStage, String targetStage) async {
+    const stageFlow = [
+      'order_captured',
+      'wash_bay',
+      'assessment',
+      'quotation',
+      'approval',
+      'job_commence',
+      'paint',
+      'dispatch',
+    ];
+
+    final currentIndex = stageFlow.indexOf(currentStage);
+    final targetIndex = stageFlow.indexOf(targetStage);
+
+    if (currentIndex == -1 || targetIndex == -1) return false;
+
+    // Allow moving forward or backward by one stage
+    return (targetIndex - currentIndex).abs() <= 1;
   }
 }

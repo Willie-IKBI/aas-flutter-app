@@ -7,15 +7,6 @@ import '../../../../core/models/user_profile.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class ReviewStep extends StatelessWidget {
-  final Customer? customer;
-  final String? equipmentType;
-  final String? equipmentModel;
-  final String? equipmentSerialNumber;
-  final String jobDescription;
-  final List<dynamic> photos; // Can be File or PlatformFile
-  final UserProfile? salesRep;
-  final DateTime orderDate;
-
   const ReviewStep({
     super.key,
     this.customer,
@@ -27,11 +18,19 @@ class ReviewStep extends StatelessWidget {
     this.salesRep,
     required this.orderDate,
   });
+  final Customer? customer;
+  final String? equipmentType;
+  final String? equipmentModel;
+  final String? equipmentSerialNumber;
+  final String jobDescription;
+  final List<dynamic> photos; // Can be File or PlatformFile
+  final UserProfile? salesRep;
+  final DateTime orderDate;
 
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 768;
-    
+
     return Padding(
       padding: EdgeInsets.all(isDesktop ? 24 : 16),
       child: Column(
@@ -59,7 +58,8 @@ class ReviewStep extends StatelessWidget {
                     'Customer Information',
                     Icons.person,
                     [
-                      _buildInfoRow('Client Name', customer?.clientName ?? 'Not selected'),
+                      _buildInfoRow('Client Name',
+                          customer?.clientName ?? 'Not selected'),
                       if (customer?.contactName != null)
                         _buildInfoRow('Contact Person', customer!.contactName!),
                       if (customer?.contactEmail != null)
@@ -78,8 +78,13 @@ class ReviewStep extends StatelessWidget {
                     'Order Information',
                     Icons.receipt,
                     [
-                      _buildInfoRow('Order Date', '${orderDate.day}/${orderDate.month}/${orderDate.year}'),
-                      _buildInfoRow('Job Description', jobDescription.isNotEmpty ? jobDescription : 'Not provided'),
+                      _buildInfoRow('Order Date',
+                          '${orderDate.day}/${orderDate.month}/${orderDate.year}'),
+                      _buildInfoRow(
+                          'Job Description',
+                          jobDescription.isNotEmpty
+                              ? jobDescription
+                              : 'Not provided'),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -94,11 +99,13 @@ class ReviewStep extends StatelessWidget {
                         _buildInfoRow('Equipment Type', equipmentType!),
                       if (equipmentModel != null && equipmentModel!.isNotEmpty)
                         _buildInfoRow('Equipment Model', equipmentModel!),
-                      if (equipmentSerialNumber != null && equipmentSerialNumber!.isNotEmpty)
+                      if (equipmentSerialNumber != null &&
+                          equipmentSerialNumber!.isNotEmpty)
                         _buildInfoRow('Serial Number', equipmentSerialNumber!),
                       if ((equipmentType == null || equipmentType!.isEmpty) &&
                           (equipmentModel == null || equipmentModel!.isEmpty) &&
-                          (equipmentSerialNumber == null || equipmentSerialNumber!.isEmpty))
+                          (equipmentSerialNumber == null ||
+                              equipmentSerialNumber!.isEmpty))
                         _buildInfoRow('Equipment Details', 'Not provided'),
                     ],
                   ),
@@ -146,7 +153,7 @@ class ReviewStep extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.info.withOpacity(0.3),
+                          color: AppColors.info.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -160,17 +167,17 @@ class ReviewStep extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: AppColors.onInfo.withOpacity(0.2),
+                                color: AppColors.onInfo.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.info_outline,
                                 color: AppColors.onInfo,
                                 size: 20,
                               ),
                             ),
                             const SizedBox(width: 12),
-                            Expanded(
+                            const Expanded(
                               child: Text(
                                 'Order Summary',
                                 style: TextStyle(
@@ -183,7 +190,7 @@ class ReviewStep extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Text(
+                        const Text(
                           'This order will be created with the status "In Progress" and will start at the "Order Captured" stage. The assigned sales representative will be notified of the new order.',
                           style: TextStyle(
                             color: AppColors.onInfo,
@@ -210,18 +217,18 @@ class ReviewStep extends StatelessWidget {
     List<Widget> children,
   ) {
     final isDesktop = MediaQuery.of(context).size.width > 768;
-    
+
     return Container(
       padding: EdgeInsets.all(isDesktop ? 20 : 16),
       decoration: BoxDecoration(
         gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.outline.withOpacity(0.2),
+          color: AppColors.outline.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -274,7 +281,7 @@ class ReviewStep extends StatelessWidget {
             width: 140,
             child: Text(
               '$label:',
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.w500,
                 color: AppColors.onSurfaceVariant,
                 fontSize: 14,
@@ -284,7 +291,7 @@ class ReviewStep extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.w500,
                 color: AppColors.onSurface,
                 fontSize: 14,
@@ -310,7 +317,7 @@ class ReviewStep extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -332,9 +339,9 @@ class ReviewStep extends StatelessWidget {
         photo,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          return Container(
+          return const ColoredBox(
             color: AppColors.surfaceVariant,
-            child: const Center(
+            child: Center(
               child: Icon(
                 Icons.error_outline,
                 color: AppColors.error,
@@ -348,9 +355,9 @@ class ReviewStep extends StatelessWidget {
         Uint8List.fromList(photo.bytes!),
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          return Container(
+          return const ColoredBox(
             color: AppColors.surfaceVariant,
-            child: const Center(
+            child: Center(
               child: Icon(
                 Icons.error_outline,
                 color: AppColors.error,
@@ -360,9 +367,9 @@ class ReviewStep extends StatelessWidget {
         },
       );
     } else {
-      return Container(
+      return const ColoredBox(
         color: AppColors.surfaceVariant,
-        child: const Center(
+        child: Center(
           child: Icon(
             Icons.image_not_supported,
             color: AppColors.error,

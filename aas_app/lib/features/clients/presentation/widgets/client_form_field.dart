@@ -2,15 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
 
 class ClientFormField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final IconData icon;
-  final TextInputType? keyboardType;
-  final int? maxLines;
-  final String? Function(String?)? validator;
-  final bool enabled;
-
   const ClientFormField({
     super.key,
     required this.controller,
@@ -22,6 +13,14 @@ class ClientFormField extends StatelessWidget {
     this.validator,
     this.enabled = true,
   });
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final IconData icon;
+  final TextInputType? keyboardType;
+  final int? maxLines;
+  final String? Function(String?)? validator;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +30,9 @@ class ClientFormField extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: AppColors.onBackground,
-            fontWeight: FontWeight.w600,
-          ),
+                color: AppColors.onBackground,
+                fontWeight: FontWeight.w600,
+              ),
         ),
         const SizedBox(height: 8),
         TextFormField(
@@ -42,14 +41,14 @@ class ClientFormField extends StatelessWidget {
           maxLines: maxLines,
           enabled: enabled,
           validator: validator,
-          style: TextStyle(
+          style: const TextStyle(
             color: AppColors.onBackground,
             fontSize: 16,
             fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(
+            hintStyle: const TextStyle(
               color: AppColors.onSurfaceVariant,
               fontSize: 16,
               fontWeight: FontWeight.w400,
@@ -58,7 +57,7 @@ class ClientFormField extends StatelessWidget {
               margin: const EdgeInsets.all(12),
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -68,38 +67,35 @@ class ClientFormField extends StatelessWidget {
               ),
             ),
             filled: true,
-            fillColor: AppColors.surfaceVariant.withOpacity(0.3),
+            fillColor: AppColors.surfaceVariant.withValues(alpha: 0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppColors.outline.withOpacity(0.3),
-                width: 1,
+                color: AppColors.outline.withValues(alpha: 0.3),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppColors.outline.withOpacity(0.3),
-                width: 1,
+                color: AppColors.outline.withValues(alpha: 0.3),
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppColors.primary,
                 width: 2,
               ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppColors.error,
-                width: 1,
               ),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
+              borderSide: const BorderSide(
                 color: AppColors.error,
                 width: 2,
               ),
@@ -108,7 +104,7 @@ class ClientFormField extends StatelessWidget {
               horizontal: 16,
               vertical: 16,
             ),
-            errorStyle: TextStyle(
+            errorStyle: const TextStyle(
               color: AppColors.error,
               fontSize: 12,
               fontWeight: FontWeight.w500,

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../data/services/parts_service.dart';
+import '../../../../core/services/parts_service.dart';
 import '../models/part.dart';
 import '../widgets/part_form_field.dart';
 
 // Conditional imports for platform-specific file handling
-import 'add_part_page_web.dart' if (dart.library.io) 'add_part_page_mobile.dart';
+import 'add_part_page_web.dart'
+    if (dart.library.io) 'add_part_page_mobile.dart';
 
 class AddPartPage extends StatefulWidget {
   const AddPartPage({super.key});
@@ -18,13 +19,13 @@ class AddPartPage extends StatefulWidget {
 class _AddPartPageState extends State<AddPartPage> {
   final _formKey = GlobalKey<FormState>();
   final _imagePicker = ImagePicker();
-  
+
   // Form controllers
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _partNumberController = TextEditingController();
   final _locationController = TextEditingController();
-  
+
   // Form state
   dynamic _selectedImage;
   bool _isLoading = false;
@@ -54,9 +55,7 @@ class _AddPartPageState extends State<AddPartPage> {
         });
       }
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Error picking image: $error');
-      }
+      if (kDebugMode) {}
       _showErrorSnackBar('Failed to pick image');
     }
   }
@@ -76,9 +75,7 @@ class _AddPartPageState extends State<AddPartPage> {
         });
       }
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Error taking photo: $error');
-      }
+      if (kDebugMode) {}
       _showErrorSnackBar('Failed to take photo');
     }
   }
@@ -104,7 +101,7 @@ class _AddPartPageState extends State<AddPartPage> {
       );
 
       // Save part to database
-      await PartsService.createPart(part);
+      await PartsService.createPart(part.toJson());
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -116,10 +113,8 @@ class _AddPartPageState extends State<AddPartPage> {
         Navigator.pop(context);
       }
     } catch (error) {
-      if (kDebugMode) {
-        print('❌ Error saving part: $error');
-      }
-      _showErrorSnackBar('Failed to save part: ${PartsService.getErrorMessage(error)}');
+      if (kDebugMode) {}
+      _showErrorSnackBar('Failed to save part: $error');
     } finally {
       if (mounted) {
         setState(() {
@@ -210,7 +205,8 @@ class _AddPartPageState extends State<AddPartPage> {
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
-                                  child: AddPartPagePlatform.buildImageWidget(_selectedImage),
+                                  child: AddPartPagePlatform.buildImageWidget(
+                                      _selectedImage),
                                 ),
                               )
                             else
@@ -225,7 +221,8 @@ class _AddPartPageState extends State<AddPartPage> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.image, size: 64, color: Colors.grey),
+                                      Icon(Icons.image,
+                                          size: 64, color: Colors.grey),
                                       SizedBox(height: 8),
                                       Text('No image selected'),
                                     ],

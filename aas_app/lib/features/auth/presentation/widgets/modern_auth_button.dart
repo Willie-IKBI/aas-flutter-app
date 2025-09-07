@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
+import '../../../../core/widgets/accessibility_helpers.dart';
 import 'accessibility_helpers.dart';
 
 /// Modern auth button with enhanced loading states
-/// 
+///
 /// Features:
 /// - Smooth loading animations
 /// - Multiple button variants
@@ -17,17 +18,6 @@ enum ModernButtonVariant {
 }
 
 class ModernAuthButton extends StatefulWidget {
-  final String text;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final IconData? icon;
-  final ModernButtonVariant variant;
-  final bool isFullWidth;
-  final double? height;
-  final Color? backgroundColor;
-  final Color? textColor;
-  final Color? borderColor;
-
   const ModernAuthButton({
     super.key,
     required this.text,
@@ -41,6 +31,16 @@ class ModernAuthButton extends StatefulWidget {
     this.textColor,
     this.borderColor,
   });
+  final String text;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final IconData? icon;
+  final ModernButtonVariant variant;
+  final bool isFullWidth;
+  final double? height;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final Color? borderColor;
 
   @override
   State<ModernAuthButton> createState() => _ModernAuthButtonState();
@@ -101,8 +101,9 @@ class _ModernAuthButtonState extends State<ModernAuthButton>
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 1200;
-        final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
-        
+        final isTablet =
+            constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
+
         return MouseRegion(
           onEnter: (_) => setState(() => _isHovered = true),
           onExit: (_) => setState(() => _isHovered = false),
@@ -113,6 +114,11 @@ class _ModernAuthButtonState extends State<ModernAuthButton>
             child: AnimatedBuilder(
               animation: _animationController,
               builder: (context, child) {
+                // Respect reduce motion settings
+                if (AccessibilityHelpers.isReducedMotionEnabled(context)) {
+                  return _buildButton(context, isDesktop, isTablet);
+                }
+
                 return Transform.scale(
                   scale: _scaleAnimation.value,
                   child: Opacity(
@@ -129,10 +135,27 @@ class _ModernAuthButtonState extends State<ModernAuthButton>
   }
 
   Widget _buildButton(BuildContext context, bool isDesktop, bool isTablet) {
-    final buttonHeight = widget.height ?? (isDesktop ? 56.0 : isTablet ? 52.0 : 48.0);
-    final fontSize = isDesktop ? 16.0 : isTablet ? 15.0 : 14.0;
-    final iconSize = isDesktop ? 24.0 : isTablet ? 22.0 : 20.0;
-    final borderRadius = isDesktop ? 16.0 : isTablet ? 14.0 : 12.0;
+    final buttonHeight = widget.height ??
+        (isDesktop
+            ? 56.0
+            : isTablet
+                ? 52.0
+                : 48.0);
+    final fontSize = isDesktop
+        ? 16.0
+        : isTablet
+            ? 15.0
+            : 14.0;
+    final iconSize = isDesktop
+        ? 24.0
+        : isTablet
+            ? 22.0
+            : 20.0;
+    final borderRadius = isDesktop
+        ? 16.0
+        : isTablet
+            ? 14.0
+            : 12.0;
 
     return Container(
       width: widget.isFullWidth ? double.infinity : null,
@@ -143,39 +166,53 @@ class _ModernAuthButtonState extends State<ModernAuthButton>
         border: _getBorder(),
         boxShadow: _getBoxShadow(isDesktop, isTablet),
       ),
-             child: Material(
-         color: Colors.transparent,
-         child: InkWell(
-           onTap: widget.isLoading ? null : widget.onPressed,
-           borderRadius: BorderRadius.circular(borderRadius),
-           focusColor: AppColors.primary.withOpacity(0.1),
-           hoverColor: AppColors.primary.withOpacity(0.05),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: widget.isLoading ? null : widget.onPressed,
+          borderRadius: BorderRadius.circular(borderRadius),
+          focusColor: AppColors.primary.withValues(alpha: 0.1),
+          hoverColor: AppColors.primary.withValues(alpha: 0.05),
           child: Container(
             padding: EdgeInsets.symmetric(
-              horizontal: isDesktop ? 24.0 : isTablet ? 20.0 : 16.0,
+              horizontal: isDesktop
+                  ? 24.0
+                  : isTablet
+                      ? 20.0
+                      : 16.0,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (widget.isLoading) ...[
                   _buildLoadingIndicator(iconSize),
-                  SizedBox(width: isDesktop ? 16.0 : isTablet ? 14.0 : 12.0),
+                  SizedBox(
+                      width: isDesktop
+                          ? 16.0
+                          : isTablet
+                              ? 14.0
+                              : 12.0),
                 ] else if (widget.icon != null) ...[
                   Icon(
                     widget.icon,
                     size: iconSize,
                     color: _getTextColor(),
                   ),
-                  SizedBox(width: isDesktop ? 12.0 : isTablet ? 10.0 : 8.0),
+                  SizedBox(
+                      width: isDesktop
+                          ? 12.0
+                          : isTablet
+                              ? 10.0
+                              : 8.0),
                 ],
-                                 Semantics(
-                   label: widget.isLoading ? 'Please wait...' : widget.text,
-                   button: true,
-                   child: Text(
-                     widget.isLoading ? 'Please wait...' : widget.text,
-                     style: _getTextStyle(context, fontSize),
-                   ),
-                 ),
+                Semantics(
+                  label: widget.isLoading ? 'Please wait...' : widget.text,
+                  button: true,
+                  child: Text(
+                    widget.isLoading ? 'Please wait...' : widget.text,
+                    style: _getTextStyle(context, fontSize),
+                  ),
+                ),
               ],
             ),
           ),
@@ -201,7 +238,7 @@ class _ModernAuthButtonState extends State<ModernAuthButton>
           ? LinearGradient(
               colors: [
                 widget.backgroundColor!,
-                widget.backgroundColor!.withOpacity(0.8),
+                widget.backgroundColor!.withValues(alpha: 0.8),
               ],
             )
           : AppColors.primaryGradient;
@@ -211,7 +248,7 @@ class _ModernAuthButtonState extends State<ModernAuthButton>
 
   Color _getBackgroundColor() {
     if (widget.backgroundColor != null) return widget.backgroundColor!;
-    
+
     switch (widget.variant) {
       case ModernButtonVariant.filled:
         return AppColors.primary;
@@ -235,10 +272,18 @@ class _ModernAuthButtonState extends State<ModernAuthButton>
     if (widget.variant == ModernButtonVariant.filled) {
       return [
         BoxShadow(
-          color: AppColors.primary.withOpacity(_isHovered ? 0.4 : 0.2),
-          blurRadius: _isHovered 
-              ? (isDesktop ? 20.0 : isTablet ? 16.0 : 12.0)
-              : (isDesktop ? 12.0 : isTablet ? 10.0 : 8.0),
+          color: AppColors.primary.withValues(alpha: _isHovered ? 0.4 : 0.2),
+          blurRadius: _isHovered
+              ? (isDesktop
+                  ? 20.0
+                  : isTablet
+                      ? 16.0
+                      : 12.0)
+              : (isDesktop
+                  ? 12.0
+                  : isTablet
+                      ? 10.0
+                      : 8.0),
           offset: Offset(0, _isHovered ? 8.0 : 4.0),
         ),
       ];
@@ -248,7 +293,7 @@ class _ModernAuthButtonState extends State<ModernAuthButton>
 
   Color _getTextColor() {
     if (widget.textColor != null) return widget.textColor!;
-    
+
     switch (widget.variant) {
       case ModernButtonVariant.filled:
         return AppColors.onPrimary;
@@ -260,29 +305,24 @@ class _ModernAuthButtonState extends State<ModernAuthButton>
 
   TextStyle _getTextStyle(BuildContext context, double fontSize) {
     final baseStyle = Theme.of(context).textTheme.labelLarge;
-    
+
     return baseStyle?.copyWith(
-      color: _getTextColor(),
-      fontWeight: FontWeight.w600,
-      fontSize: fontSize,
-      letterSpacing: 0.5,
-    ) ?? TextStyle(
-      color: _getTextColor(),
-      fontWeight: FontWeight.w600,
-      fontSize: fontSize,
-      letterSpacing: 0.5,
-    );
+          color: _getTextColor(),
+          fontWeight: FontWeight.w600,
+          fontSize: fontSize,
+          letterSpacing: 0.5,
+        ) ??
+        TextStyle(
+          color: _getTextColor(),
+          fontWeight: FontWeight.w600,
+          fontSize: fontSize,
+          letterSpacing: 0.5,
+        );
   }
 }
 
 /// Secondary button for less prominent actions
 class ModernSecondaryButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final IconData? icon;
-  final bool isFullWidth;
-
   const ModernSecondaryButton({
     super.key,
     required this.text,
@@ -291,6 +331,11 @@ class ModernSecondaryButton extends StatelessWidget {
     this.icon,
     this.isFullWidth = true,
   });
+  final String text;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final IconData? icon;
+  final bool isFullWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -307,12 +352,6 @@ class ModernSecondaryButton extends StatelessWidget {
 
 /// Text button for minimal actions
 class ModernTextButton extends StatelessWidget {
-  final String text;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final IconData? icon;
-  final Color? textColor;
-
   const ModernTextButton({
     super.key,
     required this.text,
@@ -321,6 +360,11 @@ class ModernTextButton extends StatelessWidget {
     this.icon,
     this.textColor,
   });
+  final String text;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final IconData? icon;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {

@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
 import '../models/part.dart';
-import '../../data/services/parts_service.dart';
+import '../../../../core/services/parts_service.dart';
 import 'parts_card.dart';
 import '../pages/part_detail_page.dart';
 
-
 class PartsList extends StatefulWidget {
-  final String searchQuery;
-  final bool filterActiveOnly;
-
   const PartsList({
     super.key,
     required this.searchQuery,
     required this.filterActiveOnly,
   });
+  final String searchQuery;
+  final bool filterActiveOnly;
 
   @override
   State<PartsList> createState() => _PartsListState();
@@ -48,14 +46,16 @@ class _PartsListState extends State<PartsList> {
     });
 
     try {
-      final parts = await PartsService.getAllParts();
-      print('📦 Loaded ${parts.length} parts from database');
-      
+      final partsData = await PartsService.getAllParts();
+      // Convert Map data to Part objects
+      final parts = partsData.map((data) => Part.fromJson(data)).toList();
+
       // Debug: Print each part's image info
       for (final part in parts) {
-        print('  - ${part.partName}: hasImage=${part.hasImage}, imageUrl=${part.partImageUrl}');
+        print(
+            'Part ${part.id}: ${part.partName} - Image: ${part.partImageUrl}');
       }
-      
+
       setState(() {
         _parts = parts;
         _isLoading = false;
@@ -70,7 +70,7 @@ class _PartsListState extends State<PartsList> {
   }
 
   void _filterParts() {
-    List<Part> filtered = _parts;
+    var filtered = _parts;
 
     // Filter by active status if needed
     if (widget.filterActiveOnly) {
@@ -82,9 +82,9 @@ class _PartsListState extends State<PartsList> {
       filtered = filtered.where((part) {
         final query = widget.searchQuery.toLowerCase();
         return part.partName.toLowerCase().contains(query) ||
-               (part.partNumber?.toLowerCase().contains(query) ?? false) ||
-               (part.partDescription?.toLowerCase().contains(query) ?? false) ||
-               (part.partLocation?.toLowerCase().contains(query) ?? false);
+            (part.partNumber?.toLowerCase().contains(query) ?? false) ||
+            (part.partDescription?.toLowerCase().contains(query) ?? false) ||
+            (part.partLocation?.toLowerCase().contains(query) ?? false);
       }).toList();
     }
 
@@ -110,13 +110,13 @@ class _PartsListState extends State<PartsList> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.error_outline,
               size: 64,
               color: AppColors.error,
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'Error loading parts',
               style: TextStyle(
                 fontSize: 18,
@@ -127,7 +127,7 @@ class _PartsListState extends State<PartsList> {
             const SizedBox(height: 8),
             Text(
               _error!,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
@@ -147,7 +147,7 @@ class _PartsListState extends State<PartsList> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.inventory_2_outlined,
               size: 64,
               color: AppColors.onSurfaceVariant,
@@ -159,7 +159,7 @@ class _PartsListState extends State<PartsList> {
                   : widget.filterActiveOnly
                       ? 'No active parts found'
                       : 'No parts found',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: AppColors.onBackground,
@@ -170,7 +170,7 @@ class _PartsListState extends State<PartsList> {
               widget.searchQuery.isNotEmpty
                   ? 'Try adjusting your search terms'
                   : 'Add your first part to get started',
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.onSurfaceVariant,
               ),
             ),
@@ -204,7 +204,7 @@ class _PartsListState extends State<PartsList> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => PartDetailPage(part: part),
+        builder: (context) => PartDetailPage(partId: part.id.toString()),
       ),
     );
   }
@@ -243,7 +243,7 @@ class _PartsListState extends State<PartsList> {
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed ?? false) {
       try {
         await PartsService.deletePart(part.id!);
         if (mounted) {

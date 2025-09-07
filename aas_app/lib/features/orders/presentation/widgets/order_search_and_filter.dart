@@ -3,19 +3,18 @@ import '../../../../core/models/order.dart';
 import '../../../../core/models/customer.dart';
 import '../../../../core/models/user_profile.dart';
 import '../../../../core/services/order_service.dart';
-import '../../../../features/clients/data/services/customer_service.dart';
+import '../../../../core/services/customer_service.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class OrderSearchAndFilter extends StatefulWidget {
-  final Function(List<Order>) onResultsChanged;
-  final List<Order> initialOrders;
-
   const OrderSearchAndFilter({
     super.key,
     required this.onResultsChanged,
     required this.initialOrders,
   });
+  final Function(List<Order>) onResultsChanged;
+  final List<Order> initialOrders;
 
   @override
   State<OrderSearchAndFilter> createState() => _OrderSearchAndFilterState();
@@ -27,7 +26,7 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
   List<Order> _filteredOrders = [];
   List<Customer> _customers = [];
   List<UserProfile> _salesReps = [];
-  
+
   // Filter states
   String? _selectedStatus;
   String? _selectedCustomer;
@@ -66,18 +65,18 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
     try {
       // Load customers
       final customers = await CustomerService.getAllCustomers();
-      
+
       // Load sales reps
       final allUsers = await AuthService.getAllUsers();
       final salesReps = allUsers.where((user) => user.isSalesRep).toList();
 
       setState(() {
-        _customers = customers.map((client) => Customer.fromClient(client)).toList();
+        _customers =
+            customers.map((client) => Customer.fromClient(client)).toList();
         _salesReps = salesReps;
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading filter data: $e');
       setState(() {
         _isLoading = false;
       });
@@ -90,11 +89,13 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
         // Search text filter
         if (_searchController.text.isNotEmpty) {
           final searchLower = _searchController.text.toLowerCase();
-          final matchesSearch = 
+          final matchesSearch =
               order.description.toLowerCase().contains(searchLower) ||
-              (order.equipmentType?.toLowerCase().contains(searchLower) ?? false) ||
-              (order.equipmentModel?.toLowerCase().contains(searchLower) ?? false);
-          
+                  (order.equipmentType?.toLowerCase().contains(searchLower) ??
+                      false) ||
+                  (order.equipmentModel?.toLowerCase().contains(searchLower) ??
+                      false);
+
           if (!matchesSearch) return false;
         }
 
@@ -151,7 +152,7 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -171,8 +172,8 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
               Text(
                 'Search & Filter Orders',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const Spacer(),
               TextButton.icon(
@@ -188,25 +189,35 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
           const SizedBox(height: 16),
 
           // Search bar
-          TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search orders by description, equipment, or customer...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        _applyFilters();
-                      },
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+          Semantics(
+            label: 'Search orders',
+            hint: 'Search by description, equipment, or customer name',
+            textField: true,
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText:
+                    'Search orders by description, equipment, or customer...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? Semantics(
+                        label: 'Clear search',
+                        button: true,
+                        child: IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            _applyFilters();
+                          },
+                        ),
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
+              onChanged: (value) => _applyFilters(),
             ),
-            onChanged: (value) => _applyFilters(),
           ),
           const SizedBox(height: 16),
 
@@ -237,8 +248,14 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
                       child: _buildDropdownFilter(
                         label: 'Customer',
                         value: _selectedCustomer,
-                        items: ['All', ..._customers.map((c) => c.id.toString())],
-                        displayItems: ['All', ..._customers.map((c) => c.clientName)],
+                        items: [
+                          'All',
+                          ..._customers.map((c) => c.id.toString())
+                        ],
+                        displayItems: [
+                          'All',
+                          ..._customers.map((c) => c.clientName)
+                        ],
                         onChanged: (value) {
                           setState(() {
                             _selectedCustomer = value == 'All' ? null : value;
@@ -259,7 +276,11 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
                         label: 'Sales Rep',
                         value: _selectedSalesRep,
                         items: ['All', ..._salesReps.map((r) => r.id)],
-                        displayItems: ['All', ..._salesReps.map((r) => r.displayName ?? r.email ?? 'Unknown')],
+                        displayItems: [
+                          'All',
+                          ..._salesReps
+                              .map((r) => r.displayName ?? r.email ?? 'Unknown')
+                        ],
                         onChanged: (value) {
                           setState(() {
                             _selectedSalesRep = value == 'All' ? null : value;
@@ -291,8 +312,8 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
               Text(
                 '${_filteredOrders.length} of ${_allOrders.length} orders',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ],
           ),
@@ -314,22 +335,22 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+                fontWeight: FontWeight.w500,
+              ),
         ),
         const SizedBox(height: 4),
         DropdownButtonFormField<String>(
-          value: value,
+          initialValue: value,
           decoration: InputDecoration(
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(16),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
           items: items.map((item) {
-            final displayText = displayItems != null 
-                ? displayItems[items.indexOf(item)]
-                : item;
+            final displayText =
+                displayItems != null ? displayItems[items.indexOf(item)] : item;
             return DropdownMenuItem(
               value: item,
               child: Text(
@@ -351,8 +372,8 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
         Text(
           'Date Range',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w500,
-          ),
+                fontWeight: FontWeight.w500,
+              ),
         ),
         const SizedBox(height: 4),
         Row(
@@ -363,7 +384,8 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
                   final date = await showDatePicker(
                     context: context,
                     initialDate: _startDate ?? DateTime.now(),
-                    firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                    firstDate:
+                        DateTime.now().subtract(const Duration(days: 365)),
                     lastDate: DateTime.now(),
                   );
                   if (date != null) {
@@ -374,14 +396,15 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 16),
+                      const Icon(Icons.calendar_today, size: 16),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -389,7 +412,7 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
                               ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
                               : 'Start Date',
                           style: TextStyle(
-                            color: _startDate != null 
+                            color: _startDate != null
                                 ? Theme.of(context).colorScheme.onSurface
                                 : Colors.grey.shade500,
                           ),
@@ -407,7 +430,8 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
                   final date = await showDatePicker(
                     context: context,
                     initialDate: _endDate ?? DateTime.now(),
-                    firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                    firstDate:
+                        DateTime.now().subtract(const Duration(days: 365)),
                     lastDate: DateTime.now(),
                   );
                   if (date != null) {
@@ -418,14 +442,15 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 16),
+                      const Icon(Icons.calendar_today, size: 16),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -433,7 +458,7 @@ class _OrderSearchAndFilterState extends State<OrderSearchAndFilter> {
                               ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
                               : 'End Date',
                           style: TextStyle(
-                            color: _endDate != null 
+                            color: _endDate != null
                                 ? Theme.of(context).colorScheme.onSurface
                                 : Colors.grey.shade500,
                           ),

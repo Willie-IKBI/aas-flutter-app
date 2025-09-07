@@ -1,15 +1,4 @@
 class Customer {
-  final int id;
-  final DateTime createdAt;
-  final String clientName;
-  final String? contactName;
-  final String? contactNumber;
-  final String? contactEmail;
-  final String? address;
-  final String? industrySector;
-  final String? contactChannel;
-  final String? notes;
-
   Customer({
     required this.id,
     required this.createdAt,
@@ -52,6 +41,16 @@ class Customer {
       notes: client.notes,
     );
   }
+  final int id;
+  final DateTime createdAt;
+  final String clientName;
+  final String? contactName;
+  final String? contactNumber;
+  final String? contactEmail;
+  final String? address;
+  final String? industrySector;
+  final String? contactChannel;
+  final String? notes;
 
   Map<String, dynamic> toJson() {
     return {
@@ -94,4 +93,3 @@ class Customer {
     );
   }
 }
-

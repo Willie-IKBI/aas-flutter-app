@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import '../../../../core/models/user_profile.dart';
-import '../../../../core/services/order_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/models/user_role.dart';
 
 class SalesRepStep extends StatefulWidget {
-  final UserProfile? selectedSalesRep;
-  final Function(UserProfile) onSalesRepSelected;
-
   const SalesRepStep({
     super.key,
     this.selectedSalesRep,
     required this.onSalesRepSelected,
   });
+  final UserProfile? selectedSalesRep;
+  final Function(UserProfile) onSalesRepSelected;
 
   @override
   State<SalesRepStep> createState() => _SalesRepStepState();
@@ -32,9 +30,10 @@ class _SalesRepStepState extends State<SalesRepStep> {
   Future<void> _loadSalesReps() async {
     try {
       final allUsers = await AuthService.getAllUsers();
-      final salesReps = allUsers.where((user) => 
-        user.role == UserRole.salesRep || user.role == UserRole.admin
-      ).toList();
+      final salesReps = allUsers
+          .where((user) =>
+              user.role == UserRole.salesRep || user.role == UserRole.admin)
+          .toList();
       setState(() {
         _salesReps = salesReps;
         _isLoading = false;
@@ -48,7 +47,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.error_outline, color: Colors.white),
+                const Icon(Icons.error_outline, color: Colors.white),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -72,7 +71,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 768;
-    
+
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.all(isDesktop ? 32 : 20),
@@ -93,7 +92,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
                           gradient: AppColors.infoGradient,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.person_pin,
                           color: Colors.white,
                           size: 24,
@@ -113,7 +112,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text(
+                            const Text(
                               'Select a sales representative to assign to this order',
                               style: TextStyle(
                                 fontSize: 16,
@@ -138,7 +137,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.success.withOpacity(0.2),
+                      color: AppColors.success.withValues(alpha: 0.2),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
@@ -153,13 +152,14 @@ class _SalesRepStepState extends State<SalesRepStep> {
                         gradient: AppColors.infoGradient,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           width: 2,
                         ),
                       ),
                       child: Center(
                         child: Text(
-                          (widget.selectedSalesRep!.displayName ?? 'U')[0].toUpperCase(),
+                          (widget.selectedSalesRep!.displayName ?? 'U')[0]
+                              .toUpperCase(),
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -174,7 +174,8 @@ class _SalesRepStepState extends State<SalesRepStep> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.selectedSalesRep!.displayName ?? 'Unknown User',
+                            widget.selectedSalesRep!.displayName ??
+                                'Unknown User',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -186,7 +187,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
                             Text(
                               widget.selectedSalesRep!.email!,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 fontSize: 14,
                               ),
                             ),
@@ -194,9 +195,9 @@ class _SalesRepStepState extends State<SalesRepStep> {
                         ],
                       ),
                     ),
-                    Container(
+                    DecoratedBox(
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: IconButton(
@@ -230,10 +231,10 @@ class _SalesRepStepState extends State<SalesRepStep> {
                           gradient: AppColors.glassGradient,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: AppColors.outline.withOpacity(0.2),
+                            color: AppColors.outline.withValues(alpha: 0.2),
                           ),
                         ),
-                        child: SizedBox(
+                        child: const SizedBox(
                           width: 48,
                           height: 48,
                           child: CircularProgressIndicator(
@@ -245,7 +246,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Text(
+                      const Text(
                         'Loading Sales Representatives...',
                         style: TextStyle(
                           fontSize: 18,
@@ -270,17 +271,17 @@ class _SalesRepStepState extends State<SalesRepStep> {
                           gradient: AppColors.glassGradient,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: AppColors.outline.withOpacity(0.2),
+                            color: AppColors.outline.withValues(alpha: 0.2),
                           ),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.people_outline,
                           size: 48,
                           color: AppColors.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Text(
+                      const Text(
                         'No Sales Representatives',
                         style: TextStyle(
                           fontSize: 18,
@@ -289,7 +290,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
+                      const Text(
                         'No sales representatives are currently available.\nPlease contact an administrator.',
                         style: TextStyle(
                           fontSize: 14,
@@ -302,7 +303,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
                 ),
               ),
             ] else ...[
-              Text(
+              const Text(
                 'Available Sales Representatives',
                 style: TextStyle(
                   fontSize: 18,
@@ -320,8 +321,9 @@ class _SalesRepStepState extends State<SalesRepStep> {
                   itemCount: _salesReps.length,
                   itemBuilder: (context, index) {
                     final salesRep = _salesReps[index];
-                    final isSelected = widget.selectedSalesRep?.id == salesRep.id;
-                    
+                    final isSelected =
+                        widget.selectedSalesRep?.id == salesRep.id;
+
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
@@ -332,12 +334,13 @@ class _SalesRepStepState extends State<SalesRepStep> {
                         border: Border.all(
                           color: isSelected
                               ? AppColors.primary
-                              : AppColors.outline.withOpacity(0.2),
+                              : AppColors.outline.withValues(alpha: 0.2),
                         ),
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: AppColors.primary.withOpacity(0.2),
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.2),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -366,12 +369,14 @@ class _SalesRepStepState extends State<SalesRepStep> {
                                     border: Border.all(
                                       color: isSelected
                                           ? Colors.white
-                                          : AppColors.outline.withOpacity(0.3),
+                                          : AppColors.outline
+                                              .withValues(alpha: 0.3),
                                     ),
                                   ),
                                   child: Center(
                                     child: Text(
-                                      (salesRep.displayName ?? 'U')[0].toUpperCase(),
+                                      (salesRep.displayName ?? 'U')[0]
+                                          .toUpperCase(),
                                       style: TextStyle(
                                         color: isSelected
                                             ? Colors.white
@@ -385,7 +390,8 @@ class _SalesRepStepState extends State<SalesRepStep> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         salesRep.displayName ?? 'Unknown User',
@@ -403,7 +409,8 @@ class _SalesRepStepState extends State<SalesRepStep> {
                                           salesRep.email!,
                                           style: TextStyle(
                                             color: isSelected
-                                                ? Colors.white.withOpacity(0.9)
+                                                ? Colors.white
+                                                    .withValues(alpha: 0.9)
                                                 : AppColors.onSurfaceVariant,
                                             fontSize: 14,
                                           ),
@@ -416,7 +423,8 @@ class _SalesRepStepState extends State<SalesRepStep> {
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: const Icon(
@@ -445,7 +453,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
                     gradient: AppColors.glassGradient,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppColors.outline.withOpacity(0.2),
+                      color: AppColors.outline.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Material(
@@ -453,7 +461,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
                     child: InkWell(
                       onTap: _loadSalesReps,
                       borderRadius: BorderRadius.circular(12),
-                      child: Center(
+                      child: const Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -462,7 +470,7 @@ class _SalesRepStepState extends State<SalesRepStep> {
                               color: AppColors.onSurface,
                               size: 18,
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Text(
                               'Refresh List',
                               style: TextStyle(

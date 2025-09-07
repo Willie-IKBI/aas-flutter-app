@@ -22,7 +22,6 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    print('🔍 AuthWrapper - initState called');
     _setupNotificationListener();
   }
 
@@ -50,15 +49,8 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
 
-    print('🔍 AuthWrapper - Current state: ${authState.status}');
-    print('🔍 AuthWrapper - Is loading: ${authState.isLoading}');
-    print('🔍 AuthWrapper - Has error: ${authState.hasError}');
-    print('🔍 AuthWrapper - Is authenticated: ${authState.isAuthenticated}');
-    print('🔍 AuthWrapper - Is unauthenticated: ${authState.isUnauthenticated}');
-
-    // Handle loading state
+// Handle loading state
     if (authState.isLoading) {
-      print('🔍 AuthWrapper - Showing loading screen');
       return const Scaffold(
         body: Center(
           child: Column(
@@ -75,7 +67,6 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
 
     // Handle error state
     if (authState.hasError) {
-      print('🔍 AuthWrapper - Showing error screen: ${authState.error}');
       return Scaffold(
         body: Center(
           child: Column(
@@ -106,21 +97,11 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
       );
     }
 
-    // Handle password reset state FIRST (highest priority)
-    if (authState.isPasswordReset) {
-      print('🔍 AuthWrapper - Showing password reset page');
-      return const PasswordResetConfirmPage();
-    }
-
-    // Handle authenticated but no profile (password reset scenario)
-    if (authState.isAuthenticated && authState.userProfile == null) {
-      print('🔍 AuthWrapper - User authenticated but no profile, showing password reset page');
-      return const PasswordResetConfirmPage();
-    }
+    // Note: Password reset handling is now managed by the router
+    // AuthWrapper no longer needs to handle password reset scenarios
 
     // Handle pending approval state
     if (authState.isPendingApproval) {
-      print('🔍 AuthWrapper - Showing pending approval page');
       return PendingApprovalPage(
         onRefresh: () {
           ref.read(authNotifierProvider.notifier).refreshUserProfile();
@@ -130,42 +111,36 @@ class _AuthWrapperState extends ConsumerState<AuthWrapper> {
 
     // Handle authenticated state - show appropriate dashboard
     if (authState.isAuthenticated && authState.userProfile != null) {
-      print('🔍 AuthWrapper - Showing dashboard for role: ${authState.userProfile!.role}');
       return _buildRoleBasedDashboard(authState.userProfile!);
     }
 
     // Handle unauthenticated state (lowest priority)
     if (authState.isUnauthenticated) {
-      print('🔍 AuthWrapper - Showing sign in page');
       return const SignInPage();
     }
 
     // Fallback to sign in page
-    print('🔍 AuthWrapper - Fallback to sign in page');
     return const SignInPage();
   }
 
   Widget _buildRoleBasedDashboard(UserProfile userProfile) {
     switch (userProfile.role) {
       case UserRole.admin:
-        return DashboardPage(
-          initialTab: 0, // Executive tab
+        return const DashboardPage(
           showUserManagement: true,
         );
       case UserRole.manager:
-        return DashboardPage(
+        return const DashboardPage(
           initialTab: 1, // Operations tab
           showUserManagement: true,
         );
       case UserRole.salesRep:
-        return DashboardPage(
+        return const DashboardPage(
           initialTab: 3, // Sales tab
-          showUserManagement: false,
         );
       case UserRole.technician:
-        return DashboardPage(
+        return const DashboardPage(
           initialTab: 2, // Technician tab
-          showUserManagement: false,
         );
       case UserRole.unassigned:
         return PendingApprovalPage(

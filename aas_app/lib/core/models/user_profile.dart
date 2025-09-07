@@ -1,20 +1,6 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'user_role.dart';
 
 class UserProfile {
-  final String id;
-  final String? displayName;
-  final String? email;
-  final UserRole role;
-  final String? contactNumber;
-  final String? department;
-  final String? location;
-  final String? empId;
-  final DateTime createdAt;
-  final String? assignedBy;
-  final DateTime? assignedAt;
-  final String status;
-
   UserProfile({
     required this.id,
     this.displayName,
@@ -34,7 +20,8 @@ class UserProfile {
     return UserProfile(
       id: json['id'] as String,
       displayName: json['display_name'] as String?,
-      email: json['user_email'] as String?, // Fixed: use 'user_email' instead of 'email'
+      email: json['user_email']
+          as String?, // Fixed: use 'user_email' instead of 'email'
       role: UserRole.fromString(json['role'] as String? ?? 'unassigned'),
       contactNumber: json['contact_number'] as String?,
       department: json['department'] as String?,
@@ -42,12 +29,24 @@ class UserProfile {
       empId: json['emp_id'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       assignedBy: json['assigned_by'] as String?,
-      assignedAt: json['assigned_at'] != null 
-          ? DateTime.parse(json['assigned_at'] as String) 
+      assignedAt: json['assigned_at'] != null
+          ? DateTime.parse(json['assigned_at'] as String)
           : null,
       status: json['status'] as String? ?? 'active',
     );
   }
+  final String id;
+  final String? displayName;
+  final String? email;
+  final UserRole role;
+  final String? contactNumber;
+  final String? department;
+  final String? location;
+  final String? empId;
+  final DateTime createdAt;
+  final String? assignedBy;
+  final DateTime? assignedAt;
+  final String status;
 
   Map<String, dynamic> toJson() {
     return {

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 /// AAS App Color Palette
-/// 
+///
 /// Modern color system with improved contrast and visual hierarchy
 class AppColors {
   AppColors._();
 
   // ===== BASE COLORS =====
-  
+
   /// Primary brand colors
   static const Color jet = Color(0xFF1A1A1A); // Softer black
   static const Color jet100 = Color(0xFF0A0A0A);
@@ -116,7 +116,7 @@ class AppColors {
   /// Shadow colors
   static const Color shadow = jet100;
   static const Color scrim = Color(0x52000000);
-  
+
   /// Surface tint color
   static const Color surfaceTint = primary;
 

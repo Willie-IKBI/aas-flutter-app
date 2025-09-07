@@ -1,17 +1,18 @@
-import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 import '../models/user_profile.dart';
 import '../models/user_role.dart';
+import 'logger.dart';
 
 /// Unified Authentication & User Management Service
-/// 
+///
 /// Handles all authentication-related operations and user profile management
 /// with consistent error handling and type safety.
 class AuthService {
   static final SupabaseClient _client = SupabaseConfig.client;
   static final GoTrueClient _auth = SupabaseConfig.auth;
+  static final Logger _logger = Logger('AuthService');
 
   // ===== AUTHENTICATION OPERATIONS =====
 
@@ -24,11 +25,12 @@ class AuthService {
     try {
       // Validate inputs
       if (!_isValidEmail(email)) {
-        throw AuthException('Invalid email format');
+        throw const AuthException('Invalid email format');
       }
-      
+
       if (!_isStrongPassword(password)) {
-        throw AuthException('Password does not meet security requirements');
+        throw const AuthException(
+            'Password does not meet security requirements');
       }
 
       final response = await _auth.signUp(
@@ -36,18 +38,14 @@ class AuthService {
         password: password,
         data: userData,
       );
-      
+
       if (response.user != null) {
-        if (kDebugMode) {
-          print('✅ User signed up successfully: ${response.user!.id}');
-        }
+        _logger.info('User signed up successfully', data: {'email': email});
       }
-      
+
       return response;
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Sign up error: $e');
-      }
+      _logger.error('Sign up failed', error: e, data: {'email': email});
       rethrow;
     }
   }
@@ -62,16 +60,12 @@ class AuthService {
         email: email,
         password: password,
       );
-      
-      if (kDebugMode) {
-        print('✅ User signed in successfully: ${response.user?.id}');
-      }
-      
+
+      _logger.info('User signed in successfully', data: {'email': email});
+
       return response;
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Sign in error: $e');
-      }
+      _logger.error('Sign in failed', error: e, data: {'email': email});
       rethrow;
     }
   }
@@ -86,13 +80,13 @@ class AuthService {
         email: email,
         emailRedirectTo: redirectTo,
       );
-      
+
       if (kDebugMode) {
-        print('✅ Magic link sent to: $email');
+        print('Magic link sent to $email');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Magic link error: $e');
+        print('Magic link sign in failed: $e');
       }
       rethrow;
     }
@@ -102,13 +96,13 @@ class AuthService {
   static Future<void> signOut() async {
     try {
       await _auth.signOut();
-      
+
       if (kDebugMode) {
-        print('✅ User signed out successfully');
+        print('User signed out successfully');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Sign out error: $e');
+        print('Sign out failed: $e');
       }
       rethrow;
     }
@@ -122,30 +116,27 @@ class AuthService {
     try {
       // Validate email format
       if (!_isValidEmail(email)) {
-        throw AuthException('Invalid email format');
+        throw const AuthException('Invalid email format');
       }
 
       // Use the app's reset password URL if not provided
       final resetUrl = redirectTo ?? 'https://aasupplies-f5711.web.app';
-      
+
       await _auth.resetPasswordForEmail(
         email,
         redirectTo: resetUrl,
       );
-      
+
       if (kDebugMode) {
-        print('✅ Password reset email sent to: $email');
-        print('📧 Reset URL: $resetUrl');
+        print('Password reset email sent to $email');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Password reset error: $e');
+        print('Password reset failed: $e');
       }
       rethrow;
     }
   }
-
-
 
   /// Update password
   static Future<UserResponse> updatePassword({
@@ -153,42 +144,29 @@ class AuthService {
   }) async {
     try {
       if (!_isStrongPassword(newPassword)) {
-        throw AuthException('Password does not meet security requirements');
+        throw const AuthException(
+            'Password does not meet security requirements');
       }
 
       final response = await _auth.updateUser(
         UserAttributes(password: newPassword),
       );
-      
+
       if (kDebugMode) {
-        print('✅ Password updated successfully');
-        print('✅ User: ${response.user?.email}');
+        print('Password updated successfully');
       }
-      
+
       return response;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Password update error: $e');
+        print('Password update failed: $e');
       }
       rethrow;
     }
   }
 
-  /// Check if current session is from password recovery
-  static bool get isPasswordRecoverySession {
-    try {
-      final currentUrl = html.window.location.href;
-      return currentUrl.contains('type=recovery') ||
-             currentUrl.contains('access_token=') ||
-             currentUrl.contains('refresh_token=') ||
-             currentUrl.contains('token=') ||
-             currentUrl.contains('code=') ||
-             currentUrl.contains('reset-password') ||
-             currentUrl.contains('recovery');
-    } catch (e) {
-      return false;
-    }
-  }
+  // Note: Password recovery detection is now handled by the router
+  // This method is deprecated and will be removed in future versions
 
   // ===== USER PROFILE MANAGEMENT =====
 
@@ -198,16 +176,13 @@ class AuthService {
       final user = currentUser;
       if (user == null) return null;
 
-      final response = await _client
-          .from('profile')
-          .select()
-          .eq('id', user.id)
-          .single();
+      final response =
+          await _client.from('profile').select().eq('id', user.id).single();
 
       return UserProfile.fromJson(response);
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error getting current user profile: $e');
+        print('Failed to get current user profile: $e');
       }
       return null;
     }
@@ -216,16 +191,13 @@ class AuthService {
   /// Get user profile by ID (typed)
   static Future<UserProfile?> getUserById(String userId) async {
     try {
-      final response = await _client
-          .from('profile')
-          .select()
-          .eq('id', userId)
-          .single();
+      final response =
+          await _client.from('profile').select().eq('id', userId).single();
 
       return UserProfile.fromJson(response);
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error getting user by ID: $e');
+        print('Failed to get user profile by ID: $e');
       }
       return null;
     }
@@ -250,19 +222,74 @@ class AuthService {
       if (location != null) updates['location'] = location;
       if (empId != null) updates['emp_id'] = empId;
 
-      await _client
-          .from('profile')
-          .update(updates)
-          .eq('id', user.id);
+      await _client.from('profile').update(updates).eq('id', user.id);
 
       if (kDebugMode) {
-        print('✅ Current user profile updated successfully');
+        print('User profile updated successfully');
       }
-      
+
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error updating current user profile: $e');
+        print('Failed to update user profile: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Update any user's profile (admin/manager only)
+  static Future<bool> updateUserProfile({
+    required String targetUserId,
+    String? displayName,
+    String? contactNumber,
+    String? department,
+    String? location,
+    String? empId,
+  }) async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not authenticated');
+      }
+
+      if (kDebugMode) {
+        print('Updating user profile for user: $targetUserId');
+      }
+
+      // Validate display name if provided
+      if (displayName != null && !_isValidDisplayName(displayName)) {
+        throw Exception('Display name must be between 2 and 50 characters');
+      }
+
+      final updates = <String, dynamic>{};
+      if (displayName != null) updates['display_name'] = displayName;
+      if (contactNumber != null) updates['contact_number'] = contactNumber;
+      if (department != null) updates['department'] = department;
+      if (location != null) updates['location'] = location;
+      if (empId != null) updates['emp_id'] = empId;
+
+      if (kDebugMode) {
+        print('Updating profile with data: $updates');
+      }
+
+      await _client
+          .from('profile')
+          .update(updates)
+          .eq('id', targetUserId)
+          .select();
+
+      if (kDebugMode) {
+        print('User profile updated successfully');
+      }
+
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        if (e.toString().contains('RLS')) {
+          print('RLS policy issue: $e');
+        } else {
+          print('Failed to update user profile: $e');
+        }
       }
       return false;
     }
@@ -287,11 +314,12 @@ class AuthService {
 
       // Verify admin/manager role
       if (!currentProfile.role.canManageUsers) {
-        throw Exception('Insufficient permissions. Admin or Manager role required.');
+        throw Exception(
+            'Insufficient permissions. Admin or Manager role required.');
       }
 
       if (kDebugMode) {
-        print('🔍 Fetching all users from database...');
+        print('Getting all users for admin/manager');
       }
 
       final response = await _client
@@ -299,18 +327,18 @@ class AuthService {
           .select()
           .order('created_at', ascending: false);
 
-      final List<UserProfile> users = (response as List)
+      final users = (response as List)
           .map((userData) => UserProfile.fromJson(userData))
           .toList();
-          
+
       if (kDebugMode) {
-        print('✅ Retrieved ${users.length} users');
+        print('Retrieved ${users.length} users');
       }
-      
+
       return users;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error in getAllUsers: $e');
+        print('Failed to get all users: $e');
       }
       rethrow;
     }
@@ -320,27 +348,26 @@ class AuthService {
   static Future<List<UserProfile>> getUnassignedUsers() async {
     try {
       if (kDebugMode) {
-        print('🔍 Fetching unassigned users...');
+        print('Debug message');
       }
-      
+
       final response = await _client
           .from('profile')
           .select()
           .eq('role', 'unassigned')
           .order('created_at', ascending: false);
 
-      final users = (response as List)
-          .map((user) => UserProfile.fromJson(user))
-          .toList();
-          
+      final users =
+          (response as List).map((user) => UserProfile.fromJson(user)).toList();
+
       if (kDebugMode) {
-        print('✅ Retrieved ${users.length} unassigned users');
+        print('Debug message');
       }
-      
+
       return users;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error getting unassigned users: $e');
+        print('Debug message');
       }
       return [];
     }
@@ -353,33 +380,31 @@ class AuthService {
   }) async {
     try {
       if (kDebugMode) {
-        print('🔧 Starting role assignment...');
-        print('   Target User ID: $targetUserId');
-        print('   New Role: ${newRole.name}');
+        print('Debug message');
       }
-      
+
       final currentUser = _auth.currentUser;
       if (currentUser == null) {
         throw Exception('User not authenticated');
       }
 
       // Call the RPC function with proper parameters
-      final response = await _client.rpc('assign_user_role', params: {
+      final response = await _client.rpc<bool>('assign_user_role', params: {
         'target_user_id': targetUserId,
         'new_role': newRole.toDatabaseString(),
         'assigned_by_user_id': currentUser.id,
       });
 
       final result = response == true;
-      
+
       if (kDebugMode) {
-        print('   Assignment successful: $result');
+        print('Debug message');
       }
-      
+
       return result;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error assigning user role: $e');
+        print('Debug message');
       }
       rethrow;
     }
@@ -394,7 +419,7 @@ class AuthService {
       return profile?.role;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error getting current user role: $e');
+        print('Debug message');
       }
       return null;
     }
@@ -439,10 +464,10 @@ class AuthService {
   /// Check if current user can access dashboard
   static Future<bool> get canAccessDashboard async {
     if (!isAuthenticated) return false;
-    
+
     final profile = await getCurrentUserProfile();
     if (profile == null) return false;
-    
+
     return profile.role.canAccessDashboard && profile.isActive;
   }
 
@@ -533,21 +558,22 @@ class AuthService {
   static Stream<AuthState> get authStateChanges => _auth.onAuthStateChange;
 
   /// Listen to user changes
-  static Stream<User?> get userChanges => _auth.onAuthStateChange.map((event) => event.session?.user);
+  static Stream<User?> get userChanges =>
+      _auth.onAuthStateChange.map((event) => event.session?.user);
 
   /// Refresh session
   static Future<AuthResponse> refreshSession() async {
     try {
       final response = await _auth.refreshSession();
-      
+
       if (kDebugMode) {
-        print('✅ Session refreshed successfully');
+        print('Debug message');
       }
-      
+
       return response;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Session refresh error: $e');
+        print('Debug message');
       }
       rethrow;
     }
@@ -568,8 +594,16 @@ class AuthService {
   /// Check if password is strong
   static bool _isStrongPassword(String password) {
     // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
-    return RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$')
-        .hasMatch(password);
+    return password.length >= 8 &&
+        RegExp(r'[A-Z]').hasMatch(password) &&
+        RegExp(r'[a-z]').hasMatch(password) &&
+        RegExp(r'\d').hasMatch(password);
+  }
+
+  /// Check if display name is valid
+  static bool _isValidDisplayName(String displayName) {
+    final trimmed = displayName.trim();
+    return trimmed.length >= 2 && trimmed.length <= 50;
   }
 
   /// Get password strength message
@@ -590,7 +624,7 @@ class AuthService {
 
   /// Get password strength level (0-5)
   static int getPasswordStrengthLevel(String password) {
-    int level = 0;
+    var level = 0;
     if (password.length >= 8) level++;
     if (RegExp(r'[A-Z]').hasMatch(password)) level++;
     if (RegExp(r'[a-z]').hasMatch(password)) level++;

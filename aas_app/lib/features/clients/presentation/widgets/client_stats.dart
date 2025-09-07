@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/index.dart';
-import '../../data/services/customer_service.dart';
+import 'package:aas_app/core/theme/index.dart';
+import 'package:aas_app/core/services/customer_service.dart';
 
 class ClientStats extends StatefulWidget {
   const ClientStats({super.key});
@@ -27,7 +27,8 @@ class _ClientStatsState extends State<ClientStats> {
     });
 
     try {
-      final stats = await CustomerService.getCustomerStats();
+      final count = await CustomerService.getCustomerCount();
+      final stats = {'total_customers': count};
       setState(() {
         _stats = stats;
         _isLoading = false;
@@ -53,7 +54,7 @@ class _ClientStatsState extends State<ClientStats> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.error_outline,
               size: 64,
               color: AppColors.error,
@@ -62,16 +63,16 @@ class _ClientStatsState extends State<ClientStats> {
             Text(
               'Error loading statistics',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppColors.error,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(
               _error!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
+                    color: AppColors.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -118,7 +119,7 @@ class _ClientStatsState extends State<ClientStats> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -147,16 +148,16 @@ class _ClientStatsState extends State<ClientStats> {
                 Text(
                   'Customer Analytics',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.onBackground,
-                    fontWeight: FontWeight.w700,
-                  ),
+                        color: AppColors.onBackground,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 Text(
                   'Insights and trends from your customer base',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ],
             ),
@@ -199,7 +200,7 @@ class _ClientStatsState extends State<ClientStats> {
         ),
         _buildMetricCard(
           title: 'Avg. per Industry',
-          value: byIndustry.isNotEmpty 
+          value: byIndustry.isNotEmpty
               ? (total / byIndustry.length).round().toString()
               : '0',
           icon: Icons.trending_up,
@@ -221,12 +222,11 @@ class _ClientStatsState extends State<ClientStats> {
         gradient: AppColors.cardGradient,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.outline.withOpacity(0.1),
-          width: 1,
+          color: AppColors.outline.withValues(alpha: 0.1),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -240,7 +240,7 @@ class _ClientStatsState extends State<ClientStats> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -256,17 +256,17 @@ class _ClientStatsState extends State<ClientStats> {
           Text(
             value,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: AppColors.onBackground,
-              fontWeight: FontWeight.w700,
-            ),
+                  color: AppColors.onBackground,
+                  fontWeight: FontWeight.w700,
+                ),
           ),
           const SizedBox(height: 4),
           Text(
             title,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
+                  color: AppColors.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),
@@ -275,7 +275,7 @@ class _ClientStatsState extends State<ClientStats> {
 
   Widget _buildIndustryBreakdown() {
     final byIndustry = _stats!['byIndustry'] as Map<String, dynamic>;
-    
+
     if (byIndustry.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(24),
@@ -284,7 +284,7 @@ class _ClientStatsState extends State<ClientStats> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadow.withOpacity(0.1),
+              color: AppColors.shadow.withValues(alpha: 0.1),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -296,15 +296,15 @@ class _ClientStatsState extends State<ClientStats> {
             Text(
               'Industry Breakdown',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppColors.onBackground,
-                fontWeight: FontWeight.w700,
-              ),
+                    color: AppColors.onBackground,
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
             const SizedBox(height: 16),
             Center(
               child: Column(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.work_outline,
                     size: 48,
                     color: AppColors.onSurfaceVariant,
@@ -313,8 +313,8 @@ class _ClientStatsState extends State<ClientStats> {
                   Text(
                     'No industry data yet',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
+                          color: AppColors.onSurfaceVariant,
+                        ),
                   ),
                 ],
               ),
@@ -331,7 +331,7 @@ class _ClientStatsState extends State<ClientStats> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -343,9 +343,9 @@ class _ClientStatsState extends State<ClientStats> {
           Text(
             'Industry Breakdown',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: AppColors.onBackground,
-              fontWeight: FontWeight.w700,
-            ),
+                  color: AppColors.onBackground,
+                  fontWeight: FontWeight.w700,
+                ),
           ),
           const SizedBox(height: 20),
           ...byIndustry.entries.map((entry) {
@@ -353,7 +353,7 @@ class _ClientStatsState extends State<ClientStats> {
             final count = entry.value as int;
             final total = _stats!['total'] as int;
             final percentage = total > 0 ? (count / total * 100).round() : 0;
-            
+
             return _buildBreakdownItem(
               label: industry,
               count: count,
@@ -368,7 +368,7 @@ class _ClientStatsState extends State<ClientStats> {
 
   Widget _buildContactChannelBreakdown() {
     final byChannel = _stats!['byChannel'] as Map<String, dynamic>;
-    
+
     if (byChannel.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(24),
@@ -377,7 +377,7 @@ class _ClientStatsState extends State<ClientStats> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadow.withOpacity(0.1),
+              color: AppColors.shadow.withValues(alpha: 0.1),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -389,15 +389,15 @@ class _ClientStatsState extends State<ClientStats> {
             Text(
               'Contact Channel Breakdown',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: AppColors.onBackground,
-                fontWeight: FontWeight.w700,
-              ),
+                    color: AppColors.onBackground,
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
             const SizedBox(height: 16),
             Center(
               child: Column(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.chat_outlined,
                     size: 48,
                     color: AppColors.onSurfaceVariant,
@@ -406,8 +406,8 @@ class _ClientStatsState extends State<ClientStats> {
                   Text(
                     'No contact channel data yet',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
+                          color: AppColors.onSurfaceVariant,
+                        ),
                   ),
                 ],
               ),
@@ -424,7 +424,7 @@ class _ClientStatsState extends State<ClientStats> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -436,9 +436,9 @@ class _ClientStatsState extends State<ClientStats> {
           Text(
             'Contact Channel Breakdown',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: AppColors.onBackground,
-              fontWeight: FontWeight.w700,
-            ),
+                  color: AppColors.onBackground,
+                  fontWeight: FontWeight.w700,
+                ),
           ),
           const SizedBox(height: 20),
           ...byChannel.entries.map((entry) {
@@ -446,7 +446,7 @@ class _ClientStatsState extends State<ClientStats> {
             final count = entry.value as int;
             final total = _stats!['total'] as int;
             final percentage = total > 0 ? (count / total * 100).round() : 0;
-            
+
             return _buildBreakdownItem(
               label: channel,
               count: count,
@@ -469,11 +469,10 @@ class _ClientStatsState extends State<ClientStats> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -485,16 +484,16 @@ class _ClientStatsState extends State<ClientStats> {
                 Text(
                   label,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.onBackground,
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: AppColors.onBackground,
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '$count customers ($percentage%)',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                      ),
                 ),
               ],
             ),
@@ -502,15 +501,15 @@ class _ClientStatsState extends State<ClientStats> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
               count.toString(),
               style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
-              ),
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
           ),
         ],

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
+import '../../../../core/models/customer.dart';
+import '../../../../core/services/customer_service.dart';
 import '../models/client.dart';
 import '../widgets/client_form_field.dart';
-import '../../data/services/customer_service.dart';
 
 class EditClientPage extends StatefulWidget {
-  final Client client;
-
   const EditClientPage({
     super.key,
-    required this.client,
+    required this.clientId,
   });
+  final String clientId;
 
   @override
   State<EditClientPage> createState() => _EditClientPageState();
@@ -33,25 +33,50 @@ class _EditClientPageState extends State<EditClientPage> {
   // Form state
   bool _isLoading = false;
   bool _isFormValid = false;
+  Client? _client;
+  bool _isInitialLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    print('EditClientPage initState called'); // Debug print
-    _initializeControllers();
-    _setupFormValidation();
-    print('EditClientPage initState completed - _isFormValid: $_isFormValid'); // Debug print
+    _loadClient();
+  }
+
+  Future<void> _loadClient() async {
+    try {
+      // TODO: Load client from service using widget.clientId
+      // For now, create a placeholder client
+      setState(() {
+        _isInitialLoading = false;
+        _errorMessage = 'Client loading not implemented yet';
+      });
+    } catch (e) {
+      setState(() {
+        _isInitialLoading = false;
+        _errorMessage = 'Failed to load client: $e';
+      });
+    }
   }
 
   void _initializeControllers() {
-    _clientNameController = TextEditingController(text: widget.client.clientName);
-    _contactNameController = TextEditingController(text: widget.client.contactName ?? '');
-    _contactNumberController = TextEditingController(text: widget.client.contactNumber ?? '');
-    _contactEmailController = TextEditingController(text: widget.client.contactEmail ?? '');
-    _addressController = TextEditingController(text: widget.client.address ?? '');
-    _industrySectorController = TextEditingController(text: widget.client.industrySector ?? '');
-    _contactChannelController = TextEditingController(text: widget.client.contactChannel ?? '');
-    _notesController = TextEditingController(text: widget.client.notes ?? '');
+    if (_client == null) return;
+    
+    _clientNameController =
+        TextEditingController(text: _client!.clientName);
+    _contactNameController =
+        TextEditingController(text: _client!.contactName ?? '');
+    _contactNumberController =
+        TextEditingController(text: _client!.contactNumber ?? '');
+    _contactEmailController =
+        TextEditingController(text: _client!.contactEmail ?? '');
+    _addressController =
+        TextEditingController(text: _client!.address ?? '');
+    _industrySectorController =
+        TextEditingController(text: _client!.industrySector ?? '');
+    _contactChannelController =
+        TextEditingController(text: _client!.contactChannel ?? '');
+    _notesController = TextEditingController(text: _client!.notes ?? '');
   }
 
   @override
@@ -71,7 +96,7 @@ class _EditClientPageState extends State<EditClientPage> {
   void _setupFormValidation() {
     // Listen to changes in required fields
     _clientNameController.addListener(_validateForm);
-    
+
     // Trigger initial validation after controllers are set up
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _validateForm();
@@ -80,21 +105,36 @@ class _EditClientPageState extends State<EditClientPage> {
 
   void _validateForm() {
     final isValid = _clientNameController.text.isNotEmpty;
-    print('_validateForm called - clientName: "${_clientNameController.text}", isValid: $isValid, _isFormValid: $_isFormValid'); // Debug print
-    
+    print('Form validation: isValid=$isValid, _isFormValid=$_isFormValid');
+
     if (isValid != _isFormValid) {
       setState(() {
         _isFormValid = isValid;
       });
-      print('Form validation state updated to: $_isFormValid'); // Debug print
+      print('Form validity changed to: $_isFormValid');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isInitialLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null || _client == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Edit Customer')),
+        body: Center(
+          child: Text(_errorMessage ?? 'Client not found'),
+        ),
+      );
+    }
+
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
           gradient: AppColors.backgroundGradient,
         ),
         child: SafeArea(
@@ -118,7 +158,7 @@ class _EditClientPageState extends State<EditClientPage> {
         children: [
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(
+            icon: const Icon(
               Icons.arrow_back,
               color: AppColors.onBackground,
             ),
@@ -131,16 +171,16 @@ class _EditClientPageState extends State<EditClientPage> {
                 Text(
                   'Edit Customer',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.onBackground,
-                    fontWeight: FontWeight.w700,
-                  ),
+                        color: AppColors.onBackground,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 Text(
                   'Update customer information',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ],
             ),
@@ -158,7 +198,7 @@ class _EditClientPageState extends State<EditClientPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -213,9 +253,9 @@ class _EditClientPageState extends State<EditClientPage> {
         Text(
           title,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppColors.onBackground,
-            fontWeight: FontWeight.w700,
-          ),
+                color: AppColors.onBackground,
+                fontWeight: FontWeight.w700,
+              ),
         ),
       ],
     );
@@ -268,7 +308,8 @@ class _EditClientPageState extends State<EditClientPage> {
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value != null && value.isNotEmpty) {
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value)) {
                       return 'Please enter a valid email';
                     }
                   }
@@ -321,15 +362,15 @@ class _EditClientPageState extends State<EditClientPage> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.info.withOpacity(0.1),
+            color: AppColors.info.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.info.withOpacity(0.3),
+              color: AppColors.info.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.info_outline,
                 color: AppColors.info,
                 size: 20,
@@ -339,9 +380,9 @@ class _EditClientPageState extends State<EditClientPage> {
                 child: Text(
                   'Changes will be saved to the database. You can continue to modify their profile and add orders.',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.info,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.info,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ),
             ],
@@ -355,7 +396,7 @@ class _EditClientPageState extends State<EditClientPage> {
     return Container(
       padding: const EdgeInsets.all(24.0),
       decoration: BoxDecoration(
-        color: AppColors.surface.withOpacity(0.8),
+        color: AppColors.surface.withValues(alpha: 0.8),
         borderRadius: const BorderRadius.vertical(
           bottom: Radius.circular(20),
         ),
@@ -367,31 +408,32 @@ class _EditClientPageState extends State<EditClientPage> {
               onPressed: () => Navigator.of(context).pop(),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                side: BorderSide(color: AppColors.outline),
+                side: const BorderSide(color: AppColors.outline),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-                              child: Text(
-                  'Cancel',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: AppColors.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              child: Text(
+                'Cancel',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: AppColors.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
             ),
           ),
           const SizedBox(width: 16),
-                     Expanded(
-             child: ElevatedButton(
-               onPressed: () {
-                 print('Button pressed - _isFormValid: $_isFormValid, _isLoading: $_isLoading'); // Debug print
-                 if (_isFormValid && !_isLoading) {
-                   _updateCustomer();
-                 } else {
-                   print('Button is disabled - _isFormValid: $_isFormValid, _isLoading: $_isLoading'); // Debug print
-                 }
-               },
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () {
+                print(
+                    'Update button pressed: _isFormValid=$_isFormValid, _isLoading=$_isLoading');
+                if (_isFormValid && !_isLoading) {
+                  _updateCustomer();
+                } else {
+                  print('Form is not valid or loading, cannot update');
+                }
+              },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 backgroundColor: AppColors.primary,
@@ -402,20 +444,21 @@ class _EditClientPageState extends State<EditClientPage> {
                 ),
               ),
               child: _isLoading
-                  ? SizedBox(
+                  ? const SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.onPrimary),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(AppColors.onPrimary),
                       ),
                     )
                   : Text(
                       'Update Customer',
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: AppColors.onPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                            color: AppColors.onPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
             ),
           ),
@@ -425,53 +468,55 @@ class _EditClientPageState extends State<EditClientPage> {
   }
 
   Future<void> _updateCustomer() async {
-    print('_updateCustomer called'); // Debug print
-    
+    print('Starting customer update process...');
+
     if (!_formKey.currentState!.validate()) {
-      print('Form validation failed'); // Debug print
+      print('Form validation failed, cannot update customer');
       return;
     }
 
-    print('Form validation passed'); // Debug print
+    print('Form validation passed, proceeding with update');
 
     setState(() {
       _isLoading = true;
     });
 
     try {
-      print('Creating updated customer object...'); // Debug print
-      
+      print('Creating updated customer object...');
+
       // Create updated customer object
-      final updatedCustomer = widget.client.copyWith(
+      final updatedCustomer = _client!.copyWith(
         clientName: _clientNameController.text.trim(),
-        contactName: _contactNameController.text.trim().isEmpty 
-            ? null 
+        contactName: _contactNameController.text.trim().isEmpty
+            ? null
             : _contactNameController.text.trim(),
-        contactNumber: _contactNumberController.text.trim().isEmpty 
-            ? null 
+        contactNumber: _contactNumberController.text.trim().isEmpty
+            ? null
             : _contactNumberController.text.trim(),
-        contactEmail: _contactEmailController.text.trim().isEmpty 
-            ? null 
+        contactEmail: _contactEmailController.text.trim().isEmpty
+            ? null
             : _contactEmailController.text.trim(),
-        address: _addressController.text.trim().isEmpty 
-            ? null 
+        address: _addressController.text.trim().isEmpty
+            ? null
             : _addressController.text.trim(),
-        industrySector: _industrySectorController.text.trim().isEmpty 
-            ? null 
+        industrySector: _industrySectorController.text.trim().isEmpty
+            ? null
             : _industrySectorController.text.trim(),
-        contactChannel: _contactChannelController.text.trim().isEmpty 
-            ? null 
+        contactChannel: _contactChannelController.text.trim().isEmpty
+            ? null
             : _contactChannelController.text.trim(),
-        notes: _notesController.text.trim().isEmpty 
-            ? null 
+        notes: _notesController.text.trim().isEmpty
+            ? null
             : _notesController.text.trim(),
       );
 
-      print('Updated customer object: ${updatedCustomer.toJson()}'); // Debug print
+      print('Updated customer data: ${updatedCustomer.clientName}');
 
       // Update in Supabase database
-      print('Calling CustomerService.updateCustomer...'); // Debug print
-      final savedCustomer = await CustomerService.updateCustomer(updatedCustomer);
+      print('Saving customer to database...');
+      final customerToUpdate = Customer.fromClient(updatedCustomer);
+      final savedCustomer =
+          await CustomerService.updateCustomer(customerToUpdate);
 
       // Show success message
       if (mounted) {
@@ -479,7 +524,7 @@ class _EditClientPageState extends State<EditClientPage> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: AppColors.success),
+                const Icon(Icons.check_circle, color: AppColors.success),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -489,7 +534,7 @@ class _EditClientPageState extends State<EditClientPage> {
                 ),
               ],
             ),
-            backgroundColor: AppColors.success.withOpacity(0.1),
+            backgroundColor: AppColors.success.withValues(alpha: 0.1),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -507,7 +552,7 @@ class _EditClientPageState extends State<EditClientPage> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.error, color: AppColors.error),
+                const Icon(Icons.error, color: AppColors.error),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -517,7 +562,7 @@ class _EditClientPageState extends State<EditClientPage> {
                 ),
               ],
             ),
-            backgroundColor: AppColors.error.withOpacity(0.1),
+            backgroundColor: AppColors.error.withValues(alpha: 0.1),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

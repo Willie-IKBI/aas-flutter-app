@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
 
 /// Enhanced typography components with modern styling
-/// 
+///
 /// Features:
 /// - Modern typography hierarchy
 /// - Responsive text sizing
@@ -11,12 +11,6 @@ import '../../../../core/theme/index.dart';
 
 /// Modern heading with gradient text effect
 class ModernHeading extends StatelessWidget {
-  final String text;
-  final TextAlign? textAlign;
-  final bool showGradient;
-  final double? fontSize;
-  final FontWeight? fontWeight;
-
   const ModernHeading({
     super.key,
     required this.text,
@@ -25,36 +19,49 @@ class ModernHeading extends StatelessWidget {
     this.fontSize,
     this.fontWeight,
   });
+  final String text;
+  final TextAlign? textAlign;
+  final bool showGradient;
+  final double? fontSize;
+  final FontWeight? fontWeight;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 1200;
-        final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
-        
-        final size = fontSize ?? (isDesktop ? 32.0 : isTablet ? 28.0 : 24.0);
+        final isTablet =
+            constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
+
+        final size = fontSize ??
+            (isDesktop
+                ? 32.0
+                : isTablet
+                    ? 28.0
+                    : 24.0);
         final weight = fontWeight ?? FontWeight.w700;
-        
+
         if (showGradient) {
           return ShaderMask(
-            shaderCallback: (bounds) => AppColors.primaryGradient.createShader(bounds),
+            shaderCallback: (bounds) =>
+                AppColors.primaryGradient.createShader(bounds),
             child: Text(
               text,
               textAlign: textAlign ?? TextAlign.center,
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontSize: size,
-                fontWeight: weight,
-                letterSpacing: -0.5,
-                height: 1.2,
-                color: Colors.white,
-              ) ?? TextStyle(
-                fontSize: size,
-                fontWeight: weight,
-                letterSpacing: -0.5,
-                height: 1.2,
-                color: Colors.white,
-              ),
+                        fontSize: size,
+                        fontWeight: weight,
+                        letterSpacing: -0.5,
+                        height: 1.2,
+                        color: Colors.white,
+                      ) ??
+                  TextStyle(
+                    fontSize: size,
+                    fontWeight: weight,
+                    letterSpacing: -0.5,
+                    height: 1.2,
+                    color: Colors.white,
+                  ),
             ),
           );
         } else {
@@ -62,18 +69,19 @@ class ModernHeading extends StatelessWidget {
             text,
             textAlign: textAlign ?? TextAlign.center,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              fontSize: size,
-              fontWeight: weight,
-              letterSpacing: -0.5,
-              height: 1.2,
-              color: AppColors.onBackground,
-            ) ?? TextStyle(
-              fontSize: size,
-              fontWeight: weight,
-              letterSpacing: -0.5,
-              height: 1.2,
-              color: AppColors.onBackground,
-            ),
+                      fontSize: size,
+                      fontWeight: weight,
+                      letterSpacing: -0.5,
+                      height: 1.2,
+                      color: AppColors.onBackground,
+                    ) ??
+                TextStyle(
+                  fontSize: size,
+                  fontWeight: weight,
+                  letterSpacing: -0.5,
+                  height: 1.2,
+                  color: AppColors.onBackground,
+                ),
           );
         }
       },
@@ -83,12 +91,6 @@ class ModernHeading extends StatelessWidget {
 
 /// Modern subtitle with enhanced styling
 class ModernSubtitle extends StatelessWidget {
-  final String text;
-  final TextAlign? textAlign;
-  final Color? color;
-  final double? fontSize;
-  final FontWeight? fontWeight;
-
   const ModernSubtitle({
     super.key,
     required this.text,
@@ -97,33 +99,45 @@ class ModernSubtitle extends StatelessWidget {
     this.fontSize,
     this.fontWeight,
   });
+  final String text;
+  final TextAlign? textAlign;
+  final Color? color;
+  final double? fontSize;
+  final FontWeight? fontWeight;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 1200;
-        final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
-        
-        final size = fontSize ?? (isDesktop ? 18.0 : isTablet ? 16.0 : 14.0);
+        final isTablet =
+            constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
+
+        final size = fontSize ??
+            (isDesktop
+                ? 18.0
+                : isTablet
+                    ? 16.0
+                    : 14.0);
         final weight = fontWeight ?? FontWeight.w400;
-        
+
         return Text(
           text,
           textAlign: textAlign ?? TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontSize: size,
-            fontWeight: weight,
-            height: 1.4,
-            color: color ?? AppColors.onSurfaceVariant,
-            letterSpacing: 0.1,
-          ) ?? TextStyle(
-            fontSize: size,
-            fontWeight: weight,
-            height: 1.4,
-            color: color ?? AppColors.onSurfaceVariant,
-            letterSpacing: 0.1,
-          ),
+                    fontSize: size,
+                    fontWeight: weight,
+                    height: 1.4,
+                    color: color ?? AppColors.onSurfaceVariant,
+                    letterSpacing: 0.1,
+                  ) ??
+              TextStyle(
+                fontSize: size,
+                fontWeight: weight,
+                height: 1.4,
+                color: color ?? AppColors.onSurfaceVariant,
+                letterSpacing: 0.1,
+              ),
         );
       },
     );
@@ -132,12 +146,6 @@ class ModernSubtitle extends StatelessWidget {
 
 /// Animated text with fade-in effect
 class AnimatedText extends StatefulWidget {
-  final String text;
-  final TextStyle? style;
-  final TextAlign? textAlign;
-  final Duration? duration;
-  final Curve? curve;
-
   const AnimatedText({
     super.key,
     required this.text,
@@ -146,6 +154,11 @@ class AnimatedText extends StatefulWidget {
     this.duration,
     this.curve,
   });
+  final String text;
+  final TextStyle? style;
+  final TextAlign? textAlign;
+  final Duration? duration;
+  final Curve? curve;
 
   @override
   State<AnimatedText> createState() => _AnimatedTextState();
@@ -204,12 +217,6 @@ class _AnimatedTextState extends State<AnimatedText>
 
 /// Interactive text with hover effects
 class InteractiveText extends StatefulWidget {
-  final String text;
-  final TextStyle? style;
-  final TextStyle? hoverStyle;
-  final VoidCallback? onTap;
-  final TextAlign? textAlign;
-
   const InteractiveText({
     super.key,
     required this.text,
@@ -218,6 +225,11 @@ class InteractiveText extends StatefulWidget {
     this.onTap,
     this.textAlign,
   });
+  final String text;
+  final TextStyle? style;
+  final TextStyle? hoverStyle;
+  final VoidCallback? onTap;
+  final TextAlign? textAlign;
 
   @override
   State<InteractiveText> createState() => _InteractiveTextState();
@@ -286,7 +298,8 @@ class _InteractiveTextState extends State<InteractiveText>
 /// Typography utility class for consistent text styling
 class TypographyUtils {
   /// Get responsive font size based on screen width
-  static double getResponsiveFontSize(double screenWidth, {
+  static double getResponsiveFontSize(
+    double screenWidth, {
     double? desktop,
     double? tablet,
     double? mobile,
@@ -297,7 +310,8 @@ class TypographyUtils {
   }
 
   /// Get responsive line height based on screen width
-  static double getResponsiveLineHeight(double screenWidth, {
+  static double getResponsiveLineHeight(
+    double screenWidth, {
     double? desktop,
     double? tablet,
     double? mobile,
@@ -308,7 +322,8 @@ class TypographyUtils {
   }
 
   /// Get responsive letter spacing based on screen width
-  static double getResponsiveLetterSpacing(double screenWidth, {
+  static double getResponsiveLetterSpacing(
+    double screenWidth, {
     double? desktop,
     double? tablet,
     double? mobile,
@@ -333,18 +348,19 @@ class TypographyUtils {
     final spacing = letterSpacing ?? getResponsiveLetterSpacing(screenWidth);
 
     return Theme.of(context).textTheme.bodyMedium?.copyWith(
-      fontSize: size,
-      fontWeight: fontWeight,
-      color: color,
-      height: height,
-      letterSpacing: spacing,
-    ) ?? TextStyle(
-      fontSize: size,
-      fontWeight: fontWeight,
-      color: color,
-      height: height,
-      letterSpacing: spacing,
-    );
+              fontSize: size,
+              fontWeight: fontWeight,
+              color: color,
+              height: height,
+              letterSpacing: spacing,
+            ) ??
+        TextStyle(
+          fontSize: size,
+          fontWeight: fontWeight,
+          color: color,
+          height: height,
+          letterSpacing: spacing,
+        );
   }
 }
 

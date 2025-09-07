@@ -6,16 +6,16 @@ import '../widgets/executive_dashboard.dart';
 import '../widgets/operations_dashboard.dart';
 import '../widgets/technician_dashboard.dart';
 import '../widgets/sales_dashboard.dart';
+import '../providers/dashboard_providers.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
-  final int initialTab;
-  final bool showUserManagement;
-  
   const DashboardPage({
     super.key,
     this.initialTab = 0,
     this.showUserManagement = false,
   });
+  final int initialTab;
+  final bool showUserManagement;
 
   @override
   ConsumerState<DashboardPage> createState() => _DashboardPageState();
@@ -24,41 +24,45 @@ class DashboardPage extends ConsumerStatefulWidget {
 class _DashboardPageState extends ConsumerState<DashboardPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  int _selectedIndex = 0;
+  final FocusNode _dashboardFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this, initialIndex: widget.initialTab);
+    _tabController =
+        TabController(length: 4, vsync: this, initialIndex: widget.initialTab);
     _tabController.addListener(() {
-      setState(() {
-        _selectedIndex = _tabController.index;
-      });
+      // Update provider state instead of local state
+      ref.read(dashboardTabProvider.notifier).setTab(_tabController.index);
     });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _dashboardFocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildHeader(),
-              _buildTabBar(),
-              Expanded(
-                child: _buildTabBarView(),
-              ),
-            ],
+      body: Focus(
+        focusNode: _dashboardFocusNode,
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: AppColors.backgroundGradient,
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(),
+                _buildTabBar(),
+                Expanded(
+                  child: _buildTabBarView(),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -79,7 +83,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
+                  color: AppColors.primary.withValues(alpha: 0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
@@ -99,16 +103,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
                 Text(
                   'AAS Dashboard',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.onBackground,
-                    fontWeight: FontWeight.w700,
-                  ),
+                        color: AppColors.onBackground,
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
                 Text(
                   'Equipment Repair Management',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ],
             ),
@@ -118,13 +122,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.surfaceVariant.withOpacity(0.3),
+                color: AppColors.surfaceVariant.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: AppColors.outline.withOpacity(0.2),
+                  color: AppColors.outline.withValues(alpha: 0.2),
                 ),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.person_outline,
                 color: AppColors.onSurface,
                 size: 20,
@@ -140,9 +144,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
                 value: 'profile',
                 child: Row(
                   children: [
-                    Icon(Icons.person, color: AppColors.primary, size: 20),
+                    const Icon(Icons.person,
+                        color: AppColors.primary, size: 20),
                     const SizedBox(width: 8),
-                    Text('Profile', style: Theme.of(context).textTheme.bodyMedium),
+                    Text('Profile',
+                        style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
               ),
@@ -150,9 +156,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
                 value: 'settings',
                 child: Row(
                   children: [
-                    Icon(Icons.settings, color: AppColors.primary, size: 20),
+                    const Icon(Icons.settings,
+                        color: AppColors.primary, size: 20),
                     const SizedBox(width: 8),
-                    Text('Settings', style: Theme.of(context).textTheme.bodyMedium),
+                    Text('Settings',
+                        style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
               ),
@@ -161,11 +169,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
                 value: 'signout',
                 child: Row(
                   children: [
-                    Icon(Icons.logout, color: AppColors.error, size: 20),
+                    const Icon(Icons.logout, color: AppColors.error, size: 20),
                     const SizedBox(width: 8),
-                    Text('Sign Out', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.error,
-                    )),
+                    Text('Sign Out',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.error,
+                            )),
                   ],
                 ),
               ),
@@ -184,7 +193,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -200,11 +209,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
         labelColor: AppColors.onPrimary,
         unselectedLabelColor: AppColors.onSurfaceVariant,
         labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+              fontWeight: FontWeight.w600,
+            ),
         unselectedLabelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
+              fontWeight: FontWeight.w500,
+            ),
         tabs: const [
           Tab(
             icon: Icon(Icons.analytics_outlined),
@@ -241,11 +250,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
 
   Future<void> _signOut() async {
     try {
-              await SupabaseConfig.auth.signOut();
+      await SupabaseConfig.auth.signOut();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Signed out successfully'),
+          const SnackBar(
+            content: Text('Signed out successfully'),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
           ),

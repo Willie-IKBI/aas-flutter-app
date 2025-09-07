@@ -1,16 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter/material.dart';
 
 /// Secure Configuration Management
-/// 
+///
 /// This file provides secure ways to handle API keys and sensitive configuration
 /// based on the environment (development, staging, production).
 class SecureConfig {
   SecureConfig._();
 
   // ===== ENVIRONMENT DETECTION =====
-  
+
   static bool get isDevelopment => kDebugMode;
   static bool get isProduction => !kDebugMode;
   static bool get isTest => kDebugMode && !kIsWeb;
@@ -38,7 +37,7 @@ class SecureConfig {
     // 1. Build-time environment variables (most secure for production)
     // 2. .env file (for development)
     // 3. Fallback values
-    
+
     // Check build-time environment variables first
     const buildTimeUrl = String.fromEnvironment('SUPABASE_URL');
     if (buildTimeUrl.isNotEmpty && buildTimeUrl != 'SUPABASE_URL') {
@@ -53,9 +52,7 @@ class SecureConfig {
           return envUrl;
         }
       } catch (e) {
-        if (kDebugMode) {
-          print('⚠️ Could not load .env file: $e');
-        }
+        if (kDebugMode) {}
       }
     }
 
@@ -72,7 +69,7 @@ class SecureConfig {
     // 1. Build-time environment variables (most secure for production)
     // 2. .env file (for development)
     // 3. Fallback values
-    
+
     // Check build-time environment variables first
     const buildTimeKey = String.fromEnvironment('SUPABASE_ANON_KEY');
     if (buildTimeKey.isNotEmpty && buildTimeKey != 'SUPABASE_ANON_KEY') {
@@ -87,9 +84,7 @@ class SecureConfig {
           return envKey;
         }
       } catch (e) {
-        if (kDebugMode) {
-          print('⚠️ Could not load .env file: $e');
-        }
+        if (kDebugMode) {}
       }
     }
 
@@ -107,11 +102,11 @@ class SecureConfig {
     if (url.isEmpty) {
       throw Exception('SUPABASE_URL cannot be empty');
     }
-    
+
     if (!url.startsWith('https://')) {
       throw Exception('SUPABASE_URL must use HTTPS');
     }
-    
+
     if (!url.contains('.supabase.co')) {
       throw Exception('SUPABASE_URL must be a valid Supabase URL');
     }
@@ -121,7 +116,7 @@ class SecureConfig {
     if (key.isEmpty) {
       throw Exception('SUPABASE_ANON_KEY cannot be empty');
     }
-    
+
     if (!key.startsWith('eyJ')) {
       throw Exception('SUPABASE_ANON_KEY must be a valid JWT token');
     }
@@ -135,19 +130,13 @@ class SecureConfig {
       try {
         // For web, we need to handle .env differently
         if (kIsWeb) {
-          if (kDebugMode) {
-            print('🌐 Web environment detected - using fallback configuration');
-          }
+          if (kDebugMode) {}
         } else {
-          await dotenv.load(fileName: '.env');
-          if (kDebugMode) {
-            print('✅ Environment variables loaded from .env');
-          }
+          await dotenv.load();
+          if (kDebugMode) {}
         }
       } catch (e) {
-        if (kDebugMode) {
-          print('⚠️ Could not load .env file: $e');
-        }
+        if (kDebugMode) {}
       }
     }
 
@@ -155,10 +144,7 @@ class SecureConfig {
     _validateUrl(_getSupabaseUrl());
     _validateAnonKey(_getSupabaseAnonKey());
 
-    if (kDebugMode) {
-      print('✅ Secure configuration validated');
-      print('🌍 Environment: ${isDevelopment ? 'Development' : 'Production'}');
-    }
+    if (kDebugMode) {}
   }
 
   // ===== SECURITY UTILITIES =====
@@ -176,7 +162,7 @@ class SecureConfig {
 
   /// Get configuration status for debugging
   static Map<String, dynamic> get configurationStatus {
-    bool envFileLoaded = false;
+    var envFileLoaded = false;
     if (isDevelopment && !kIsWeb) {
       try {
         envFileLoaded = dotenv.env.isNotEmpty;
@@ -184,7 +170,7 @@ class SecureConfig {
         envFileLoaded = false;
       }
     }
-    
+
     return {
       'environment': isDevelopment ? 'development' : 'production',
       'isConfigured': isConfigured,

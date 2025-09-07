@@ -2,20 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
 
 /// Responsive layout wrapper for authentication screens
-/// 
+///
 /// Provides consistent layout across different screen sizes:
 /// - Desktop: Centered card with max-width constraints
 /// - Tablet: Centered card with medium width
 /// - Mobile: Full-width with proper padding
 class ResponsiveAuthLayout extends StatelessWidget {
-  final Widget child;
-  final String? title;
-  final String? subtitle;
-  final Widget? header;
-  final Widget? footer;
-  final bool showBackButton;
-  final VoidCallback? onBackPressed;
-
   const ResponsiveAuthLayout({
     super.key,
     required this.child,
@@ -26,6 +18,13 @@ class ResponsiveAuthLayout extends StatelessWidget {
     this.showBackButton = false,
     this.onBackPressed,
   });
+  final Widget child;
+  final String? title;
+  final String? subtitle;
+  final Widget? header;
+  final Widget? footer;
+  final bool showBackButton;
+  final VoidCallback? onBackPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -47,44 +46,67 @@ class ResponsiveAuthLayout extends StatelessWidget {
 
               return SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
-                  horizontal: isDesktop ? 48.0 : isTablet ? 32.0 : 24.0,
+                  horizontal: isDesktop
+                      ? 48.0
+                      : isTablet
+                          ? 32.0
+                          : 24.0,
                   vertical: isDesktop ? 32.0 : 24.0,
                 ),
                 child: Column(
                   children: [
                     // Top spacing
-                    SizedBox(height: isDesktop ? 60.0 : isTablet ? 40.0 : 20.0),
-                    
+                    SizedBox(
+                        height: isDesktop
+                            ? 60.0
+                            : isTablet
+                                ? 40.0
+                                : 20.0),
+
                     // Back button (if needed)
                     if (showBackButton) ...[
                       _buildBackButton(context),
                       const SizedBox(height: 24),
                     ],
-                    
+
                     // Header section
                     if (header != null) ...[
                       header!,
-                      SizedBox(height: isDesktop ? 48.0 : isTablet ? 32.0 : 24.0),
+                      SizedBox(
+                          height: isDesktop
+                              ? 48.0
+                              : isTablet
+                                  ? 32.0
+                                  : 24.0),
                     ],
-                    
+
                     // Main content with responsive constraints
                     Center(
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
-                          maxWidth: isDesktop ? 450.0 : isTablet ? 500.0 : double.infinity,
+                          maxWidth: isDesktop
+                              ? 450.0
+                              : isTablet
+                                  ? 500.0
+                                  : double.infinity,
                         ),
                         child: child,
                       ),
                     ),
-                    
+
                     // Footer section
                     if (footer != null) ...[
                       SizedBox(height: isDesktop ? 32.0 : 24.0),
                       footer!,
                     ],
-                    
+
                     // Bottom spacing
-                    SizedBox(height: isDesktop ? 40.0 : isTablet ? 32.0 : 24.0),
+                    SizedBox(
+                        height: isDesktop
+                            ? 40.0
+                            : isTablet
+                                ? 32.0
+                                : 24.0),
                   ],
                 ),
               );
@@ -103,14 +125,13 @@ class ResponsiveAuthLayout extends StatelessWidget {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.surface.withOpacity(0.8),
+            color: AppColors.surface.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.outline.withOpacity(0.2),
-              width: 1,
+              color: AppColors.outline.withValues(alpha: 0.2),
             ),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.arrow_back_ios_new,
             color: AppColors.onSurface,
             size: 20,
@@ -126,54 +147,78 @@ class ResponsiveAuthLayout extends StatelessWidget {
 }
 
 /// Responsive card container for auth forms
-/// 
+///
 /// Provides consistent styling and responsive behavior
 class ResponsiveAuthCard extends StatelessWidget {
-  final Widget child;
-  final EdgeInsetsGeometry? padding;
-  final bool showShadow;
-
   const ResponsiveAuthCard({
     super.key,
     required this.child,
     this.padding,
     this.showShadow = true,
   });
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+  final bool showShadow;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 1200;
-        final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
-        
+        final isTablet =
+            constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
+
         return Container(
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(
-              isDesktop ? 24.0 : isTablet ? 20.0 : 16.0,
+              isDesktop
+                  ? 24.0
+                  : isTablet
+                      ? 20.0
+                      : 16.0,
             ),
             border: Border.all(
-              color: AppColors.outline.withOpacity(0.1),
-              width: 1,
+              color: AppColors.outline.withValues(alpha: 0.1),
             ),
-            boxShadow: showShadow ? [
-              BoxShadow(
-                color: AppColors.shadow.withOpacity(0.1),
-                blurRadius: isDesktop ? 20.0 : isTablet ? 16.0 : 12.0,
-                offset: Offset(0, isDesktop ? 8.0 : isTablet ? 6.0 : 4.0),
-              ),
-            ] : null,
+            boxShadow: showShadow
+                ? [
+                    BoxShadow(
+                      color: AppColors.shadow.withValues(alpha: 0.1),
+                      blurRadius: isDesktop
+                          ? 20.0
+                          : isTablet
+                              ? 16.0
+                              : 12.0,
+                      offset: Offset(
+                          0,
+                          isDesktop
+                              ? 8.0
+                              : isTablet
+                                  ? 6.0
+                                  : 4.0),
+                    ),
+                  ]
+                : null,
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(
-              isDesktop ? 24.0 : isTablet ? 20.0 : 16.0,
+              isDesktop
+                  ? 24.0
+                  : isTablet
+                      ? 20.0
+                      : 16.0,
             ),
             child: Padding(
-              padding: padding ?? EdgeInsets.all(
-                isDesktop ? 48.0 : isTablet ? 40.0 : 32.0,
-              ),
+              padding: padding ??
+                  EdgeInsets.all(
+                    isDesktop
+                        ? 48.0
+                        : isTablet
+                            ? 40.0
+                            : 32.0,
+                  ),
               child: child,
             ),
           ),
@@ -186,7 +231,11 @@ class ResponsiveAuthCard extends StatelessWidget {
 /// Responsive spacing utilities
 class ResponsiveSpacing {
   static double getHorizontalPadding(double screenWidth) {
-    return screenWidth >= 1200 ? 48.0 : screenWidth >= 768 ? 32.0 : 24.0;
+    return screenWidth >= 1200
+        ? 48.0
+        : screenWidth >= 768
+            ? 32.0
+            : 24.0;
   }
 
   static double getVerticalPadding(double screenWidth) {
@@ -194,10 +243,18 @@ class ResponsiveSpacing {
   }
 
   static double getCardPadding(double screenWidth) {
-    return screenWidth >= 1200 ? 48.0 : screenWidth >= 768 ? 40.0 : 32.0;
+    return screenWidth >= 1200
+        ? 48.0
+        : screenWidth >= 768
+            ? 40.0
+            : 32.0;
   }
 
   static double getBorderRadius(double screenWidth) {
-    return screenWidth >= 1200 ? 24.0 : screenWidth >= 768 ? 20.0 : 16.0;
+    return screenWidth >= 1200
+        ? 24.0
+        : screenWidth >= 768
+            ? 20.0
+            : 16.0;
   }
 }

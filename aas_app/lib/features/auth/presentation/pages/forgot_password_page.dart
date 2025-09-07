@@ -18,7 +18,7 @@ class ForgotPasswordPage extends ConsumerStatefulWidget {
 class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _emailSent = false;
 
@@ -41,11 +41,12 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
       if (mounted) {
         setState(() => _emailSent = true);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Password reset email sent! Please check your inbox.'),
+          const SnackBar(
+            content:
+                Text('Password reset email sent! Please check your inbox.'),
             backgroundColor: AppColors.success,
             behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 5),
+            duration: Duration(seconds: 5),
           ),
         );
       }
@@ -73,17 +74,17 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveAuthLayout(
-      header: AuthHeader(
+      header: const AuthHeader(
         title: 'Reset Password',
         subtitle: 'Enter your email to receive reset instructions',
         icon: Icons.lock_reset,
       ),
+      footer: _buildBackToSignIn(),
       child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ResponsiveAuthCard(
               child: _emailSent ? _buildSuccessView() : _buildResetForm(),
             ),
-      footer: _buildBackToSignIn(),
     );
   }
 
@@ -97,16 +98,15 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.info.withOpacity(0.1),
+              color: AppColors.info.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.info.withOpacity(0.2),
-                width: 1,
+                color: AppColors.info.withValues(alpha: 0.2),
               ),
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.info_outline,
                   color: AppColors.info,
                   size: 24,
@@ -116,17 +116,17 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                   child: Text(
                     'We\'ll send you a link to reset your password',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.info,
-                      fontWeight: FontWeight.w500,
-                    ),
+                          color: AppColors.info,
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                 ),
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Email field
           ModernAuthTextField(
             controller: _emailController,
@@ -139,22 +139,22 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
               if (value == null || value.isEmpty) {
                 return 'Please enter your email';
               }
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                  .hasMatch(value)) {
                 return 'Please enter a valid email';
               }
               return null;
             },
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Reset button
           ModernAuthButton(
             text: 'Send Reset Link',
             onPressed: _isLoading ? null : _resetPassword,
             isLoading: _isLoading,
             icon: Icons.send,
-            variant: ModernButtonVariant.filled,
           ),
         ],
       ),
@@ -173,7 +173,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: AppColors.success.withOpacity(0.3),
+                color: AppColors.success.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -185,67 +185,65 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
             color: Colors.white,
           ),
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Success title
         Text(
           'Email Sent!',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: AppColors.onBackground,
-            fontWeight: FontWeight.w700,
-          ),
+                color: AppColors.onBackground,
+                fontWeight: FontWeight.w700,
+              ),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Instructions
         Text(
           'We\'ve sent a password reset link to:',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.onSurfaceVariant,
-            fontWeight: FontWeight.w500,
-          ),
+                color: AppColors.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
+              ),
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         // Email display
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.surfaceVariant.withOpacity(0.3),
+            color: AppColors.surfaceVariant.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: AppColors.outline.withOpacity(0.2),
-              width: 1,
+              color: AppColors.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Text(
             _emailController.text,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w600,
-            ),
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Success info
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.success.withOpacity(0.1),
+            color: AppColors.success.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.success.withOpacity(0.2),
-              width: 1,
+              color: AppColors.success.withValues(alpha: 0.2),
             ),
           ),
           child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.info_outline,
                 color: AppColors.success,
                 size: 20,
@@ -255,17 +253,17 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                 child: Text(
                   'Check your email and click the link to reset your password',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.success,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        color: AppColors.success,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ),
             ],
           ),
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Resend button
         ModernAuthButton(
           text: 'Resend Email',
@@ -286,21 +284,23 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
           Text(
             'Remember your password? ',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.onSurfaceVariant,
-              fontWeight: FontWeight.w400,
-            ),
+                  color: AppColors.onSurfaceVariant,
+                  fontWeight: FontWeight.w400,
+                ),
           ),
           GestureDetector(
-            onTap: _isLoading ? null : () {
-              Navigator.pop(context);
-            },
+            onTap: _isLoading
+                ? null
+                : () {
+                    Navigator.pop(context);
+                  },
             child: Text(
               'Sign In',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
             ),
           ),
         ],

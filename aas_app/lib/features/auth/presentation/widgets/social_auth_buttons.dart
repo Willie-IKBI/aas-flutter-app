@@ -10,7 +10,7 @@ enum SocialAuthProvider {
 }
 
 /// Modern social authentication button
-/// 
+///
 /// Features:
 /// - Clean, modern design
 /// - Responsive sizing
@@ -18,11 +18,6 @@ enum SocialAuthProvider {
 /// - Loading states
 /// - Hover effects (desktop)
 class SocialAuthButton extends StatefulWidget {
-  final SocialAuthProvider provider;
-  final VoidCallback? onPressed;
-  final bool isLoading;
-  final String? customText;
-
   const SocialAuthButton({
     super.key,
     required this.provider,
@@ -30,6 +25,10 @@ class SocialAuthButton extends StatefulWidget {
     this.isLoading = false,
     this.customText,
   });
+  final SocialAuthProvider provider;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final String? customText;
 
   @override
   State<SocialAuthButton> createState() => _SocialAuthButtonState();
@@ -81,8 +80,9 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 1200;
-        final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
-        
+        final isTablet =
+            constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
+
         return MouseRegion(
           onEnter: (_) => setState(() => _isHovered = true),
           onExit: (_) => setState(() => _isHovered = false),
@@ -106,10 +106,26 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
   }
 
   Widget _buildButton(BuildContext context, bool isDesktop, bool isTablet) {
-    final buttonHeight = isDesktop ? 52.0 : isTablet ? 48.0 : 44.0;
-    final fontSize = isDesktop ? 15.0 : isTablet ? 14.0 : 13.0;
-    final iconSize = isDesktop ? 22.0 : isTablet ? 20.0 : 18.0;
-    final borderRadius = isDesktop ? 14.0 : isTablet ? 12.0 : 10.0;
+    final buttonHeight = isDesktop
+        ? 52.0
+        : isTablet
+            ? 48.0
+            : 44.0;
+    final fontSize = isDesktop
+        ? 15.0
+        : isTablet
+            ? 14.0
+            : 13.0;
+    final iconSize = isDesktop
+        ? 22.0
+        : isTablet
+            ? 20.0
+            : 18.0;
+    final borderRadius = isDesktop
+        ? 14.0
+        : isTablet
+            ? 12.0
+            : 10.0;
 
     return Container(
       width: double.infinity,
@@ -119,7 +135,6 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
           color: _getBorderColor(),
-          width: 1.0,
         ),
         boxShadow: _getBoxShadow(isDesktop, isTablet),
       ),
@@ -130,17 +145,31 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
           borderRadius: BorderRadius.circular(borderRadius),
           child: Container(
             padding: EdgeInsets.symmetric(
-              horizontal: isDesktop ? 20.0 : isTablet ? 16.0 : 14.0,
+              horizontal: isDesktop
+                  ? 20.0
+                  : isTablet
+                      ? 16.0
+                      : 14.0,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (widget.isLoading) ...[
                   _buildLoadingIndicator(iconSize),
-                  SizedBox(width: isDesktop ? 12.0 : isTablet ? 10.0 : 8.0),
+                  SizedBox(
+                      width: isDesktop
+                          ? 12.0
+                          : isTablet
+                              ? 10.0
+                              : 8.0),
                 ] else ...[
                   _buildProviderIcon(iconSize),
-                  SizedBox(width: isDesktop ? 12.0 : isTablet ? 10.0 : 8.0),
+                  SizedBox(
+                      width: isDesktop
+                          ? 12.0
+                          : isTablet
+                              ? 10.0
+                              : 8.0),
                 ],
                 Text(
                   widget.isLoading ? 'Connecting...' : _getButtonText(),
@@ -238,7 +267,7 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
 
   Color _getBackgroundColor() {
     if (widget.isLoading) return AppColors.surface;
-    
+
     switch (widget.provider) {
       case SocialAuthProvider.google:
         return Colors.white;
@@ -252,11 +281,11 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
   }
 
   Color _getBorderColor() {
-    if (widget.isLoading) return AppColors.outline.withOpacity(0.3);
-    
+    if (widget.isLoading) return AppColors.outline.withValues(alpha: 0.3);
+
     switch (widget.provider) {
       case SocialAuthProvider.google:
-        return AppColors.outline.withOpacity(0.3);
+        return AppColors.outline.withValues(alpha: 0.3);
       case SocialAuthProvider.github:
         return const Color(0xFF24292E);
       case SocialAuthProvider.microsoft:
@@ -268,7 +297,7 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
 
   Color _getTextColor() {
     if (widget.isLoading) return AppColors.onSurfaceVariant;
-    
+
     switch (widget.provider) {
       case SocialAuthProvider.google:
         return const Color(0xFF757575);
@@ -283,13 +312,21 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
 
   List<BoxShadow>? _getBoxShadow(bool isDesktop, bool isTablet) {
     if (widget.isLoading) return null;
-    
+
     return [
       BoxShadow(
-        color: AppColors.shadow.withOpacity(_isHovered ? 0.15 : 0.08),
-        blurRadius: _isHovered 
-            ? (isDesktop ? 12.0 : isTablet ? 10.0 : 8.0)
-            : (isDesktop ? 8.0 : isTablet ? 6.0 : 4.0),
+        color: AppColors.shadow.withValues(alpha: _isHovered ? 0.15 : 0.08),
+        blurRadius: _isHovered
+            ? (isDesktop
+                ? 12.0
+                : isTablet
+                    ? 10.0
+                    : 8.0)
+            : (isDesktop
+                ? 8.0
+                : isTablet
+                    ? 6.0
+                    : 4.0),
         offset: Offset(0, _isHovered ? 4.0 : 2.0),
       ),
     ];
@@ -297,7 +334,7 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
 
   String _getButtonText() {
     if (widget.customText != null) return widget.customText!;
-    
+
     switch (widget.provider) {
       case SocialAuthProvider.google:
         return 'Continue with Google';
@@ -312,40 +349,45 @@ class _SocialAuthButtonState extends State<SocialAuthButton>
 
   TextStyle _getTextStyle(BuildContext context, double fontSize) {
     final baseStyle = Theme.of(context).textTheme.labelLarge;
-    
+
     return baseStyle?.copyWith(
-      color: _getTextColor(),
-      fontWeight: FontWeight.w500,
-      fontSize: fontSize,
-      letterSpacing: 0.2,
-    ) ?? TextStyle(
-      color: _getTextColor(),
-      fontWeight: FontWeight.w500,
-      fontSize: fontSize,
-      letterSpacing: 0.2,
-    );
+          color: _getTextColor(),
+          fontWeight: FontWeight.w500,
+          fontSize: fontSize,
+          letterSpacing: 0.2,
+        ) ??
+        TextStyle(
+          color: _getTextColor(),
+          fontWeight: FontWeight.w500,
+          fontSize: fontSize,
+          letterSpacing: 0.2,
+        );
   }
 }
 
 /// Social authentication divider with "or" text
 class SocialAuthDivider extends StatelessWidget {
-  final String? text;
-
   const SocialAuthDivider({
     super.key,
     this.text,
   });
+  final String? text;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 1200;
-        final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
-        
+        final isTablet =
+            constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
+
         return Padding(
           padding: EdgeInsets.symmetric(
-            vertical: isDesktop ? 24.0 : isTablet ? 20.0 : 16.0,
+            vertical: isDesktop
+                ? 24.0
+                : isTablet
+                    ? 20.0
+                    : 16.0,
           ),
           child: Row(
             children: [
@@ -356,7 +398,7 @@ class SocialAuthDivider extends StatelessWidget {
                     gradient: LinearGradient(
                       colors: [
                         Colors.transparent,
-                        AppColors.outline.withOpacity(0.3),
+                        AppColors.outline.withValues(alpha: 0.3),
                       ],
                     ),
                   ),
@@ -364,15 +406,23 @@ class SocialAuthDivider extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: isDesktop ? 16.0 : isTablet ? 12.0 : 10.0,
+                  horizontal: isDesktop
+                      ? 16.0
+                      : isTablet
+                          ? 12.0
+                          : 10.0,
                 ),
                 child: Text(
                   text ?? 'or',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                    fontSize: isDesktop ? 14.0 : isTablet ? 13.0 : 12.0,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                        fontSize: isDesktop
+                            ? 14.0
+                            : isTablet
+                                ? 13.0
+                                : 12.0,
+                      ),
                 ),
               ),
               Expanded(
@@ -381,7 +431,7 @@ class SocialAuthDivider extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppColors.outline.withOpacity(0.3),
+                        AppColors.outline.withValues(alpha: 0.3),
                         Colors.transparent,
                       ],
                     ),
@@ -398,31 +448,35 @@ class SocialAuthDivider extends StatelessWidget {
 
 /// Container for social authentication buttons
 class SocialAuthContainer extends StatelessWidget {
-  final List<SocialAuthButton> buttons;
-  final Widget? divider;
-
   const SocialAuthContainer({
     super.key,
     required this.buttons,
     this.divider,
   });
+  final List<SocialAuthButton> buttons;
+  final Widget? divider;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isDesktop = constraints.maxWidth >= 1200;
-        final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
-        
+        final isTablet =
+            constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
+
         return Column(
           children: [
             if (divider != null) divider!,
             ...buttons.map((button) => Padding(
-              padding: EdgeInsets.only(
-                bottom: isDesktop ? 12.0 : isTablet ? 10.0 : 8.0,
-              ),
-              child: button,
-            )),
+                  padding: EdgeInsets.only(
+                    bottom: isDesktop
+                        ? 12.0
+                        : isTablet
+                            ? 10.0
+                            : 8.0,
+                  ),
+                  child: button,
+                )),
           ],
         );
       },

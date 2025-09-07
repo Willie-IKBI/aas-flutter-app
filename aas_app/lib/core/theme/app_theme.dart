@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'app_colors.dart';
 
 /// AAS App Theme Configuration
-/// 
+///
 /// This file defines the complete theme system for the All Africa Supplies app.
 /// Uses Material 3 design system with custom color scheme.
 class AppTheme {
@@ -22,8 +22,10 @@ class AppTheme {
       appBarTheme: _appBarTheme,
       cardTheme: _cardTheme,
       elevatedButtonTheme: _elevatedButtonTheme,
+      filledButtonTheme: _filledButtonTheme,
       outlinedButtonTheme: _outlinedButtonTheme,
       textButtonTheme: _textButtonTheme,
+      iconButtonTheme: _iconButtonTheme,
       inputDecorationTheme: _inputDecorationTheme,
       bottomNavigationBarTheme: _bottomNavigationBarTheme,
       floatingActionButtonTheme: _floatingActionButtonTheme,
@@ -58,8 +60,10 @@ class AppTheme {
       appBarTheme: _appBarTheme,
       cardTheme: _cardTheme,
       elevatedButtonTheme: _elevatedButtonTheme,
+      filledButtonTheme: _filledButtonTheme,
       outlinedButtonTheme: _outlinedButtonTheme,
       textButtonTheme: _textButtonTheme,
+      iconButtonTheme: _iconButtonTheme,
       inputDecorationTheme: _inputDecorationTheme,
       bottomNavigationBarTheme: _bottomNavigationBarTheme,
       floatingActionButtonTheme: _floatingActionButtonTheme,
@@ -103,11 +107,9 @@ class AppTheme {
       onError: AppColors.onError,
       errorContainer: AppColors.errorContainer,
       onErrorContainer: AppColors.onErrorContainer,
-      background: AppColors.background,
-      onBackground: AppColors.onBackground,
-      surface: AppColors.surface,
-      onSurface: AppColors.onSurface,
-      surfaceVariant: AppColors.surfaceVariant,
+      surface: AppColors.background,
+      onSurface: AppColors.onBackground,
+      surfaceContainerHighest: AppColors.surfaceVariant,
       onSurfaceVariant: AppColors.onSurfaceVariant,
       outline: AppColors.outline,
       outlineVariant: AppColors.outlineVariant,
@@ -139,11 +141,9 @@ class AppTheme {
       onError: AppColors.jet,
       errorContainer: AppColors.errorContainer,
       onErrorContainer: AppColors.jet,
-      background: AppColors.background,
-      onBackground: AppColors.onBackground,
-      surface: AppColors.surface,
-      onSurface: AppColors.onSurface,
-      surfaceVariant: AppColors.surfaceVariant,
+      surface: AppColors.background,
+      onSurface: AppColors.onBackground,
+      surfaceContainerHighest: AppColors.surfaceVariant,
       onSurfaceVariant: AppColors.onSurfaceVariant,
       outline: AppColors.outline,
       outlineVariant: AppColors.outlineVariant,
@@ -283,7 +283,7 @@ class AppTheme {
   static CardThemeData get _cardTheme {
     return CardThemeData(
       elevation: 8,
-      shadowColor: AppColors.shadow.withOpacity(0.3),
+      shadowColor: AppColors.shadow.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -296,8 +296,9 @@ class AppTheme {
   static ElevatedButtonThemeData get _elevatedButtonTheme {
     return ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
+        minimumSize: const Size(48, 48), // Ensure minimum tap target
         elevation: 4,
-        shadowColor: AppColors.shadow.withOpacity(0.3),
+        shadowColor: AppColors.shadow.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -316,6 +317,7 @@ class AppTheme {
   static OutlinedButtonThemeData get _outlinedButtonTheme {
     return OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
+        minimumSize: const Size(48, 48), // Ensure minimum tap target
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -326,7 +328,7 @@ class AppTheme {
           letterSpacing: 0.5,
         ),
         side: BorderSide(
-          color: AppColors.outline.withOpacity(0.3),
+          color: AppColors.outline.withValues(alpha: 0.3),
           width: 1.5,
         ),
         foregroundColor: AppColors.onSurface,
@@ -337,6 +339,7 @@ class AppTheme {
   static TextButtonThemeData get _textButtonTheme {
     return TextButtonThemeData(
       style: TextButton.styleFrom(
+        minimumSize: const Size(48, 48), // Ensure minimum tap target
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -349,10 +352,44 @@ class AppTheme {
     );
   }
 
+  static FilledButtonThemeData get _filledButtonTheme {
+    return FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(48, 48), // Ensure minimum tap target
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        textStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.5,
+        ),
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.onPrimary,
+      ),
+    );
+  }
+
+  // Note: FilledTonalButton is now handled via FilledButton.tonal() variant
+  // The tonal button styling is applied through the filledButtonTheme above
+
+  static IconButtonThemeData get _iconButtonTheme {
+    return IconButtonThemeData(
+      style: IconButton.styleFrom(
+        minimumSize: const Size(48, 48), // Ensure minimum tap target
+        padding: const EdgeInsets.all(12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
   static InputDecorationTheme get _inputDecorationTheme {
     return InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.surfaceVariant.withOpacity(0.5),
+      fillColor: AppColors.surfaceVariant.withValues(alpha: 0.5),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
@@ -364,32 +401,32 @@ class AppTheme {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
-          color: AppColors.primary.withOpacity(0.5),
+          color: AppColors.primary.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
-          color: AppColors.error.withOpacity(0.5),
+          color: AppColors.error.withValues(alpha: 0.5),
           width: 1.5,
         ),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(
+        borderSide: const BorderSide(
           color: AppColors.error,
           width: 2,
         ),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      labelStyle: TextStyle(
+      labelStyle: const TextStyle(
         color: AppColors.onSurfaceVariant,
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),
       hintStyle: TextStyle(
-        color: AppColors.onSurfaceVariant.withOpacity(0.7),
+        color: AppColors.onSurfaceVariant.withValues(alpha: 0.7),
         fontSize: 14,
         fontWeight: FontWeight.w400,
       ),
@@ -424,6 +461,16 @@ class AppTheme {
         fontSize: 12,
         fontWeight: FontWeight.w500,
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      side: BorderSide(
+        color: AppColors.outline.withValues(alpha: 0.3),
+      ),
+      backgroundColor: AppColors.surfaceVariant.withValues(alpha: 0.5),
+      selectedColor: AppColors.primaryContainer,
+      secondarySelectedColor: AppColors.secondaryContainer,
+      disabledColor: AppColors.onSurface.withValues(alpha: 0.12),
+      deleteIconColor: AppColors.onSurfaceVariant,
+      brightness: Brightness.light,
     );
   }
 
@@ -451,14 +498,14 @@ class AppTheme {
 
   static SwitchThemeData get _switchTheme {
     return SwitchThemeData(
-      thumbColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected)) {
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
           return AppColors.primary;
         }
         return AppColors.onSurfaceVariant;
       }),
-      trackColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected)) {
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
           return AppColors.primaryContainer;
         }
         return AppColors.surfaceVariant;
@@ -468,13 +515,13 @@ class AppTheme {
 
   static CheckboxThemeData get _checkboxTheme {
     return CheckboxThemeData(
-      fillColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected)) {
+      fillColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
           return AppColors.primary;
         }
         return Colors.transparent;
       }),
-      checkColor: MaterialStateProperty.all(AppColors.onPrimary),
+      checkColor: WidgetStateProperty.all(AppColors.onPrimary),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
       ),
@@ -483,8 +530,8 @@ class AppTheme {
 
   static RadioThemeData get _radioTheme {
     return RadioThemeData(
-      fillColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected)) {
+      fillColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
           return AppColors.primary;
         }
         return AppColors.onSurfaceVariant;
@@ -493,7 +540,7 @@ class AppTheme {
   }
 
   static SliderThemeData get _sliderTheme {
-    return SliderThemeData(
+    return const SliderThemeData(
       activeTrackColor: AppColors.primary,
       inactiveTrackColor: AppColors.surfaceVariant,
       thumbColor: AppColors.primary,
@@ -550,10 +597,10 @@ class AppTheme {
   }
 
   static BottomSheetThemeData get _bottomSheetTheme {
-    return BottomSheetThemeData(
+    return const BottomSheetThemeData(
       backgroundColor: AppColors.surface,
       surfaceTintColor: AppColors.surfaceTint,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
     );

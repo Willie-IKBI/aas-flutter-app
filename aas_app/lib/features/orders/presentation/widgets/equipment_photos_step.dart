@@ -7,18 +7,17 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 
 class EquipmentPhotosStep extends StatefulWidget {
-  final List<dynamic> photos; // Can be File or PlatformFile
-  final Function(List<dynamic>) onPhotosChanged;
-  final VoidCallback onNext;
-  final VoidCallback onPrevious;
-
   const EquipmentPhotosStep({
-    Key? key,
+    super.key,
     required this.photos,
     required this.onPhotosChanged,
     required this.onNext,
     required this.onPrevious,
-  }) : super(key: key);
+  });
+  final List<dynamic> photos; // Can be File or PlatformFile
+  final Function(List<dynamic>) onPhotosChanged;
+  final VoidCallback onNext;
+  final VoidCallback onPrevious;
 
   @override
   State<EquipmentPhotosStep> createState() => _EquipmentPhotosStepState();
@@ -29,7 +28,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
 
   Future<void> _pickImage({bool fromCamera = false}) async {
     setState(() => _isLoading = true);
-    
+
     try {
       final files = await PhotoService.pickImage(
         allowMultiple: true,
@@ -37,14 +36,14 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
       );
       if (files != null) {
         final newPhotos = List<dynamic>.from(widget.photos);
-        
+
         // Handle single file or multiple files
         if (files is List) {
           newPhotos.addAll(files);
         } else {
           newPhotos.add(files);
         }
-        
+
         // Limit to 10 photos
         if (newPhotos.length > 10) {
           newPhotos.removeRange(10, newPhotos.length);
@@ -52,7 +51,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
             const SnackBar(content: Text('Maximum 10 photos allowed')),
           );
         }
-        
+
         widget.onPhotosChanged(newPhotos);
       }
     } catch (e) {
@@ -114,7 +113,6 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
                 ),
                 const SizedBox(width: 24),
                 Expanded(
-                  flex: 1,
                   child: _buildInfoCard(),
                 ),
               ],
@@ -146,7 +144,6 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
           ),
           const SizedBox(width: 32),
           Expanded(
-            flex: 1,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -163,7 +160,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
 
   Widget _buildHeader() {
     final isMobile = MediaQuery.of(context).size.width < 768;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -189,19 +186,19 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
                   Text(
                     'Equipment Photos',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.onSurface,
-                      fontSize: isMobile ? 20 : 24,
-                    ),
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.onSurface,
+                          fontSize: isMobile ? 20 : 24,
+                        ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Capture photos of the equipment for documentation',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                      fontSize: isMobile ? 14 : 16,
-                      height: 1.3,
-                    ),
+                          color: AppColors.onSurfaceVariant,
+                          fontSize: isMobile ? 14 : 16,
+                          height: 1.3,
+                        ),
                   ),
                 ],
               ),
@@ -216,18 +213,16 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
 
   Widget _buildPhotoCount() {
     final isMobile = MediaQuery.of(context).size.width < 768;
-    
+
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 14 : 16, 
-        vertical: isMobile ? 6 : 8
-      ),
+          horizontal: isMobile ? 14 : 16, vertical: isMobile ? 6 : 8),
       decoration: BoxDecoration(
         gradient: AppColors.infoGradient,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.info.withOpacity(0.3),
+            color: AppColors.info.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -252,10 +247,10 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 768;
     final isTablet = screenWidth >= 768 && screenWidth < 1024;
-    
+
     int crossAxisCount;
     double childAspectRatio;
-    
+
     if (isMobile) {
       crossAxisCount = 2;
       childAspectRatio = 1.0;
@@ -289,14 +284,14 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
       decoration: BoxDecoration(
         gradient: AppColors.glassGradient,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.outline.withOpacity(0.2)),
+        border: Border.all(color: AppColors.outline.withValues(alpha: 0.2)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.camera_alt_outlined,
               size: 64,
               color: AppColors.onSurfaceVariant,
@@ -305,18 +300,18 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
             Text(
               'No photos added yet',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppColors.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: AppColors.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             Text(
               'Add photos to document the equipment condition',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.onSurfaceVariant,
-                height: 1.4,
-              ),
+                    color: AppColors.onSurfaceVariant,
+                    height: 1.4,
+                  ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -327,13 +322,13 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
 
   Widget _buildPhotoCard(int index) {
     final photo = widget.photos[index];
-    
-    return Container(
+
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -351,7 +346,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
                 onTap: () => _removePhoto(index),
                 child: Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.error,
                     shape: BoxShape.circle,
                   ),
@@ -370,7 +365,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -419,16 +414,16 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
 
   Widget _buildInfoCard() {
     final isMobile = MediaQuery.of(context).size.width < 768;
-    
+
     return Container(
       padding: EdgeInsets.all(isMobile ? 20 : 24),
       decoration: BoxDecoration(
         gradient: AppColors.glassGradient,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.outline.withOpacity(0.2)),
+        border: Border.all(color: AppColors.outline.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -446,7 +441,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.info_outline,
                   color: Colors.white,
                   size: 18,
@@ -455,10 +450,10 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
                 Text(
                   'Photo Guidelines',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
                 ),
               ],
             ),
@@ -485,10 +480,10 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
             child: Text(
               text,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.onSurfaceVariant,
-                height: 1.4,
-                fontSize: 15,
-              ),
+                    color: AppColors.onSurfaceVariant,
+                    height: 1.4,
+                    fontSize: 15,
+                  ),
             ),
           ),
         ],
@@ -498,7 +493,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
 
   Widget _buildActionButtons() {
     final isMobile = MediaQuery.of(context).size.width < 768;
-    
+
     return Column(
       children: [
         // Photo capture buttons
@@ -520,7 +515,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
           ),
           const SizedBox(height: 12),
           ElevatedButton.icon(
-            onPressed: _isLoading ? null : () => _pickImage(fromCamera: false),
+            onPressed: _isLoading ? null : () => _pickImage(),
             icon: const Icon(Icons.photo_library),
             label: const Text('Choose from Gallery'),
             style: ElevatedButton.styleFrom(
@@ -529,7 +524,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: AppColors.outline),
+                side: const BorderSide(color: AppColors.outline),
               ),
               minimumSize: const Size(double.infinity, 56),
             ),
@@ -540,7 +535,8 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : () => _pickImage(fromCamera: true),
+                  onPressed:
+                      _isLoading ? null : () => _pickImage(fromCamera: true),
                   icon: const Icon(Icons.camera_alt),
                   label: const Text('Take Photo'),
                   style: ElevatedButton.styleFrom(
@@ -556,7 +552,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : () => _pickImage(fromCamera: false),
+                  onPressed: _isLoading ? null : () => _pickImage(),
                   icon: const Icon(Icons.photo_library),
                   label: const Text('Gallery'),
                   style: ElevatedButton.styleFrom(
@@ -565,7 +561,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: AppColors.outline),
+                      side: const BorderSide(color: AppColors.outline),
                     ),
                   ),
                 ),
@@ -582,12 +578,12 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
                 onPressed: widget.onPrevious,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(color: AppColors.outline),
+                  side: const BorderSide(color: AppColors.outline),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Previous',
                   style: TextStyle(
                     color: AppColors.onSurface,
@@ -608,7 +604,7 @@ class _EquipmentPhotosStepState extends State<EquipmentPhotosStep> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Next',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,

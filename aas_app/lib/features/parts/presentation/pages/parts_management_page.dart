@@ -4,7 +4,7 @@ import '../widgets/parts_list.dart';
 import '../widgets/parts_search.dart';
 import '../widgets/parts_stats.dart';
 import '../widgets/add_part_fab.dart';
-import '../../data/services/parts_service.dart';
+import '../../../../core/services/parts_service.dart';
 
 class PartsManagementPage extends StatefulWidget {
   const PartsManagementPage({super.key});
@@ -72,7 +72,7 @@ class _PartsManagementPageState extends State<PartsManagementPage>
                 onSearchChanged: _onSearchChanged,
               ),
             ),
-          
+
           // Tab content
           Expanded(
             child: TabBarView(
@@ -83,13 +83,13 @@ class _PartsManagementPageState extends State<PartsManagementPage>
                   searchQuery: _searchQuery,
                   filterActiveOnly: false,
                 ),
-                
+
                 // Active Parts tab
                 PartsList(
                   searchQuery: _searchQuery,
                   filterActiveOnly: true,
                 ),
-                
+
                 // Analytics tab
                 const PartsStats(),
               ],
@@ -97,9 +97,10 @@ class _PartsManagementPageState extends State<PartsManagementPage>
           ),
         ],
       ),
-                 floatingActionButton: _tabController.index != 2 // Don't show FAB on Analytics tab
-               ? const AddPartFAB()
-               : null,
+      floatingActionButton:
+          _tabController.index != 2 // Don't show FAB on Analytics tab
+              ? const AddPartFAB()
+              : null,
     );
   }
 }

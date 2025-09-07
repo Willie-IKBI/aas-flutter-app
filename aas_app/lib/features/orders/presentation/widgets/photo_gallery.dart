@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../../core/models/order_photo.dart';
 import '../../../../core/services/photo_service.dart';
@@ -6,16 +5,15 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 
 class PhotoGallery extends StatefulWidget {
-  final int orderId;
-  final List<OrderPhoto> photos;
-  final VoidCallback? onPhotosChanged;
-
   const PhotoGallery({
-    Key? key,
+    super.key,
     required this.orderId,
     required this.photos,
     this.onPhotosChanged,
-  }) : super(key: key);
+  });
+  final int orderId;
+  final List<OrderPhoto> photos;
+  final VoidCallback? onPhotosChanged;
 
   @override
   State<PhotoGallery> createState() => _PhotoGalleryState();
@@ -26,17 +24,17 @@ class _PhotoGalleryState extends State<PhotoGallery> {
 
   Future<void> _pickAndUploadPhotos({bool fromCamera = false}) async {
     setState(() => _isLoading = true);
-    
+
     try {
       final files = await PhotoService.pickImage(
         allowMultiple: true,
         fromCamera: fromCamera,
       );
-      
+
       if (files != null) {
-        int uploadedCount = 0;
-        int totalFiles = files is List ? files.length : 1;
-        
+        var uploadedCount = 0;
+        final totalFiles = files is List ? files.length : 1;
+
         // Show progress dialog
         if (mounted) {
           showDialog(
@@ -55,10 +53,10 @@ class _PhotoGalleryState extends State<PhotoGallery> {
             ),
           );
         }
-        
+
         // Handle single file or multiple files
         final fileList = files is List ? files : [files];
-        
+
         for (final file in fileList) {
           try {
             final photo = await PhotoService.uploadOrderPhoto(
@@ -67,27 +65,26 @@ class _PhotoGalleryState extends State<PhotoGallery> {
               photoName: 'Equipment Photo ${uploadedCount + 1}',
               photoDescription: 'Uploaded from order details',
             );
-            
+
             if (photo != null) {
               uploadedCount++;
             }
-          } catch (e) {
-            print('Error uploading photo: $e');
-          }
+          } catch (e) {}
         }
-        
+
         // Close progress dialog
         if (mounted) {
           Navigator.of(context).pop();
         }
-        
+
         // Refresh photos
         widget.onPhotosChanged?.call();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Successfully uploaded $uploadedCount photo${uploadedCount != 1 ? 's' : ''}'),
+              content: Text(
+                  'Successfully uploaded $uploadedCount photo${uploadedCount != 1 ? 's' : ''}'),
               backgroundColor: AppColors.success,
             ),
           );
@@ -130,9 +127,9 @@ class _PhotoGalleryState extends State<PhotoGallery> {
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed ?? false) {
       setState(() => _isLoading = true);
-      
+
       try {
         final success = await PhotoService.deleteOrderPhoto(photo.id);
         if (success) {
@@ -176,9 +173,9 @@ class _PhotoGalleryState extends State<PhotoGallery> {
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: AppColors.cardGradient,
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
                   ),
@@ -191,18 +188,24 @@ class _PhotoGalleryState extends State<PhotoGallery> {
                         children: [
                           Text(
                             photo.photoName ?? 'Equipment Photo',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.onSurface,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.onSurface,
+                                ),
                           ),
                           if (photo.photoDescription != null) ...[
                             const SizedBox(height: 4),
                             Text(
                               photo.photoDescription!,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.onSurfaceVariant,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: AppColors.onSurfaceVariant,
+                                  ),
                             ),
                           ],
                         ],
@@ -226,55 +229,59 @@ class _PhotoGalleryState extends State<PhotoGallery> {
                       bottomRight: Radius.circular(20),
                     ),
                   ),
-                                      child: InteractiveViewer(
-                      child: Image.network(
-                        photo.photoUrl,
-                        fit: BoxFit.contain,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                              color: AppColors.primary,
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          print('Error loading full-screen image: $error');
-                          print('Full-screen image URL: ${photo.photoUrl}');
-                          return Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.error_outline,
-                                  size: 48,
-                                  color: AppColors.error,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Failed to load image',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: AppColors.error,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'URL: ${photo.photoUrl}',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.error,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                  child: InteractiveViewer(
+                    child: Image.network(
+                      photo.photoUrl,
+                      fit: BoxFit.contain,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                            color: AppColors.primary,
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                size: 48,
+                                color: AppColors.error,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Failed to load image',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: AppColors.error,
+                                    ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'URL: ${photo.photoUrl}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: AppColors.error,
+                                    ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
+                  ),
                 ),
               ),
             ],
@@ -301,7 +308,7 @@ class _PhotoGalleryState extends State<PhotoGallery> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -326,7 +333,7 @@ class _PhotoGalleryState extends State<PhotoGallery> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -351,7 +358,7 @@ class _PhotoGalleryState extends State<PhotoGallery> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -391,21 +398,21 @@ class _PhotoGalleryState extends State<PhotoGallery> {
               Text(
                 'Equipment Photos',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.onSurface,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.onSurface,
+                    ),
               ),
               Text(
                 '${widget.photos.length} photo${widget.photos.length != 1 ? 's' : ''} • Tap to view full size',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
+                      color: AppColors.onSurfaceVariant,
+                    ),
               ),
             ],
           ),
         ),
         ElevatedButton.icon(
-          onPressed: _isLoading ? null : () => _pickAndUploadPhotos(fromCamera: false),
+          onPressed: _isLoading ? null : () => _pickAndUploadPhotos(),
           icon: const Icon(Icons.add_a_photo),
           label: const Text('Add Photos'),
           style: ElevatedButton.styleFrom(
@@ -433,7 +440,6 @@ class _PhotoGalleryState extends State<PhotoGallery> {
         crossAxisCount: 2,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1,
       ),
       itemCount: widget.photos.length,
       itemBuilder: (context, index) {
@@ -448,12 +454,12 @@ class _PhotoGalleryState extends State<PhotoGallery> {
       decoration: BoxDecoration(
         gradient: AppColors.glassGradient,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.outline.withOpacity(0.2)),
+        border: Border.all(color: AppColors.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.photo_library_outlined,
             size: 64,
             color: AppColors.onSurfaceVariant,
@@ -462,16 +468,16 @@ class _PhotoGalleryState extends State<PhotoGallery> {
           Text(
             'No photos available',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppColors.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
+                  color: AppColors.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
           const SizedBox(height: 12),
           Text(
             'Photos will appear here once uploaded',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
+                  color: AppColors.onSurfaceVariant,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -479,13 +485,16 @@ class _PhotoGalleryState extends State<PhotoGallery> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton.icon(
-                onPressed: _isLoading ? null : () => _pickAndUploadPhotos(fromCamera: true),
+                onPressed: _isLoading
+                    ? null
+                    : () => _pickAndUploadPhotos(fromCamera: true),
                 icon: const Icon(Icons.camera_alt),
                 label: const Text('Take Photo'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -493,16 +502,17 @@ class _PhotoGalleryState extends State<PhotoGallery> {
               ),
               const SizedBox(width: 16),
               ElevatedButton.icon(
-                onPressed: _isLoading ? null : () => _pickAndUploadPhotos(fromCamera: false),
+                onPressed: _isLoading ? null : () => _pickAndUploadPhotos(),
                 icon: const Icon(Icons.photo_library),
                 label: const Text('Choose Photos'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.surface,
                   foregroundColor: AppColors.onSurface,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: AppColors.outline),
+                    side: const BorderSide(color: AppColors.outline),
                   ),
                 ),
               ),
@@ -514,12 +524,12 @@ class _PhotoGalleryState extends State<PhotoGallery> {
   }
 
   Widget _buildPhotoCard(OrderPhoto photo) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -539,7 +549,7 @@ class _PhotoGalleryState extends State<PhotoGallery> {
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  return Container(
+                  return ColoredBox(
                     color: AppColors.surfaceVariant,
                     child: Center(
                       child: CircularProgressIndicator(
@@ -553,20 +563,18 @@ class _PhotoGalleryState extends State<PhotoGallery> {
                   );
                 },
                 errorBuilder: (context, error, stackTrace) {
-                  print('Error loading image: $error');
-                  print('Image URL: ${photo.photoUrl}');
-                  return Container(
+                  return const ColoredBox(
                     color: AppColors.surfaceVariant,
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.error_outline,
                             color: AppColors.error,
                             size: 32,
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Text(
                             'Failed to load',
                             style: TextStyle(
@@ -594,7 +602,7 @@ class _PhotoGalleryState extends State<PhotoGallery> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -606,7 +614,8 @@ class _PhotoGalleryState extends State<PhotoGallery> {
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       : const Icon(
@@ -630,7 +639,7 @@ class _PhotoGalleryState extends State<PhotoGallery> {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.8),
+                      Colors.black.withValues(alpha: 0.8),
                     ],
                   ),
                 ),

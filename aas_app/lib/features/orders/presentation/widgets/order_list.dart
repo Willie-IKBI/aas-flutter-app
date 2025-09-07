@@ -2,14 +2,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/models/order.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/stage_management_service.dart';
 
 class OrderList extends StatelessWidget {
-  final List<Order> orders;
-  final Function(Order) onOrderTap;
-  final Function(Order)? onOrderEdit;
-  final Function(Order)? onOrderDelete;
-  final bool showActions;
-
   const OrderList({
     super.key,
     required this.orders,
@@ -18,6 +13,11 @@ class OrderList extends StatelessWidget {
     this.onOrderDelete,
     this.showActions = true,
   });
+  final List<Order> orders;
+  final Function(Order) onOrderTap;
+  final Function(Order)? onOrderEdit;
+  final Function(Order)? onOrderDelete;
+  final bool showActions;
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +48,15 @@ class OrderList extends StatelessWidget {
           Text(
             'No orders found',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             'Try adjusting your search or filter criteria',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
         ],
       ),
@@ -87,16 +87,21 @@ class OrderList extends StatelessWidget {
                       children: [
                         Text(
                           'Order #${order.id}',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          order.customerName ?? 'Customer ID: ${order.customerId}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                          order.customerName ??
+                              'Customer ID: ${order.customerId}',
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
                         ),
                       ],
                     ),
@@ -117,8 +122,9 @@ class OrderList extends StatelessWidget {
                     child: Text(
                       'Created: ${_formatDate(order.orderDate)}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                   ),
                   if (showActions) _buildActionButtons(context, order),
@@ -137,32 +143,44 @@ class OrderList extends StatelessWidget {
 
     switch (status) {
       case OrderStatus.inProgress:
-        color = Colors.blue;
+        color = AppColors.info;
         label = 'In Progress';
         break;
       case OrderStatus.complete:
-        color = Colors.green;
+        color = AppColors.success;
         label = 'Completed';
         break;
       case OrderStatus.cancelled:
-        color = Colors.red;
+        color = AppColors.error;
         label = 'Cancelled';
         break;
       case OrderStatus.waitingApproval:
-        color = Colors.orange;
+        color = AppColors.warning;
         label = 'Waiting Approval';
         break;
+      case OrderStatus.approved:
+        color = AppColors.success;
+        label = 'Approved';
+        break;
+      case OrderStatus.inProduction:
+        color = AppColors.primary;
+        label = 'In Production';
+        break;
+      case OrderStatus.draft:
+        color = AppColors.onSurfaceVariant;
+        label = 'Draft';
+        break;
       default:
-        color = Colors.grey;
+        color = AppColors.onSurfaceVariant;
         label = status.toDisplayString();
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Text(
         label,
@@ -202,16 +220,40 @@ class OrderList extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  '${order.equipmentType ?? ''} ${order.equipmentModel ?? ''}'.trim(),
+                  '${order.equipmentType ?? ''} ${order.equipmentModel ?? ''}'
+                      .trim(),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 4),
         ],
+
+        // Current stage
+        Row(
+          children: [
+            Icon(
+              StageManagementService.getStageIcon(
+                  order.currentStage.toDatabaseString()),
+              size: 16,
+              color: StageManagementService.getStageColor(
+                  order.currentStage.toDatabaseString()),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Stage: ${StageManagementService.getStageDisplayName(order.currentStage.toDatabaseString())}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: StageManagementService.getStageColor(
+                        order.currentStage.toDatabaseString()),
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
 
         // Sales rep
         if (order.salesRepId != null) ...[
@@ -226,8 +268,8 @@ class OrderList extends StatelessWidget {
               Text(
                 order.salesRepName ?? 'Sales Rep ID: ${order.salesRepId}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ],
           ),

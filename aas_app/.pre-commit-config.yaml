@@ -1,0 +1,36 @@
+repos:
+  - repo: local
+    hooks:
+      - id: flutter-format
+        name: Flutter Format
+        entry: flutter format --set-exit-if-changed
+        language: system
+        files: \.dart$
+        pass_filenames: false
+        
+      - id: flutter-analyze
+        name: Flutter Analyze
+        entry: flutter analyze --no-fatal-infos
+        language: system
+        files: \.dart$
+        pass_filenames: false
+        
+      - id: flutter-test
+        name: Flutter Test
+        entry: flutter test --no-sound-null-safety
+        language: system
+        files: \.dart$
+        pass_filenames: false
+        always_run: false
+        
+      - id: check-print-statements
+        name: Check for print statements
+        entry: bash -c 'if grep -r "print(" lib/ --include="*.dart"; then echo "ERROR: print statements found. Use Logger instead."; exit 1; fi'
+        language: system
+        files: \.dart$
+        
+      - id: check-unused-imports
+        name: Check for unused imports
+        entry: bash -c 'if flutter analyze --no-fatal-infos 2>&1 | grep -q "unused_import"; then echo "ERROR: Unused imports found."; exit 1; fi'
+        language: system
+        files: \.dart$

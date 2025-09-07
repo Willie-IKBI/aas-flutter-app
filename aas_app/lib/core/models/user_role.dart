@@ -19,8 +19,7 @@ enum UserRole {
       case 'technician':
         return UserRole.technician;
       default:
-        print('⚠️ Unknown role value: "$value", defaulting to unassigned');
-        return UserRole.unassigned;  // Default to unassigned
+        return UserRole.unassigned; // Default to unassigned
     }
   }
 
@@ -48,19 +47,26 @@ enum UserRole {
       case UserRole.manager:
         return 'manager';
       case UserRole.salesRep:
-        return 'salesRep';  // Match the database enum value
+        return 'salesRep'; // Match the database enum value
       case UserRole.technician:
         return 'technician';
     }
   }
 
   bool get canAssignRoles => this == UserRole.admin;
-  
-  bool get canAccessDashboard => this != UserRole.unassigned;  // Unassigned users cannot access dashboard
-  
+
+  bool get canAccessDashboard =>
+      this != UserRole.unassigned; // Unassigned users cannot access dashboard
+
   bool get canManageUsers => this == UserRole.admin || this == UserRole.manager;
-  
-  bool get canManageParts => this == UserRole.admin || this == UserRole.manager || this == UserRole.technician;
-  
-  bool get canManageSales => this == UserRole.admin || this == UserRole.manager || this == UserRole.salesRep;
+
+  bool get canManageParts =>
+      this == UserRole.admin ||
+      this == UserRole.manager ||
+      this == UserRole.technician;
+
+  bool get canManageSales =>
+      this == UserRole.admin ||
+      this == UserRole.manager ||
+      this == UserRole.salesRep;
 }

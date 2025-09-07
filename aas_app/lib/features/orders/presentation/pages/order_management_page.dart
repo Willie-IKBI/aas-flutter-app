@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/models/order.dart';
 import '../../../../core/services/order_service.dart';
 import '../../../../core/services/notification_service.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../widgets/order_search_and_filter.dart';
 import '../widgets/order_list.dart';
 import 'create_order_wizard.dart';
@@ -78,7 +77,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       context,
       'Order #${order.id} deleted successfully',
     );
-    
+
     // Reload orders
     await _loadOrders();
   }
@@ -97,7 +96,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         context,
         'Order created successfully!',
       );
-      
+
       // Reload orders
       await _loadOrders();
     }
@@ -145,15 +144,15 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
           Text(
             'Error Loading Orders',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: Theme.of(context).colorScheme.error,
-            ),
+                  color: Theme.of(context).colorScheme.error,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             _errorMessage!,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -186,7 +185,6 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
             onOrderTap: _onOrderTap,
             onOrderEdit: _onOrderEdit,
             onOrderDelete: _onOrderDelete,
-            showActions: true,
           ),
         ),
       ],

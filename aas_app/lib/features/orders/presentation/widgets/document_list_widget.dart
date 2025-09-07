@@ -3,14 +3,13 @@ import '../../../../core/services/document_service.dart';
 import '../../../../core/services/notification_service.dart';
 
 class DocumentListWidget extends StatefulWidget {
-  final int orderId;
-  final Function()? onDocumentDeleted;
-
   const DocumentListWidget({
     super.key,
     required this.orderId,
     this.onDocumentDeleted,
   });
+  final int orderId;
+  final Function()? onDocumentDeleted;
 
   @override
   State<DocumentListWidget> createState() => _DocumentListWidgetState();
@@ -69,7 +68,7 @@ class _DocumentListWidgetState extends State<DocumentListWidget> {
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed ?? false) {
       final success = await DocumentService.deleteDocument(documentId);
       if (success) {
         if (mounted) {
@@ -140,8 +139,8 @@ class _DocumentListWidgetState extends State<DocumentListWidget> {
                 Text(
                   'Documents (${_documents.length})',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 const Spacer(),
                 IconButton(
@@ -152,7 +151,6 @@ class _DocumentListWidgetState extends State<DocumentListWidget> {
               ],
             ),
             const SizedBox(height: 16),
-
             if (_isLoading)
               const Center(child: CircularProgressIndicator())
             else if (_errorMessage != null)
@@ -204,15 +202,15 @@ class _DocumentListWidgetState extends State<DocumentListWidget> {
           Text(
             'No documents uploaded yet',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             'Upload documents to keep them organized with this order',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -241,7 +239,8 @@ class _DocumentListWidgetState extends State<DocumentListWidget> {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+          backgroundColor:
+              Theme.of(context).primaryColor.withValues(alpha: 0.1),
           child: Text(
             DocumentService.getFileIcon(mimeType),
             style: const TextStyle(fontSize: 16),

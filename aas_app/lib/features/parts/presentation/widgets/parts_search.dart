@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
 
 class PartsSearch extends StatefulWidget {
-  final Function(String) onSearchChanged;
-
   const PartsSearch({
     super.key,
     required this.onSearchChanged,
   });
+  final Function(String) onSearchChanged;
 
   @override
   State<PartsSearch> createState() => _PartsSearchState();
@@ -33,17 +32,16 @@ class _PartsSearchState extends State<PartsSearch> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppColors.outline.withOpacity(0.2),
-          width: 1,
+          color: AppColors.outline.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadow.withOpacity(0.1),
+            color: AppColors.shadow.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -54,17 +52,17 @@ class _PartsSearchState extends State<PartsSearch> {
         onChanged: _onSearchChanged,
         decoration: InputDecoration(
           hintText: 'Search parts by name, number, description, or location...',
-          hintStyle: TextStyle(
+          hintStyle: const TextStyle(
             color: AppColors.onSurfaceVariant,
             fontSize: 14,
           ),
-          prefixIcon: Icon(
+          prefixIcon: const Icon(
             Icons.search,
             color: AppColors.onSurfaceVariant,
           ),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.clear,
                     color: AppColors.onSurfaceVariant,
                   ),
@@ -77,7 +75,7 @@ class _PartsSearchState extends State<PartsSearch> {
             vertical: 12,
           ),
         ),
-        style: TextStyle(
+        style: const TextStyle(
           color: AppColors.onBackground,
           fontSize: 14,
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/index.dart';
-import '../../data/services/parts_service.dart';
+import '../../../../core/services/parts_service.dart';
 
 class PartsStats extends StatefulWidget {
   const PartsStats({super.key});
@@ -27,7 +27,7 @@ class _PartsStatsState extends State<PartsStats> {
     });
 
     try {
-      final stats = await PartsService.getPartsStats();
+      final stats = await PartsService.getPartsStatistics();
       setState(() {
         _stats = stats;
         _isLoading = false;
@@ -53,13 +53,13 @@ class _PartsStatsState extends State<PartsStats> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.error_outline,
               size: 64,
               color: AppColors.error,
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'Error loading statistics',
               style: TextStyle(
                 fontSize: 18,
@@ -70,7 +70,7 @@ class _PartsStatsState extends State<PartsStats> {
             const SizedBox(height: 8),
             Text(
               _error!,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
@@ -100,10 +100,6 @@ class _PartsStatsState extends State<PartsStats> {
           children: [
             // Overview cards
             _buildOverviewCards(),
-            const SizedBox(height: 24),
-            
-            // Location breakdown
-            _buildLocationBreakdown(),
           ],
         ),
       ),
@@ -121,26 +117,28 @@ class _PartsStatsState extends State<PartsStats> {
       children: [
         _buildStatCard(
           title: 'Total Parts',
-          value: _stats!['totalParts'].toString(),
+          value: _stats!['total_parts'].toString(),
           icon: Icons.inventory_2,
           color: AppColors.primary,
         ),
         _buildStatCard(
-          title: 'Active Parts',
-          value: _stats!['activeParts'].toString(),
+          title: 'Low Stock Parts',
+          value: _stats!['low_stock_parts'].toString(),
+          icon: Icons.warning,
+          color: AppColors.warning,
+        ),
+        _buildStatCard(
+          title: 'In Stock Parts',
+          value: (_stats!['total_parts'] - _stats!['low_stock_parts']).toString(),
           icon: Icons.check_circle,
           color: AppColors.success,
         ),
         _buildStatCard(
-          title: 'Inactive Parts',
-          value: _stats!['inactiveParts'].toString(),
-          icon: Icons.cancel,
-          color: AppColors.error,
-        ),
-        _buildStatCard(
-          title: 'Locations',
-          value: _stats!['locationBreakdown'].length.toString(),
-          icon: Icons.location_on,
+          title: 'Stock Health',
+          value: _stats!['total_parts'] > 0 
+              ? '${((_stats!['total_parts'] - _stats!['low_stock_parts']) / _stats!['total_parts'] * 100).toStringAsFixed(0)}%'
+              : '0%',
+          icon: Icons.analytics,
           color: AppColors.info,
         ),
       ],
@@ -156,11 +154,10 @@ class _PartsStatsState extends State<PartsStats> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
+          color: color.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -174,7 +171,7 @@ class _PartsStatsState extends State<PartsStats> {
           const SizedBox(height: 8),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,
               color: AppColors.onBackground,
@@ -183,7 +180,7 @@ class _PartsStatsState extends State<PartsStats> {
           const SizedBox(height: 4),
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               color: AppColors.onSurfaceVariant,
               fontWeight: FontWeight.w500,
@@ -195,126 +192,4 @@ class _PartsStatsState extends State<PartsStats> {
     );
   }
 
-  Widget _buildLocationBreakdown() {
-    final locationBreakdown = _stats!['locationBreakdown'] as Map<String, dynamic>;
-    
-    if (locationBreakdown.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.outline.withOpacity(0.2),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              Icons.location_off,
-              size: 48,
-              color: AppColors.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No location data available',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.onBackground,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add location information to parts to see breakdown',
-              style: TextStyle(
-                color: AppColors.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.outline.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.location_on,
-                color: AppColors.info,
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Parts by Location',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.onBackground,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...locationBreakdown.entries.map((entry) {
-            final location = entry.key;
-            final count = entry.value as int;
-            final percentage = (count / _stats!['totalParts'] * 100).toStringAsFixed(1);
-            
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          location,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.onBackground,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        LinearProgressIndicator(
-                          value: count / _stats!['totalParts'],
-                          backgroundColor: AppColors.surfaceVariant,
-                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.info),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    '$count ($percentage%)',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ],
-      ),
-    );
-  }
 }

@@ -4,13 +4,6 @@ import '../theme/index.dart';
 
 /// Navigation item for responsive navigation
 class NavigationItem {
-  final String title;
-  final IconData icon;
-  final String route;
-  final bool isActive;
-  final VoidCallback? onTap;
-  final List<NavigationItem>? children;
-
   const NavigationItem({
     required this.title,
     required this.icon,
@@ -19,17 +12,16 @@ class NavigationItem {
     this.onTap,
     this.children,
   });
+  final String title;
+  final IconData icon;
+  final String route;
+  final bool isActive;
+  final VoidCallback? onTap;
+  final List<NavigationItem>? children;
 }
 
 /// Mobile bottom navigation bar
 class MobileBottomNavigation extends StatelessWidget {
-  final List<NavigationItem> items;
-  final int currentIndex;
-  final ValueChanged<int> onTap;
-  final Color? backgroundColor;
-  final Color? selectedItemColor;
-  final Color? unselectedItemColor;
-
   const MobileBottomNavigation({
     super.key,
     required this.items,
@@ -39,6 +31,12 @@ class MobileBottomNavigation extends StatelessWidget {
     this.selectedItemColor,
     this.unselectedItemColor,
   });
+  final List<NavigationItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  final Color? backgroundColor;
+  final Color? selectedItemColor;
+  final Color? unselectedItemColor;
 
   @override
   Widget build(BuildContext context) {
@@ -50,27 +48,23 @@ class MobileBottomNavigation extends StatelessWidget {
       selectedItemColor: selectedItemColor ?? AppColors.primary,
       unselectedItemColor: unselectedItemColor ?? AppColors.onSurfaceVariant,
       selectedLabelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
-        fontWeight: FontWeight.w600,
-      ),
+            fontWeight: FontWeight.w600,
+          ),
       unselectedLabelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
-        fontWeight: FontWeight.w400,
-      ),
-      items: items.map((item) => BottomNavigationBarItem(
-        icon: Icon(item.icon),
-        label: item.title,
-      )).toList(),
+            fontWeight: FontWeight.w400,
+          ),
+      items: items
+          .map((item) => BottomNavigationBarItem(
+                icon: Icon(item.icon),
+                label: item.title,
+              ))
+          .toList(),
     );
   }
 }
 
 /// Mobile drawer navigation
 class MobileDrawerNavigation extends StatelessWidget {
-  final List<NavigationItem> items;
-  final String? userEmail;
-  final String? userName;
-  final VoidCallback? onSignOut;
-  final VoidCallback? onProfileTap;
-
   const MobileDrawerNavigation({
     super.key,
     required this.items,
@@ -79,6 +73,11 @@ class MobileDrawerNavigation extends StatelessWidget {
     this.onSignOut,
     this.onProfileTap,
   });
+  final List<NavigationItem> items;
+  final String? userEmail;
+  final String? userName;
+  final VoidCallback? onSignOut;
+  final VoidCallback? onProfileTap;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +86,7 @@ class MobileDrawerNavigation extends StatelessWidget {
         children: [
           // User header
           _buildUserHeader(context),
-          
+
           // Navigation items
           Expanded(
             child: ListView(
@@ -97,7 +96,7 @@ class MobileDrawerNavigation extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Sign out button
           if (onSignOut != null) _buildSignOutButton(context),
         ],
@@ -110,27 +109,27 @@ class MobileDrawerNavigation extends StatelessWidget {
       accountName: Text(
         userName ?? 'User',
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          color: AppColors.onSurface,
-          fontWeight: FontWeight.w600,
-        ),
+              color: AppColors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
       ),
       accountEmail: Text(
         userEmail ?? 'user@example.com',
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: AppColors.onSurfaceVariant,
-        ),
+              color: AppColors.onSurfaceVariant,
+            ),
       ),
       currentAccountPicture: CircleAvatar(
         backgroundColor: AppColors.primary,
         child: Text(
           (userName ?? 'U').substring(0, 1).toUpperCase(),
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: AppColors.onPrimary,
-            fontWeight: FontWeight.w600,
-          ),
+                color: AppColors.onPrimary,
+                fontWeight: FontWeight.w600,
+              ),
         ),
       ),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.surface,
       ),
       onDetailsPressed: onProfileTap,
@@ -146,9 +145,9 @@ class MobileDrawerNavigation extends StatelessWidget {
       title: Text(
         item.title,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: item.isActive ? AppColors.primary : AppColors.onSurface,
-          fontWeight: item.isActive ? FontWeight.w600 : FontWeight.w400,
-        ),
+              color: item.isActive ? AppColors.primary : AppColors.onSurface,
+              fontWeight: item.isActive ? FontWeight.w600 : FontWeight.w400,
+            ),
       ),
       selected: item.isActive,
       onTap: item.onTap,
@@ -161,9 +160,9 @@ class MobileDrawerNavigation extends StatelessWidget {
       title: Text(
         'Sign Out',
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: AppColors.error,
-          fontWeight: FontWeight.w500,
-        ),
+              color: AppColors.error,
+              fontWeight: FontWeight.w500,
+            ),
       ),
       onTap: onSignOut,
     );
@@ -172,13 +171,6 @@ class MobileDrawerNavigation extends StatelessWidget {
 
 /// Desktop sidebar navigation
 class DesktopSidebarNavigation extends StatelessWidget {
-  final List<NavigationItem> items;
-  final String? userEmail;
-  final String? userName;
-  final VoidCallback? onSignOut;
-  final VoidCallback? onProfileTap;
-  final bool isCollapsed;
-
   const DesktopSidebarNavigation({
     super.key,
     required this.items,
@@ -188,11 +180,17 @@ class DesktopSidebarNavigation extends StatelessWidget {
     this.onProfileTap,
     this.isCollapsed = false,
   });
+  final List<NavigationItem> items;
+  final String? userEmail;
+  final String? userName;
+  final VoidCallback? onSignOut;
+  final VoidCallback? onProfileTap;
+  final bool isCollapsed;
 
   @override
   Widget build(BuildContext context) {
     final sidebarWidth = ResponsiveBreakpoints.getSidebarWidth(context);
-    
+
     return Container(
       width: isCollapsed ? 72 : sidebarWidth,
       color: AppColors.surface,
@@ -200,7 +198,7 @@ class DesktopSidebarNavigation extends StatelessWidget {
         children: [
           // User header
           _buildUserHeader(context),
-          
+
           // Navigation items
           Expanded(
             child: ListView(
@@ -210,7 +208,7 @@ class DesktopSidebarNavigation extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Sign out button
           if (onSignOut != null) _buildSignOutButton(context),
         ],
@@ -224,8 +222,7 @@ class DesktopSidebarNavigation extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppColors.outline.withOpacity(0.2),
-            width: 1,
+            color: AppColors.outline.withValues(alpha: 0.2),
           ),
         ),
       ),
@@ -235,9 +232,9 @@ class DesktopSidebarNavigation extends StatelessWidget {
               child: Text(
                 (userName ?? 'U').substring(0, 1).toUpperCase(),
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: AppColors.onPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
+                      color: AppColors.onPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             )
           : Row(
@@ -247,9 +244,9 @@ class DesktopSidebarNavigation extends StatelessWidget {
                   child: Text(
                     (userName ?? 'U').substring(0, 1).toUpperCase(),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.onPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                          color: AppColors.onPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -260,16 +257,16 @@ class DesktopSidebarNavigation extends StatelessWidget {
                       Text(
                         userName ?? 'User',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: AppColors.onSurface,
-                          fontWeight: FontWeight.w600,
-                        ),
+                              color: AppColors.onSurface,
+                              fontWeight: FontWeight.w600,
+                            ),
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         userEmail ?? 'user@example.com',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.onSurfaceVariant,
-                        ),
+                              color: AppColors.onSurfaceVariant,
+                            ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -292,9 +289,11 @@ class DesktopSidebarNavigation extends StatelessWidget {
           : Text(
               item.title,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: item.isActive ? AppColors.primary : AppColors.onSurface,
-                fontWeight: item.isActive ? FontWeight.w600 : FontWeight.w400,
-              ),
+                    color:
+                        item.isActive ? AppColors.primary : AppColors.onSurface,
+                    fontWeight:
+                        item.isActive ? FontWeight.w600 : FontWeight.w400,
+                  ),
             ),
       selected: item.isActive,
       onTap: item.onTap,
@@ -313,9 +312,9 @@ class DesktopSidebarNavigation extends StatelessWidget {
           : Text(
               'Sign Out',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.error,
-                fontWeight: FontWeight.w500,
-              ),
+                    color: AppColors.error,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
       onTap: onSignOut,
       dense: isCollapsed,
@@ -328,15 +327,6 @@ class DesktopSidebarNavigation extends StatelessWidget {
 
 /// Responsive navigation wrapper
 class ResponsiveNavigation extends StatelessWidget {
-  final List<NavigationItem> items;
-  final int currentIndex;
-  final ValueChanged<int> onIndexChanged;
-  final String? userEmail;
-  final String? userName;
-  final VoidCallback? onSignOut;
-  final VoidCallback? onProfileTap;
-  final bool showDrawer;
-
   const ResponsiveNavigation({
     super.key,
     required this.items,
@@ -348,11 +338,19 @@ class ResponsiveNavigation extends StatelessWidget {
     this.onProfileTap,
     this.showDrawer = true,
   });
+  final List<NavigationItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onIndexChanged;
+  final String? userEmail;
+  final String? userName;
+  final VoidCallback? onSignOut;
+  final VoidCallback? onProfileTap;
+  final bool showDrawer;
 
   @override
   Widget build(BuildContext context) {
     final isMobile = ResponsiveBreakpoints.isMobile(context);
-    
+
     if (isMobile) {
       return MobileBottomNavigation(
         items: items,
@@ -360,7 +358,7 @@ class ResponsiveNavigation extends StatelessWidget {
         onTap: onIndexChanged,
       );
     }
-    
+
     return DesktopSidebarNavigation(
       items: items,
       userEmail: userEmail,
@@ -373,12 +371,6 @@ class ResponsiveNavigation extends StatelessWidget {
 
 /// Navigation drawer for mobile
 class NavigationDrawer extends StatelessWidget {
-  final List<NavigationItem> items;
-  final String? userEmail;
-  final String? userName;
-  final VoidCallback? onSignOut;
-  final VoidCallback? onProfileTap;
-
   const NavigationDrawer({
     super.key,
     required this.items,
@@ -387,6 +379,11 @@ class NavigationDrawer extends StatelessWidget {
     this.onSignOut,
     this.onProfileTap,
   });
+  final List<NavigationItem> items;
+  final String? userEmail;
+  final String? userName;
+  final VoidCallback? onSignOut;
+  final VoidCallback? onProfileTap;
 
   @override
   Widget build(BuildContext context) {

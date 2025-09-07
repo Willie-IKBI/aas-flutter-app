@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/models/customer.dart';
-import '../../../../core/services/order_service.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../features/clients/data/services/customer_service.dart';
-import '../../../../features/clients/presentation/models/client.dart';
+import '../../../../core/services/customer_service.dart';
+import '../../../clients/presentation/models/client.dart';
 
 class CustomerDetailsModal extends StatefulWidget {
   const CustomerDetailsModal({super.key});
@@ -22,7 +21,7 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
   final _industrySectorController = TextEditingController();
   final _contactChannelController = TextEditingController();
   final _notesController = TextEditingController();
-  
+
   bool _isLoading = false;
 
   @override
@@ -48,34 +47,34 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
     try {
       final client = Client(
         clientName: _clientNameController.text.trim(),
-        contactName: _contactNameController.text.trim().isEmpty 
-            ? null 
+        contactName: _contactNameController.text.trim().isEmpty
+            ? null
             : _contactNameController.text.trim(),
-        contactNumber: _contactNumberController.text.trim().isEmpty 
-            ? null 
+        contactNumber: _contactNumberController.text.trim().isEmpty
+            ? null
             : _contactNumberController.text.trim(),
-        contactEmail: _contactEmailController.text.trim().isEmpty 
-            ? null 
+        contactEmail: _contactEmailController.text.trim().isEmpty
+            ? null
             : _contactEmailController.text.trim(),
-        address: _addressController.text.trim().isEmpty 
-            ? null 
+        address: _addressController.text.trim().isEmpty
+            ? null
             : _addressController.text.trim(),
-        industrySector: _industrySectorController.text.trim().isEmpty 
-            ? null 
+        industrySector: _industrySectorController.text.trim().isEmpty
+            ? null
             : _industrySectorController.text.trim(),
-        contactChannel: _contactChannelController.text.trim().isEmpty 
-            ? null 
+        contactChannel: _contactChannelController.text.trim().isEmpty
+            ? null
             : _contactChannelController.text.trim(),
-        notes: _notesController.text.trim().isEmpty 
-            ? null 
+        notes: _notesController.text.trim().isEmpty
+            ? null
             : _notesController.text.trim(),
       );
-      
-      final createdClient = await CustomerService.createCustomer(client);
-      final customer = Customer.fromClient(createdClient);
 
-      if (customer != null && mounted) {
-        Navigator.of(context).pop(customer);
+      final customerToCreate = Customer.fromClient(client);
+      final createdCustomer = await CustomerService.createCustomer(customerToCreate);
+
+      if (mounted) {
+        Navigator.of(context).pop(createdCustomer);
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -107,7 +106,7 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
   @override
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 768;
-    
+
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
@@ -117,11 +116,11 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
           gradient: AppColors.cardGradient,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: AppColors.outline.withOpacity(0.2),
+            color: AppColors.outline.withValues(alpha: 0.2),
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadow.withOpacity(0.3),
+              color: AppColors.shadow.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -132,9 +131,9 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
             // Header
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: AppColors.primaryGradient,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
                 ),
@@ -144,10 +143,10 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.onPrimary.withOpacity(0.2),
+                      color: AppColors.onPrimary.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.person_add,
                       color: AppColors.onPrimary,
                       size: 24,
@@ -157,20 +156,22 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
                   Expanded(
                     child: Text(
                       'Create New Customer',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.onPrimary,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.onPrimary,
+                              ),
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.close,
                       color: AppColors.onPrimary,
                     ),
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.onPrimary.withOpacity(0.2),
+                      backgroundColor:
+                          AppColors.onPrimary.withValues(alpha: 0.2),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -192,7 +193,7 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
                       // Client Name (Required)
                       _buildSectionHeader('Basic Information'),
                       const SizedBox(height: 16),
-                      
+
                       _buildTextField(
                         controller: _clientNameController,
                         label: 'Client Name *',
@@ -296,7 +297,7 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
                 ),
                 border: Border(
                   top: BorderSide(
-                    color: AppColors.outline.withOpacity(0.2),
+                    color: AppColors.outline.withValues(alpha: 0.2),
                   ),
                 ),
               ),
@@ -304,15 +305,16 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+                      onPressed:
+                          _isLoading ? null : () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(color: AppColors.outline),
+                        side: const BorderSide(color: AppColors.outline),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Cancel',
                         style: TextStyle(
                           color: AppColors.onSurface,
@@ -340,10 +342,11 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : Text(
+                          : const Text(
                               'Create Customer',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -398,31 +401,33 @@ class _CustomerDetailsModalState extends State<CustomerDetailsModal> {
         fillColor: AppColors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.outline),
+          borderSide: const BorderSide(color: AppColors.outline),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.outline.withOpacity(0.5)),
+          borderSide:
+              BorderSide(color: AppColors.outline.withValues(alpha: 0.5)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.primary, width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.error),
+          borderSide: const BorderSide(color: AppColors.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.error, width: 2),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
-        labelStyle: TextStyle(color: AppColors.onSurfaceVariant),
-        hintStyle: TextStyle(color: AppColors.onSurfaceVariant.withOpacity(0.7)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        labelStyle: const TextStyle(color: AppColors.onSurfaceVariant),
+        hintStyle:
+            TextStyle(color: AppColors.onSurfaceVariant.withValues(alpha: 0.7)),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
-      style: TextStyle(color: AppColors.onSurface),
+      style: const TextStyle(color: AppColors.onSurface),
       validator: validator,
     );
   }
 }
-
