@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/models/order.dart';
 import '../../../../core/theme/index.dart';
 import '../../../../core/services/stage_management_service.dart';
+import '../../../../core/services/order_service.dart';
 
 class OrderCard extends StatelessWidget {
   const OrderCard({
@@ -10,11 +11,13 @@ class OrderCard extends StatelessWidget {
     this.onTap,
     this.showStageActions = true,
     this.onMoveToStage,
+    this.onDeleted,
   });
   final Order order;
   final VoidCallback? onTap;
   final bool showStageActions;
   final Function(String)? onMoveToStage;
+  final VoidCallback? onDeleted;
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +73,30 @@ class OrderCard extends StatelessWidget {
         ),
         const Spacer(),
         _buildPriorityBadge(),
+        const SizedBox(width: 8),
+        FutureBuilder<bool>(
+          future: OrderService().canDeleteOrder(),
+          builder: (context, snapshot) {
+            if (snapshot.data == true) {
+              return GestureDetector(
+                onTap: () => _showDeleteDialog(context),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    size: 16,
+                    color: AppColors.error,
+                  ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
       ],
     );
   }
@@ -94,6 +121,143 @@ class OrderCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Order'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Are you sure you want to delete Order #${order.id}?'),
+            const SizedBox(height: 16),
+            const Text(
+              'This will permanently delete:',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            const Text('• Order details and history'),
+            const Text('• All stage events and notes'),
+            const Text('• All photos and documents'),
+            const Text('• Parts and resource allocations'),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: AppColors.error.withValues(alpha: 0.3),
+                ),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.warning, color: AppColors.error, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'This action cannot be undone!',
+                      style: TextStyle(
+                        color: AppColors.error,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _deleteOrder(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete Order'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteOrder(BuildContext context) async {
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Deleting Order'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Please wait while we delete the order and all related data...'),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final orderService = OrderService();
+      final success = await orderService.deleteOrder(order.id);
+
+      // Close loading dialog
+      if (context.mounted) Navigator.of(context).pop();
+
+      if (success) {
+        // Show success message
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Order #${order.id} deleted successfully'),
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+
+          // Notify parent widget
+          onDeleted?.call();
+        }
+      } else {
+        // Show error message
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Failed to delete order. Please try again.'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (context.mounted) Navigator.of(context).pop();
+
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting order: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildCustomerInfo() {

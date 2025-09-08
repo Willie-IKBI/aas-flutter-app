@@ -463,4 +463,131 @@ class OrderService {
     // Allow moving forward or backward by one stage
     return (targetIndex - currentIndex).abs() <= 1;
   }
+
+  /// Delete an order and all its related data
+  /// This includes: stage events, documents, parts, resource allocations, approvals
+  Future<bool> deleteOrder(int orderId) async {
+    try {
+      // Check if user has permission to delete (admin/manager only)
+      final currentUser = _supabase.auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not authenticated');
+      }
+
+      // Get user profile to check role
+      final profileResponse = await _supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', currentUser.id)
+          .single();
+
+      final userRole = profileResponse['role'] as String?;
+      if (userRole != 'admin' && userRole != 'manager') {
+        throw Exception('Insufficient permissions to delete orders');
+      }
+
+      // Get order details for logging
+      final orderResponse = await _supabase
+          .from('orders')
+          .select('id, description, customer_id')
+          .eq('id', orderId)
+          .single();
+
+      print('Deleting order #$orderId: ${orderResponse['description']}');
+
+      // 1. Delete order documents and their storage files
+      await _deleteOrderDocuments(orderId);
+
+      // 2. Delete order stage events
+      await _supabase
+          .from('order_stage_events')
+          .delete()
+          .eq('order_id', orderId);
+
+      // 3. Delete order parts
+      await _supabase
+          .from('order_parts')
+          .delete()
+          .eq('order_id', orderId);
+
+      // 4. Delete resource allocations
+      await _supabase
+          .from('resource_allocations')
+          .delete()
+          .eq('order_id', orderId);
+
+      // 5. Delete approvals (if any)
+      await _supabase
+          .from('approvals')
+          .delete()
+          .eq('order_id', orderId);
+
+      // 6. Finally, delete the order itself
+      await _supabase
+          .from('orders')
+          .delete()
+          .eq('id', orderId);
+
+      print('Successfully deleted order #$orderId and all related data');
+      return true;
+    } catch (e) {
+      print('Error deleting order #$orderId: $e');
+      return false;
+    }
+  }
+
+  /// Delete order documents and their storage files
+  Future<void> _deleteOrderDocuments(int orderId) async {
+    try {
+      // Get all documents for this order
+      final documentsResponse = await _supabase
+          .from('order_documents')
+          .select('storage_path')
+          .eq('order_id', orderId);
+
+      // Delete files from storage
+      for (final doc in documentsResponse) {
+        final storagePath = doc['storage_path'] as String;
+        try {
+          await _supabase.storage
+              .from('order-files')
+              .remove([storagePath]);
+          print('Deleted storage file: $storagePath');
+        } catch (e) {
+          print('Warning: Could not delete storage file $storagePath: $e');
+          // Continue with other files even if one fails
+        }
+      }
+
+      // Delete document records from database
+      await _supabase
+          .from('order_documents')
+          .delete()
+          .eq('order_id', orderId);
+
+      print('Deleted ${documentsResponse.length} documents for order #$orderId');
+    } catch (e) {
+      print('Error deleting documents for order #$orderId: $e');
+      // Don't throw here, continue with order deletion
+    }
+  }
+
+  /// Check if user can delete orders (admin/manager only)
+  Future<bool> canDeleteOrder() async {
+    try {
+      final currentUser = _supabase.auth.currentUser;
+      if (currentUser == null) return false;
+
+      final profileResponse = await _supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', currentUser.id)
+          .single();
+
+      final userRole = profileResponse['role'] as String?;
+      return userRole == 'admin' || userRole == 'manager';
+    } catch (e) {
+      return false;
+    }
+  }
 }
