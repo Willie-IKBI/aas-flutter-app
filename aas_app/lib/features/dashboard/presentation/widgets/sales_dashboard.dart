@@ -11,6 +11,7 @@ class SalesDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final activeOrdersAsync = ref.watch(activeOrdersProvider);
+    final pipelineAsync = ref.watch(salesPipelineProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -23,7 +24,7 @@ class SalesDashboard extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context, isDesktop),
+              _buildHeader(context, isDesktop, ref),
               const SizedBox(height: 24),
 
               // Key Metrics Bar
@@ -31,7 +32,7 @@ class SalesDashboard extends ConsumerWidget {
               const SizedBox(height: 24),
 
               // Main Content Grid
-              _buildMainContent(context, activeOrdersAsync, isDesktop, isTablet, isMobile),
+              _buildMainContent(context, activeOrdersAsync, pipelineAsync, isDesktop, isTablet, isMobile),
             ],
           ),
         );
@@ -39,23 +40,37 @@ class SalesDashboard extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isDesktop) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildHeader(BuildContext context, bool isDesktop, WidgetRef ref) {
+    return Row(
       children: [
-        Text(
-          'Sales & Customer Hub',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Sales & Customer Hub',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
               ),
+              const SizedBox(height: 8),
+              Text(
+                'Customer management and sales pipeline',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Customer management and sales pipeline',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
+        IconButton(
+          onPressed: () {
+            ref.read(salesPipelineProvider.notifier).refresh();
+            ref.read(activeOrdersProvider.notifier).refresh();
+          },
+          icon: const Icon(Icons.refresh),
+          tooltip: 'Refresh Data',
         ),
       ],
     );
@@ -180,7 +195,7 @@ class SalesDashboard extends ConsumerWidget {
   }
 
   Widget _buildMainContent(BuildContext context, AsyncValue<List<Order>> activeOrdersAsync, 
-      bool isDesktop, bool isTablet, bool isMobile) {
+      AsyncValue<List<PipelineStageData>> pipelineAsync, bool isDesktop, bool isTablet, bool isMobile) {
     if (isMobile) {
       return Column(
         children: [
@@ -191,7 +206,7 @@ class SalesDashboard extends ConsumerWidget {
           const SizedBox(height: 16),
           SizedBox(
             height: 300, // Fixed height for mobile order pipeline
-            child: _buildOrderPipelineWidget(context),
+            child: _buildOrderPipelineWidget(context, pipelineAsync),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -216,7 +231,7 @@ class SalesDashboard extends ConsumerWidget {
       childAspectRatio: isDesktop ? 1.2 : 1.0,
       children: [
         _buildQuickActionsWidget(context),
-        _buildOrderPipelineWidget(context),
+        _buildOrderPipelineWidget(context, pipelineAsync),
         _buildCustomerManagementWidget(context),
         _buildRevenueTrackingWidget(context),
       ],
@@ -342,7 +357,8 @@ class SalesDashboard extends ConsumerWidget {
     );
   }
 
-  Widget _buildOrderPipelineWidget(BuildContext context) {
+  Widget _buildOrderPipelineWidget(BuildContext context, AsyncValue<List<PipelineStageData>> pipelineAsync) {
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -375,13 +391,40 @@ class SalesDashboard extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: ListView(
-              children: [
-                _buildPipelineItem(context, 'New Quotes', '8', 'R45,200', AppColors.info, Icons.description),
-                _buildPipelineItem(context, 'Pending Approval', '5', 'R32,800', AppColors.warning, Icons.pending),
-                _buildPipelineItem(context, 'Negotiation', '3', 'R28,500', AppColors.secondary, Icons.handshake),
-                _buildPipelineItem(context, 'Ready to Close', '2', 'R18,900', AppColors.success, Icons.check_circle),
-              ],
+            child: pipelineAsync.when(
+              data: (pipelineData) => ListView(
+                children: pipelineData.map((stageData) => _buildPipelineItem(
+                  context,
+                  stageData.displayName,
+                  stageData.count.toString(),
+                  'R${stageData.totalValue.toStringAsFixed(0)}',
+                  _getStageColor(stageData.stage),
+                  _getStageIcon(stageData.stage),
+                  stageData.orders,
+                )).toList(),
+              ),
+              loading: () => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              error: (error, stack) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, color: AppColors.error, size: 48),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Failed to load pipeline data',
+                      style: TextStyle(color: AppColors.error),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      error.toString(),
+                      style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -390,7 +433,7 @@ class SalesDashboard extends ConsumerWidget {
   }
 
   Widget _buildPipelineItem(BuildContext context, String stage, String count, 
-      String value, Color color, IconData icon) {
+      String value, Color color, IconData icon, List<Order> orders) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -399,43 +442,136 @@ class SalesDashboard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: () => _showOrdersDialog(context, stage, orders),
+        borderRadius: BorderRadius.circular(8),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color, size: 16),
             ),
-            child: Icon(icon, color: color, size: 16),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  stage,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.onSurface,
-                      ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$count orders • $value',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                ),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    stage,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.onSurface,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$count orders • $value',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
             ),
+            Icon(Icons.arrow_forward_ios, color: AppColors.onSurfaceVariant, size: 14),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showOrdersDialog(BuildContext context, String stage, List<Order> orders) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('$stage Orders'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: orders.isEmpty
+              ? const Text('No orders in this stage')
+              : ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: orders.length,
+                  itemBuilder: (context, index) {
+                    final order = orders[index];
+                    return ListTile(
+                      title: Text(order.description ?? 'No description'),
+                      subtitle: Text('Order #${order.id} • ${order.customerName ?? 'Unknown Customer'}'),
+                      trailing: Text(
+                        order.status?.toDisplayString() ?? 'Unknown',
+                        style: TextStyle(
+                          color: _getStatusColor(order.status),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
           ),
-          Icon(Icons.arrow_forward_ios, color: AppColors.onSurfaceVariant, size: 14),
         ],
       ),
     );
+  }
+
+  Color _getStageColor(String stage) {
+    switch (stage) {
+      case 'quotation':
+        return AppColors.info;
+      case 'approval':
+        return AppColors.warning;
+      case 'job_commence':
+        return AppColors.secondary;
+      case 'dispatch':
+        return AppColors.success;
+      default:
+        return AppColors.onSurfaceVariant;
+    }
+  }
+
+  IconData _getStageIcon(String stage) {
+    switch (stage) {
+      case 'quotation':
+        return Icons.description;
+      case 'approval':
+        return Icons.pending;
+      case 'job_commence':
+        return Icons.build;
+      case 'dispatch':
+        return Icons.check_circle;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  Color _getStatusColor(OrderStatus? status) {
+    switch (status) {
+      case OrderStatus.draft:
+        return AppColors.onSurfaceVariant;
+      case OrderStatus.inProgress:
+        return AppColors.info;
+      case OrderStatus.waitingApproval:
+        return AppColors.warning;
+      case OrderStatus.approved:
+        return AppColors.success;
+      case OrderStatus.inProduction:
+        return AppColors.secondary;
+      case OrderStatus.complete:
+        return AppColors.success;
+      case OrderStatus.cancelled:
+        return AppColors.error;
+      default:
+        return AppColors.onSurfaceVariant;
+    }
   }
 
   Widget _buildCustomerManagementWidget(BuildContext context) {

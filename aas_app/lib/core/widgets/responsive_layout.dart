@@ -63,7 +63,11 @@ class ResponsiveScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar,
-      body: body,
+      body: body != null ? PatternBackground(
+        patternType: PatternType.grid,
+        patternOpacity: 0.02,
+        child: body!,
+      ) : null,
       drawer: ResponsiveBreakpoints.isMobile(context) ? drawer : null,
       endDrawer: endDrawer,
       bottomNavigationBar: bottomNavigationBar,

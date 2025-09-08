@@ -6,6 +6,7 @@ import '../../../../core/theme/index.dart';
 import '../providers/pipeline_provider.dart';
 import 'order_card.dart';
 import 'job_summary_dialog.dart';
+import 'stage_details_modal.dart';
 
 class PipelineBoard extends ConsumerWidget {
   const PipelineBoard({super.key});
@@ -69,8 +70,6 @@ class PipelineBoard extends ConsumerWidget {
     switch (viewMode) {
       case PipelineViewMode.grid:
         return _buildGridLayout(context, ref, crossAxisCount: 4, maxRows: 2);
-      case PipelineViewMode.horizontal:
-        return _buildHorizontalLayout(context, ref);
       case PipelineViewMode.mobile:
         return _buildMobileLayout(context, ref);
     }
@@ -96,8 +95,8 @@ class PipelineBoard extends ConsumerWidget {
           final rowStages = stages.sublist(startIndex, endIndex);
 
           return Container(
-            height: 400, // Fixed height to prevent layout issues
-            margin: EdgeInsets.only(bottom: rowIndex < actualRows - 1 ? 16 : 0),
+            height: 350, // Reduced height to prevent layout issues
+            margin: EdgeInsets.only(bottom: rowIndex < actualRows - 1 ? 12 : 0),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: rowStages.map((stage) {
@@ -119,31 +118,13 @@ class PipelineBoard extends ConsumerWidget {
     );
   }
 
-  Widget _buildHorizontalLayout(BuildContext context, WidgetRef ref) {
-    return Container(
-      height: 600, // Fixed height for horizontal layout
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: StageManagementService.stageFlow.map((stage) {
-            return Container(
-              width: 280, // Fixed width for each stage column
-              margin: const EdgeInsets.only(right: 16),
-              child: _buildStageColumn(context, ref, stage),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
 
   Widget _buildMobileLayout(BuildContext context, WidgetRef ref) {
     return SingleChildScrollView(
       child: Column(
         children: StageManagementService.stageFlow.map((stage) {
           return Container(
-            height: 300, // Fixed height for mobile layout
+            height: 350, // Fixed height for mobile layout
             margin: const EdgeInsets.only(bottom: 16),
             child: _buildStageColumn(context, ref, stage),
           );
@@ -157,26 +138,29 @@ class PipelineBoard extends ConsumerWidget {
     final stageCounts = ref.watch(stageCountsProvider);
     final count = stageCounts[stage] ?? 0;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildStageHeader(stage, count),
-        const SizedBox(height: 12),
-        Expanded(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.outline.withValues(alpha: 0.2),
+    return SizedBox(
+      height: 350, // Fixed height to prevent layout issues
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildStageHeader(stage, count),
+          const SizedBox(height: 12),
+          Expanded(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.outline.withValues(alpha: 0.2),
+                ),
               ),
+              child: orders.isEmpty
+                  ? _buildEmptyStage(stage)
+                  : _buildOrdersList(context, ref, orders, stage),
             ),
-            child: orders.isEmpty
-                ? _buildEmptyStage(stage)
-                : _buildOrdersList(context, ref, orders, stage),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -357,31 +341,12 @@ class PipelineBoard extends ConsumerWidget {
       return;
     }
 
-    // Show confirmation dialog
+    // Show stage details modal
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Move Order'),
-        content: Text(
-          'Move order #${order.id} to ${StageManagementService.getStageDisplayName(newStage)}?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await ref.read(pipelineProvider.notifier).moveOrderToStage(
-                    order.id,
-                    newStage,
-                    notes: 'Moved via pipeline board',
-                  );
-            },
-            child: const Text('Move'),
-          ),
-        ],
+      builder: (context) => StageDetailsModal(
+        order: order,
+        nextStage: newStage,
       ),
     );
   }

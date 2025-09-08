@@ -8,15 +8,17 @@ class CustomerSearchNotifier extends AsyncNotifier<List<Customer>> {
 
   @override
   Future<List<Customer>> build() async {
-    // Initial state - no search results
-    return [];
+    // Load all customers initially
+    return await CustomerService.getAllCustomers();
   }
 
   Future<void> searchCustomers(String query) async {
     _currentQuery = query.trim();
 
     if (_currentQuery.isEmpty) {
-      state = const AsyncValue.data([]);
+      // If no query, show all customers
+      state = const AsyncValue.loading();
+      state = await AsyncValue.guard(() => CustomerService.getAllCustomers());
       return;
     }
 
@@ -32,9 +34,10 @@ class CustomerSearchNotifier extends AsyncNotifier<List<Customer>> {
     }
   }
 
-  void clearSearch() {
+  Future<void> clearSearch() async {
     _currentQuery = '';
-    state = const AsyncValue.data([]);
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => CustomerService.getAllCustomers());
   }
 
   String get currentQuery => _currentQuery;

@@ -58,25 +58,25 @@ class AppColors {
 
   // ===== SEMANTIC COLORS =====
 
-  /// Primary brand color
-  static const Color primary = redCmyk500;
-  static const Color primaryLight = redCmyk400;
-  static const Color primaryDark = redCmyk600;
+  /// Primary brand color - Softer red
+  static const Color primary = Color(0xFFFF6B6B); // Softer coral red
+  static const Color primaryLight = Color(0xFFFF8A80); // Warm red
+  static const Color primaryDark = Color(0xFFE53E3E); // Original red
   static const Color onPrimary = Colors.white;
 
-  /// Secondary brand color
-  static const Color secondary = orangeCrayola500;
-  static const Color secondaryLight = orangeCrayola400;
-  static const Color secondaryDark = orangeCrayola600;
+  /// Secondary brand color - Softer orange
+  static const Color secondary = Color(0xFFFFB74D); // Softer orange
+  static const Color secondaryLight = Color(0xFFFFCC80); // Light orange
+  static const Color secondaryDark = Color(0xFFED8936); // Original orange
   static const Color onSecondary = Colors.white;
 
-  /// Background colors
-  static const Color background = Color(0xFF0F0F0F); // Very dark gray
-  static const Color onBackground = timberwolf;
-  static const Color surface = Color(0xFF1A1A1A); // Dark gray
-  static const Color onSurface = timberwolf;
-  static const Color surfaceVariant = Color(0xFF2D2D2D); // Medium gray
-  static const Color onSurfaceVariant = timberwolf200;
+  /// Background colors - Lighter theme
+  static const Color background = Color(0xFF1A1A1A); // Lighter dark gray
+  static const Color onBackground = Color(0xFFE0E0E0); // Softer light gray
+  static const Color surface = Color(0xFF2A2A2A); // Lighter gray
+  static const Color onSurface = Color(0xFFE0E0E0); // Softer light gray
+  static const Color surfaceVariant = Color(0xFF353535); // Medium-light gray
+  static const Color onSurfaceVariant = Color(0xFFB0B0B0); // Medium light gray
 
   /// Container colors
   static const Color primaryContainer = redCmyk100;
@@ -108,10 +108,10 @@ class AppColors {
   static const Color errorContainer = Color(0xFFFED7D7);
   static const Color onErrorContainer = Color(0xFF742A2A);
 
-  /// Outline and divider colors
-  static const Color outline = Color(0xFF4A5568);
-  static const Color outlineVariant = Color(0xFF718096);
-  static const Color divider = Color(0xFF2D3748);
+  /// Outline and divider colors - Lighter theme
+  static const Color outline = Color(0xFF5A5A5A);
+  static const Color outlineVariant = Color(0xFF808080);
+  static const Color divider = Color(0xFF404040);
 
   /// Shadow colors
   static const Color shadow = jet100;
@@ -122,25 +122,25 @@ class AppColors {
 
   // ===== GRADIENTS =====
 
-  /// Modern background gradient
+  /// Modern background gradient - Lighter theme
   static const LinearGradient backgroundGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFF0F0F0F), // Very dark gray
-      Color(0xFF1A1A1A), // Dark gray
-      Color(0xFF2D2D2D), // Medium gray
+      Color(0xFF1A1A1A), // Lighter dark gray
+      Color(0xFF2A2A2A), // Medium gray
+      Color(0xFF3A3A3A), // Lighter medium gray
     ],
     stops: [0.0, 0.5, 1.0],
   );
 
-  /// Card gradient
+  /// Card gradient - Lighter theme
   static const LinearGradient cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFF1A1A1A),
-      Color(0xFF2D2D2D),
+      Color(0xFF2A2A2A),
+      Color(0xFF353535),
     ],
   );
 

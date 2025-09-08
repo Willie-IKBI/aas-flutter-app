@@ -5,7 +5,6 @@ import '../../../../core/services/stage_management_service.dart';
 // View mode enum
 enum PipelineViewMode {
   grid, // 2x4 grid layout for desktop overview
-  horizontal, // Horizontal Kanban board for desktop
   mobile, // Single column optimized for mobile
 }
 
@@ -17,7 +16,7 @@ class PipelineState {
     this.isLoading = false,
     this.error,
     this.selectedOrderId,
-    this.viewMode = PipelineViewMode.horizontal,
+    this.viewMode = PipelineViewMode.grid,
   });
   final Map<String, List<Order>> ordersByStage;
   final Map<String, int> stageCounts;
@@ -120,9 +119,6 @@ class PipelineNotifier extends StateNotifier<PipelineState> {
     PipelineViewMode newViewMode;
     switch (state.viewMode) {
       case PipelineViewMode.grid:
-        newViewMode = PipelineViewMode.horizontal;
-        break;
-      case PipelineViewMode.horizontal:
         newViewMode = PipelineViewMode.mobile;
         break;
       case PipelineViewMode.mobile:

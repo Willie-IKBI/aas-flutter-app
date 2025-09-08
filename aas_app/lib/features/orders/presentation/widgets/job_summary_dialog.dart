@@ -4,6 +4,8 @@ import '../../../../core/models/order.dart';
 import '../../../../core/theme/index.dart';
 import '../../../../core/services/stage_management_service.dart';
 import '../providers/pipeline_provider.dart';
+import '../pages/order_details_page.dart';
+import 'stage_details_modal.dart';
 
 class JobSummaryDialog extends ConsumerWidget {
   const JobSummaryDialog({
@@ -407,7 +409,13 @@ class JobSummaryDialog extends ConsumerWidget {
             child: OutlinedButton.icon(
               onPressed: () {
                 Navigator.of(context).pop();
-                // TODO: Navigate to edit order page
+                // Navigate to order details page for editing
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => OrderDetailsPage(orderId: order.id),
+                  ),
+                );
               },
               icon: const Icon(Icons.edit, size: 18),
               label: const Text('Edit Order'),
@@ -440,11 +448,15 @@ class JobSummaryDialog extends ConsumerWidget {
             const SizedBox(width: 12),
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () async {
-                  await ref
-                      .read(pipelineProvider.notifier)
-                      .moveOrderToStage(order.id, nextStage);
-                  Navigator.of(context).pop();
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close job summary dialog
+                  showDialog(
+                    context: context,
+                    builder: (context) => StageDetailsModal(
+                      order: order,
+                      nextStage: nextStage,
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.arrow_forward, size: 18),
                 label: const Text('Next Stage'),

@@ -29,22 +29,19 @@ class ResponsiveAuthLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Determine screen size
-              final screenWidth = constraints.maxWidth;
-              final isDesktop = screenWidth >= 1200;
-              final isTablet = screenWidth >= 768 && screenWidth < 1200;
-              final isMobile = screenWidth < 768;
+      body: PatternBackground(
+        patternType: PatternType.grid,
+        patternOpacity: 0.02,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Determine screen size
+            final screenWidth = constraints.maxWidth;
+            final isDesktop = screenWidth >= 1200;
+            final isTablet = screenWidth >= 768 && screenWidth < 1200;
+            final isMobile = screenWidth < 768;
 
-              return SingleChildScrollView(
+            return SafeArea(
+              child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
                   horizontal: isDesktop
                       ? 48.0
@@ -109,9 +106,9 @@ class ResponsiveAuthLayout extends StatelessWidget {
                                 : 24.0),
                   ],
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

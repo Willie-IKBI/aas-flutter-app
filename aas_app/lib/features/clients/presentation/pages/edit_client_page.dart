@@ -21,14 +21,14 @@ class _EditClientPageState extends State<EditClientPage> {
   final _scrollController = ScrollController();
   
   // Form controllers
-  late final TextEditingController _clientNameController;
-  late final TextEditingController _contactNameController;
-  late final TextEditingController _contactNumberController;
-  late final TextEditingController _contactEmailController;
-  late final TextEditingController _addressController;
-  late final TextEditingController _industrySectorController;
-  late final TextEditingController _contactChannelController;
-  late final TextEditingController _notesController;
+  TextEditingController? _clientNameController;
+  TextEditingController? _contactNameController;
+  TextEditingController? _contactNumberController;
+  TextEditingController? _contactEmailController;
+  TextEditingController? _addressController;
+  TextEditingController? _industrySectorController;
+  TextEditingController? _contactChannelController;
+  TextEditingController? _notesController;
   
   // Form state
   bool _isLoading = false;
@@ -45,12 +45,35 @@ class _EditClientPageState extends State<EditClientPage> {
 
   Future<void> _loadClient() async {
     try {
-      // TODO: Load client from service using widget.clientId
-      // For now, create a placeholder client
       setState(() {
-        _isInitialLoading = false;
-        _errorMessage = 'Client loading not implemented yet';
+        _isInitialLoading = true;
+        _errorMessage = null;
       });
+
+      // Parse the client ID to integer
+      final clientId = int.tryParse(widget.clientId);
+      if (clientId == null) {
+        throw Exception('Invalid client ID: ${widget.clientId}');
+      }
+
+      // Load customer from service
+      final customer = await CustomerService.getCustomerById(clientId);
+      if (customer == null) {
+        throw Exception('Client not found');
+      }
+
+      // Convert Customer to Client
+      final client = Client.fromJson(customer.toJson());
+      
+      setState(() {
+        _client = client;
+        _isInitialLoading = false;
+        _errorMessage = null;
+      });
+
+      // Initialize form controllers after client is loaded
+      _initializeControllers();
+      _setupFormValidation();
     } catch (e) {
       setState(() {
         _isInitialLoading = false;
@@ -62,40 +85,34 @@ class _EditClientPageState extends State<EditClientPage> {
   void _initializeControllers() {
     if (_client == null) return;
     
-    _clientNameController =
-        TextEditingController(text: _client!.clientName);
-    _contactNameController =
-        TextEditingController(text: _client!.contactName ?? '');
-    _contactNumberController =
-        TextEditingController(text: _client!.contactNumber ?? '');
-    _contactEmailController =
-        TextEditingController(text: _client!.contactEmail ?? '');
-    _addressController =
-        TextEditingController(text: _client!.address ?? '');
-    _industrySectorController =
-        TextEditingController(text: _client!.industrySector ?? '');
-    _contactChannelController =
-        TextEditingController(text: _client!.contactChannel ?? '');
-    _notesController = TextEditingController(text: _client!.notes ?? '');
+    // Initialize controllers if they haven't been initialized yet
+    _clientNameController ??= TextEditingController(text: _client!.clientName);
+    _contactNameController ??= TextEditingController(text: _client!.contactName ?? '');
+    _contactNumberController ??= TextEditingController(text: _client!.contactNumber ?? '');
+    _contactEmailController ??= TextEditingController(text: _client!.contactEmail ?? '');
+    _addressController ??= TextEditingController(text: _client!.address ?? '');
+    _industrySectorController ??= TextEditingController(text: _client!.industrySector ?? '');
+    _contactChannelController ??= TextEditingController(text: _client!.contactChannel ?? '');
+    _notesController ??= TextEditingController(text: _client!.notes ?? '');
   }
 
   @override
   void dispose() {
-    _clientNameController.dispose();
-    _contactNameController.dispose();
-    _contactNumberController.dispose();
-    _contactEmailController.dispose();
-    _addressController.dispose();
-    _industrySectorController.dispose();
-    _contactChannelController.dispose();
-    _notesController.dispose();
+    _clientNameController?.dispose();
+    _contactNameController?.dispose();
+    _contactNumberController?.dispose();
+    _contactEmailController?.dispose();
+    _addressController?.dispose();
+    _industrySectorController?.dispose();
+    _contactChannelController?.dispose();
+    _notesController?.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
   void _setupFormValidation() {
     // Listen to changes in required fields
-    _clientNameController.addListener(_validateForm);
+    _clientNameController?.addListener(_validateForm);
 
     // Trigger initial validation after controllers are set up
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -104,7 +121,7 @@ class _EditClientPageState extends State<EditClientPage> {
   }
 
   void _validateForm() {
-    final isValid = _clientNameController.text.isNotEmpty;
+    final isValid = _clientNameController?.text.isNotEmpty ?? false;
     print('Form validation: isValid=$isValid, _isFormValid=$_isFormValid');
 
     if (isValid != _isFormValid) {
@@ -133,10 +150,9 @@ class _EditClientPageState extends State<EditClientPage> {
     }
 
     return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+      body: PatternBackground(
+        patternType: PatternType.grid,
+        patternOpacity: 0.02,
         child: SafeArea(
           child: Column(
             children: [
@@ -194,8 +210,12 @@ class _EditClientPageState extends State<EditClientPage> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24.0),
       decoration: BoxDecoration(
-        gradient: AppColors.cardGradient,
+        color: AppColors.surface.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadow.withValues(alpha: 0.1),
@@ -265,7 +285,7 @@ class _EditClientPageState extends State<EditClientPage> {
     return Column(
       children: [
         ClientFormField(
-          controller: _clientNameController,
+          controller: _clientNameController!,
           label: 'Company Name',
           hint: 'Enter company name',
           icon: Icons.business,
@@ -278,7 +298,7 @@ class _EditClientPageState extends State<EditClientPage> {
         ),
         const SizedBox(height: 16),
         ClientFormField(
-          controller: _industrySectorController,
+          controller: _industrySectorController!,
           label: 'Industry Sector',
           hint: 'e.g., Construction, Mining, Manufacturing',
           icon: Icons.work,
@@ -291,7 +311,7 @@ class _EditClientPageState extends State<EditClientPage> {
     return Column(
       children: [
         ClientFormField(
-          controller: _contactNameController,
+          controller: _contactNameController!,
           label: 'Contact Person',
           hint: 'Enter primary contact person name',
           icon: Icons.person,
@@ -301,7 +321,7 @@ class _EditClientPageState extends State<EditClientPage> {
           children: [
             Expanded(
               child: ClientFormField(
-                controller: _contactEmailController,
+                controller: _contactEmailController!,
                 label: 'Email Address',
                 hint: 'Enter email address',
                 icon: Icons.email,
@@ -320,7 +340,7 @@ class _EditClientPageState extends State<EditClientPage> {
             const SizedBox(width: 16),
             Expanded(
               child: ClientFormField(
-                controller: _contactNumberController,
+                controller: _contactNumberController!,
                 label: 'Phone Number',
                 hint: 'Enter phone number',
                 icon: Icons.phone,
@@ -331,14 +351,14 @@ class _EditClientPageState extends State<EditClientPage> {
         ),
         const SizedBox(height: 16),
         ClientFormField(
-          controller: _contactChannelController,
+          controller: _contactChannelController!,
           label: 'Contact Channel',
           hint: 'e.g., Phone, Email, WhatsApp, LinkedIn',
           icon: Icons.chat,
         ),
         const SizedBox(height: 16),
         ClientFormField(
-          controller: _addressController,
+          controller: _addressController!,
           label: 'Address',
           hint: 'Enter company address',
           icon: Icons.location_on,
@@ -352,7 +372,7 @@ class _EditClientPageState extends State<EditClientPage> {
     return Column(
       children: [
         ClientFormField(
-          controller: _notesController,
+          controller: _notesController!,
           label: 'Notes (Optional)',
           hint: 'Add any additional notes about this customer',
           icon: Icons.note,
@@ -486,28 +506,28 @@ class _EditClientPageState extends State<EditClientPage> {
 
       // Create updated customer object
       final updatedCustomer = _client!.copyWith(
-        clientName: _clientNameController.text.trim(),
-        contactName: _contactNameController.text.trim().isEmpty
+        clientName: _clientNameController!.text.trim(),
+        contactName: _contactNameController!.text.trim().isEmpty
             ? null
-            : _contactNameController.text.trim(),
-        contactNumber: _contactNumberController.text.trim().isEmpty
+            : _contactNameController!.text.trim(),
+        contactNumber: _contactNumberController!.text.trim().isEmpty
             ? null
-            : _contactNumberController.text.trim(),
-        contactEmail: _contactEmailController.text.trim().isEmpty
+            : _contactNumberController!.text.trim(),
+        contactEmail: _contactEmailController!.text.trim().isEmpty
             ? null
-            : _contactEmailController.text.trim(),
-        address: _addressController.text.trim().isEmpty
+            : _contactEmailController!.text.trim(),
+        address: _addressController!.text.trim().isEmpty
             ? null
-            : _addressController.text.trim(),
-        industrySector: _industrySectorController.text.trim().isEmpty
+            : _addressController!.text.trim(),
+        industrySector: _industrySectorController!.text.trim().isEmpty
             ? null
-            : _industrySectorController.text.trim(),
-        contactChannel: _contactChannelController.text.trim().isEmpty
+            : _industrySectorController!.text.trim(),
+        contactChannel: _contactChannelController!.text.trim().isEmpty
             ? null
-            : _contactChannelController.text.trim(),
-        notes: _notesController.text.trim().isEmpty
+            : _contactChannelController!.text.trim(),
+        notes: _notesController!.text.trim().isEmpty
             ? null
-            : _notesController.text.trim(),
+            : _notesController!.text.trim(),
       );
 
       print('Updated customer data: ${updatedCustomer.clientName}');

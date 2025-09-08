@@ -49,10 +49,9 @@ class _DashboardPageState extends ConsumerState<DashboardPage>
     return Scaffold(
       body: Focus(
         focusNode: _dashboardFocusNode,
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            gradient: AppColors.backgroundGradient,
-          ),
+        child: PatternBackground(
+          patternType: PatternType.grid,
+          patternOpacity: 0.02,
           child: SafeArea(
             child: Column(
               children: [

@@ -5,6 +5,13 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../../../../core/navigation/app_router.dart';
 import '../widgets/order_list.dart';
+import '../widgets/order_grid.dart';
+import '../widgets/order_kanban.dart';
+import '../widgets/order_table.dart';
+import '../widgets/order_timeline.dart';
+import '../widgets/order_dashboard_tiles.dart';
+import '../widgets/order_split_view.dart';
+import '../widgets/layout_switcher.dart';
 import '../widgets/job_summary_dialog.dart';
 
 class ActiveJobsPage extends StatefulWidget {
@@ -21,6 +28,7 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
   String? _errorMessage;
   String _searchQuery = '';
   String _selectedFilter = 'All';
+  ViewLayout _currentLayout = ViewLayout.list;
 
   final List<String> _filterOptions = ['All', 'This Week', 'This Month'];
 
@@ -214,7 +222,21 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
           const SizedBox(height: 16),
           _buildSearchBar(),
           const SizedBox(height: 16),
-          _buildFilterChips(),
+          Row(
+            children: [
+              Expanded(child: _buildFilterChips()),
+              const SizedBox(width: 16),
+              LayoutSwitcherDropdown(
+                currentLayout: _currentLayout,
+                onLayoutChanged: (layout) {
+                  setState(() {
+                    _currentLayout = layout;
+                  });
+                },
+                availableLayouts: _getAvailableLayouts(),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           _buildOrdersList(),
         ],
@@ -233,6 +255,16 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
               Expanded(child: _buildSearchBar()),
               const SizedBox(width: 16),
               _buildFilterDropdown(),
+              const SizedBox(width: 16),
+              LayoutSwitcher(
+                currentLayout: _currentLayout,
+                onLayoutChanged: (layout) {
+                  setState(() {
+                    _currentLayout = layout;
+                  });
+                },
+                availableLayouts: _getAvailableLayouts(),
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -253,6 +285,16 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
               Expanded(child: _buildSearchBar()),
               const SizedBox(width: 24),
               _buildFilterDropdown(),
+              const SizedBox(width: 24),
+              LayoutSwitcher(
+                currentLayout: _currentLayout,
+                onLayoutChanged: (layout) {
+                  setState(() {
+                    _currentLayout = layout;
+                  });
+                },
+                availableLayouts: _getAvailableLayouts(),
+              ),
             ],
           ),
           const SizedBox(height: 32),
@@ -412,13 +454,92 @@ class _ActiveJobsPageState extends State<ActiveJobsPage> {
       child: RefreshIndicator(
         onRefresh: _loadActiveOrders,
         color: AppColors.primary,
-        child: OrderList(
+        child: _buildCurrentLayout(),
+      ),
+    );
+  }
+
+  Widget _buildCurrentLayout() {
+    switch (_currentLayout) {
+      case ViewLayout.list:
+        return OrderList(
           orders: _displayedOrders,
           onOrderTap: _onOrderTap,
           showActions: false,
-        ),
-      ),
-    );
+        );
+      case ViewLayout.grid:
+        return OrderGrid(
+          orders: _displayedOrders,
+          onOrderTap: _onOrderTap,
+          showActions: false,
+          crossAxisCount: _getGridCrossAxisCount(),
+        );
+      case ViewLayout.kanban:
+        return OrderKanban(
+          orders: _displayedOrders,
+          onOrderTap: _onOrderTap,
+          showActions: false,
+        );
+      case ViewLayout.table:
+        return OrderTable(
+          orders: _displayedOrders,
+          onOrderTap: _onOrderTap,
+          showActions: false,
+        );
+      case ViewLayout.timeline:
+        return OrderTimeline(
+          orders: _displayedOrders,
+          onOrderTap: _onOrderTap,
+          showActions: false,
+        );
+      case ViewLayout.dashboard:
+        return OrderDashboardTiles(
+          orders: _displayedOrders,
+          onOrderTap: _onOrderTap,
+          showActions: false,
+        );
+      case ViewLayout.split:
+        return OrderSplitView(
+          orders: _displayedOrders,
+          onOrderTap: _onOrderTap,
+          showActions: false,
+        );
+    }
+  }
+
+  int _getGridCrossAxisCount() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth > 1200) return 4;
+    if (screenWidth > 800) return 3;
+    if (screenWidth > 600) return 2;
+    return 1;
+  }
+
+  List<ViewLayout> _getAvailableLayouts() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    // All layouts available on desktop
+    if (screenWidth > 1200) {
+      return ViewLayout.values;
+    }
+    
+    // Limited layouts on tablet
+    if (screenWidth > 800) {
+      return [
+        ViewLayout.list,
+        ViewLayout.grid,
+        ViewLayout.kanban,
+        ViewLayout.table,
+        ViewLayout.dashboard,
+      ];
+    }
+    
+    // Basic layouts on mobile
+    return [
+      ViewLayout.list,
+      ViewLayout.grid,
+      ViewLayout.timeline,
+    ];
   }
 
   Widget _buildEmptyState() {

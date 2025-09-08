@@ -8,6 +8,7 @@
 /// ```
 
 export '../widgets/responsive_app_bar.dart';
+export '../widgets/pattern_background.dart';
 // Responsive layout exports
 export '../widgets/responsive_layout.dart';
 export '../widgets/responsive_navigation.dart';

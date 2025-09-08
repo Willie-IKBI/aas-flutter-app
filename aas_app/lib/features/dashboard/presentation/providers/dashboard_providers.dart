@@ -4,6 +4,7 @@ import '../../../../core/models/order.dart';
 import '../../../../core/services/auth_service.dart';
 import '../../../../core/services/customer_service.dart';
 import '../../../../core/services/order_service.dart';
+import '../../../../core/services/stage_management_service.dart';
 
 /// Provider for dashboard tab selection state
 class DashboardTabNotifier extends StateNotifier<int> {
@@ -95,4 +96,76 @@ class ActiveOrdersNotifier extends AsyncNotifier<List<Order>> {
 final activeOrdersProvider =
     AsyncNotifierProvider<ActiveOrdersNotifier, List<Order>>(() {
   return ActiveOrdersNotifier();
+});
+
+/// Pipeline stage data for sales dashboard
+class PipelineStageData {
+  const PipelineStageData({
+    required this.stage,
+    required this.displayName,
+    required this.count,
+    required this.totalValue,
+    required this.orders,
+  });
+
+  final String stage;
+  final String displayName;
+  final int count;
+  final double totalValue;
+  final List<Order> orders;
+}
+
+/// Provider for sales pipeline data
+class SalesPipelineNotifier extends AsyncNotifier<List<PipelineStageData>> {
+  @override
+  Future<List<PipelineStageData>> build() async {
+    return await _loadPipelineData();
+  }
+
+  Future<List<PipelineStageData>> _loadPipelineData() async {
+    try {
+      final pipelineData = <PipelineStageData>[];
+      
+      // Define sales-relevant stages with their display names and icons
+      final salesStages = [
+        {'stage': 'quotation', 'displayName': 'New Quotes'},
+        {'stage': 'approval', 'displayName': 'Pending Approval'},
+        {'stage': 'job_commence', 'displayName': 'In Progress'},
+        {'stage': 'dispatch', 'displayName': 'Ready to Close'},
+      ];
+
+      for (final stageInfo in salesStages) {
+        final stage = stageInfo['stage']!;
+        final displayName = stageInfo['displayName']!;
+        
+        // Get orders for this stage
+        final orders = await StageManagementService.getOrdersByStage(stage);
+        
+        // Calculate total value for this stage (placeholder - no cost field in Order model)
+        double totalValue = orders.length * 1000.0; // Placeholder calculation
+
+        pipelineData.add(PipelineStageData(
+          stage: stage,
+          displayName: displayName,
+          count: orders.length,
+          totalValue: totalValue,
+          orders: orders,
+        ));
+      }
+
+      return pipelineData;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() => _loadPipelineData());
+  }
+}
+
+final salesPipelineProvider =
+    AsyncNotifierProvider<SalesPipelineNotifier, List<PipelineStageData>>(() {
+  return SalesPipelineNotifier();
 });

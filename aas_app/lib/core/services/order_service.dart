@@ -434,7 +434,7 @@ class OrderService {
     try {
       final response = await _supabase.from('order_stage_events').select('''
             *,
-            profiles!order_stage_events_created_by_fkey(*)
+            profiles!order_stage_events_actor_id_fkey(*)
           ''').eq('order_id', orderId).order('created_at', ascending: false);
 
       return response;

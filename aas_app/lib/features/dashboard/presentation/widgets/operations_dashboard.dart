@@ -7,6 +7,7 @@ import '../providers/dashboard_providers.dart';
 import '../../../admin/presentation/pages/user_management_page.dart';
 import '../../../orders/presentation/widgets/pipeline_board.dart';
 import '../../../orders/presentation/providers/pipeline_provider.dart';
+import '../../../orders/presentation/pages/create_order_wizard.dart';
 
 class OperationsDashboard extends ConsumerWidget {
   const OperationsDashboard({super.key});
@@ -45,22 +46,49 @@ class OperationsDashboard extends ConsumerWidget {
   }
 
   Widget _buildHeader(BuildContext context, bool isDesktop) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Text(
-          'Operations Dashboard',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Operations Dashboard',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
               ),
+              const SizedBox(height: 8),
+              Text(
+                'Manage orders, users, and operational workflows',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: AppColors.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Manage orders, users, and operational workflows',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.onSurfaceVariant,
+        const SizedBox(width: 16),
+        // New Job Button
+        ElevatedButton.icon(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const CreateOrderWizard(),
               ),
+            );
+          },
+          icon: const Icon(Icons.add, size: 20),
+          label: const Text('New Job'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
       ],
     );
@@ -204,24 +232,32 @@ class OperationsDashboard extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: 300, // Fixed height for mobile user management
-            child: _buildUserManagementWidget(context, unassignedUsersAsync),
+            height: 200, // Reduced height for mobile user management
+            child: _buildCompactUserManagementWidget(context, unassignedUsersAsync),
           ),
         ],
       );
     }
 
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: isDesktop ? 2 : 1,
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
-      childAspectRatio: isDesktop ? 1.2 : 1.0,
-      children: [
-        _buildPipelineWidget(context),
-        _buildUserManagementWidget(context, unassignedUsersAsync),
-      ],
+    // Use Row layout instead of GridView to prevent overflow
+    return SizedBox(
+      height: 500, // Fixed height to prevent layout issues
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Pipeline takes up more space
+          Expanded(
+            flex: isDesktop ? 3 : 2,
+            child: _buildPipelineWidget(context),
+          ),
+          const SizedBox(width: 16),
+          // User Management takes up less space
+          Expanded(
+            flex: isDesktop ? 1 : 1,
+            child: _buildCompactUserManagementWidget(context, unassignedUsersAsync),
+          ),
+        ],
+      ),
     );
   }
 
@@ -259,7 +295,8 @@ class OperationsDashboard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 16),
-          Expanded(
+          SizedBox(
+            height: 400, // Fixed height to prevent layout issues
             child: Container(
               decoration: BoxDecoration(
                 color: AppColors.surfaceVariant.withValues(alpha: 0.3),
@@ -288,14 +325,6 @@ class OperationsDashboard extends ConsumerWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildToggleButton(
-                context,
-                ref,
-                icon: Icons.view_kanban,
-                isSelected: viewMode == PipelineViewMode.horizontal,
-                onTap: () => ref.read(pipelineProvider.notifier).setViewMode(PipelineViewMode.horizontal),
-                tooltip: 'Horizontal View',
-              ),
               _buildToggleButton(
                 context,
                 ref,
@@ -348,6 +377,153 @@ class OperationsDashboard extends ConsumerWidget {
                 : AppColors.onSurfaceVariant,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildCompactUserManagementWidget(BuildContext context, AsyncValue<List<UserProfile>> unassignedUsersAsync) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.outline.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadow.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.people, color: AppColors.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'User Management',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onSurface,
+                    ),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const UserManagementPage(),
+                    ),
+                  );
+                },
+                child: Text('Manage', style: TextStyle(color: AppColors.primary)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Compact status display
+          unassignedUsersAsync.when(
+            data: (users) {
+              if (users.isEmpty) {
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: AppColors.success, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'All users assigned',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.success,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            Text(
+                              'No action required',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: AppColors.onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning, color: AppColors.warning, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${users.length} unassigned users',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.warning,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          Text(
+                            'Action required',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppColors.onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stack) => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error, color: AppColors.error, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Error loading users',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppColors.error,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

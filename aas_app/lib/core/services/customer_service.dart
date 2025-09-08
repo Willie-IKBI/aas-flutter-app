@@ -7,15 +7,12 @@ import 'tenant_context_service.dart';
 class CustomerService {
   static final SupabaseClient _supabase = Supabase.instance.client;
 
-  /// Gets all customers for the current business
+  /// Gets all customers
   static Future<List<Customer>> getAllCustomers() async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final response = await _supabase
           .from('customers')
           .select()
-          .eq('business_id', businessFilter['business_id'])
           .order('created_at', ascending: false);
 
       return (response as List)
@@ -28,16 +25,13 @@ class CustomerService {
     }
   }
 
-  /// Gets a customer by ID (with RLS validation)
+  /// Gets a customer by ID
   static Future<Customer?> getCustomerById(int id) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final response = await _supabase
           .from('customers')
           .select()
           .eq('id', id)
-          .eq('business_id', businessFilter['business_id'])
           .single();
 
       return Customer.fromJson(response);
@@ -51,15 +45,12 @@ class CustomerService {
     }
   }
 
-  /// Searches customers by query (with RLS)
+  /// Searches customers by query
   static Future<List<Customer>> searchCustomers(String query) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final response = await _supabase
           .from('customers')
           .select()
-          .eq('business_id', businessFilter['business_id'])
           .or('client_name.ilike.%$query%,contact_name.ilike.%$query%,contact_email.ilike.%$query%')
           .order('client_name');
 
@@ -73,13 +64,10 @@ class CustomerService {
     }
   }
 
-  /// Creates a new customer (with RLS)
+  /// Creates a new customer
   static Future<Customer> createCustomer(Customer customer) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final customerData = customer.toJson();
-      customerData['business_id'] = businessFilter['business_id'];
 
       final response = await _supabase
           .from('customers')
@@ -95,16 +83,13 @@ class CustomerService {
     }
   }
 
-  /// Updates an existing customer (with RLS)
+  /// Updates an existing customer
   static Future<Customer> updateCustomer(Customer customer) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final response = await _supabase
           .from('customers')
           .update(customer.toJson())
           .eq('id', customer.id)
-          .eq('business_id', businessFilter['business_id'])
           .select()
           .single();
 
@@ -116,16 +101,13 @@ class CustomerService {
     }
   }
 
-  /// Deletes a customer (with RLS)
+  /// Deletes a customer
   static Future<void> deleteCustomer(int id) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       await _supabase
           .from('customers')
           .delete()
-          .eq('id', id)
-          .eq('business_id', businessFilter['business_id']);
+          .eq('id', id);
     } catch (error) {
       ErrorService.logError(error, StackTrace.current,
           context: 'CustomerService.deleteCustomer');
@@ -133,24 +115,12 @@ class CustomerService {
     }
   }
 
-  /// Gets customers by business ID (admin function)
+  /// Gets customers by business ID (admin function) - deprecated for single tenant
   static Future<List<Customer>> getCustomersByBusinessId(
       String businessId) async {
     try {
-      // Validate that current user has access to this business
-      if (!TenantContextService.hasAccessToBusiness(businessId)) {
-        throw Exception('Access denied to business data');
-      }
-
-      final response = await _supabase
-          .from('customers')
-          .select()
-          .eq('business_id', businessId)
-          .order('created_at', ascending: false);
-
-      return (response as List)
-          .map((json) => Customer.fromJson(json as Map<String, dynamic>))
-          .toList();
+      // For single tenant setup, just return all customers
+      return await getAllCustomers();
     } catch (error) {
       ErrorService.logError(error, StackTrace.current,
           context: 'CustomerService.getCustomersByBusinessId');
@@ -158,15 +128,12 @@ class CustomerService {
     }
   }
 
-  /// Gets customer count for the current business
+  /// Gets customer count
   static Future<int> getCustomerCount() async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final response = await _supabase
           .from('customers')
-          .select('id')
-          .eq('business_id', businessFilter['business_id']);
+          .select('id');
 
       return response.length;
     } catch (error) {

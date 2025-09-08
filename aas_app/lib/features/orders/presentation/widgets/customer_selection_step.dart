@@ -75,9 +75,9 @@ class _CustomerSelectionStepState extends ConsumerState<CustomerSelectionStep> {
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
-                      onPressed: () {
+                      onPressed: () async {
                         _searchController.clear();
-                        ref.read(customerSearchProvider.notifier).clearSearch();
+                        await ref.read(customerSearchProvider.notifier).clearSearch();
                       },
                     )
                   : null,

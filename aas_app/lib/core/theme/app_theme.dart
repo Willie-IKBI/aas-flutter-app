@@ -389,7 +389,7 @@ class AppTheme {
   static InputDecorationTheme get _inputDecorationTheme {
     return InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.surfaceVariant.withValues(alpha: 0.5),
+      fillColor: AppColors.surfaceVariant.withValues(alpha: 0.7), // Lighter input background
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
@@ -401,14 +401,14 @@ class AppTheme {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
-          color: AppColors.primary.withValues(alpha: 0.5),
+          color: AppColors.primary.withValues(alpha: 0.6),
           width: 2,
         ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(
-          color: AppColors.error.withValues(alpha: 0.5),
+          color: AppColors.error.withValues(alpha: 0.6),
           width: 1.5,
         ),
       ),
@@ -426,7 +426,7 @@ class AppTheme {
         fontWeight: FontWeight.w500,
       ),
       hintStyle: TextStyle(
-        color: AppColors.onSurfaceVariant.withValues(alpha: 0.7),
+        color: AppColors.onSurfaceVariant.withValues(alpha: 0.8),
         fontSize: 14,
         fontWeight: FontWeight.w400,
       ),
@@ -463,12 +463,12 @@ class AppTheme {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       side: BorderSide(
-        color: AppColors.outline.withValues(alpha: 0.3),
+        color: AppColors.outline.withValues(alpha: 0.4),
       ),
-      backgroundColor: AppColors.surfaceVariant.withValues(alpha: 0.5),
+      backgroundColor: AppColors.surfaceVariant.withValues(alpha: 0.6), // Lighter chip background
       selectedColor: AppColors.primaryContainer,
       secondarySelectedColor: AppColors.secondaryContainer,
-      disabledColor: AppColors.onSurface.withValues(alpha: 0.12),
+      disabledColor: AppColors.onSurface.withValues(alpha: 0.15),
       deleteIconColor: AppColors.onSurfaceVariant,
       brightness: Brightness.light,
     );

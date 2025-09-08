@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image/image.dart' as img;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/order_photo.dart';
-import 'tenant_context_service.dart';
 import 'error_service.dart';
 
 class PhotoService {
@@ -45,10 +44,8 @@ class PhotoService {
       // Compress and resize image
       final compressedBytes = await _compressImageBytes(bytes);
 
-      // Upload to Supabase Storage with tenant-scoped path
-      final filePath = TenantContextService.getTenantStoragePath(
-          'orders', orderId.toString(),
-          subPath: fileName);
+      // Upload to Supabase Storage with simple path (single-tenant app)
+      final filePath = 'orders/$orderId/$fileName';
 
       // For web, we need to use uploadBinary for bytes
       await _supabase.storage
@@ -59,20 +56,35 @@ class PhotoService {
       final photoUrl =
           _supabase.storage.from('equipment-photos').getPublicUrl(filePath);
 
-      // Save photo record to database
+      // Save photo record to database using order_documents table
       final response = await _supabase
-          .from('order_photos')
+          .from('order_documents')
           .insert({
             'order_id': orderId,
-            'photo_url': photoUrl,
-            'photo_name': photoName ?? fileName,
-            'photo_description': photoDescription,
+            'category': 'photo',
+            'storage_path': filePath,
+            'filename': photoName ?? fileName,
+            'mime_type': 'image/jpeg', // Default to JPEG
             'uploaded_by': user.id,
+            'meta': {
+              'description': photoDescription,
+              'original_filename': fileName,
+            },
           })
           .select()
           .single();
 
-      return OrderPhoto.fromJson(response);
+      // Create OrderPhoto object with correct field mapping
+      return OrderPhoto(
+        id: response['id'].toString(),
+        orderId: response['order_id'] as int,
+        photoUrl: photoUrl,
+        photoName: response['filename'] as String?,
+        photoDescription: photoDescription,
+        uploadedAt: DateTime.parse(response['created_at'] as String),
+        uploadedBy: response['uploaded_by'] as String,
+        uploaderName: 'Current User', // Will be populated when loading
+      );
     } catch (error) {
       ErrorService.logError(error, StackTrace.current,
           context: 'PhotoService.uploadPhoto');
@@ -83,35 +95,64 @@ class PhotoService {
   // Get photos for an order
   static Future<List<OrderPhoto>> getOrderPhotos(int orderId) async {
     try {
-// Try direct query first to check if table exists
-      try {
-        final directResponse = await _supabase
-            .from('order_photos')
-            .select()
-            .eq('order_id', orderId);
-
-        // Convert the response to OrderPhoto objects, handling missing uploader_name
-        return (directResponse as List).map((photo) {
-          // Add uploader_name field if it doesn't exist
-          if (photo['uploader_name'] == null) {
-            photo['uploader_name'] = 'Unknown User';
-          }
-          return OrderPhoto.fromJson(photo);
-        }).toList();
-      } catch (directError) {}
-
-      // Fallback to RPC function
+      print('Loading photos for order $orderId...');
+      
+      // First, let's check if there are any documents for this order
+      final allDocs = await _supabase
+          .from('order_documents')
+          .select('*')
+          .eq('order_id', orderId);
+      
+      print('Found ${(allDocs as List).length} total documents for order $orderId');
+      
+      // Query order_documents table for photos
       final response = await _supabase
-          .rpc('get_order_photos', params: {'order_id_param': orderId});
+          .from('order_documents')
+          .select('''
+            id,
+            order_id,
+            storage_path,
+            filename,
+            uploaded_by,
+            created_at,
+            meta,
+            category
+          ''')
+          .eq('order_id', orderId)
+          .eq('category', 'photo')
+          .order('created_at', ascending: false);
 
-      if (response == null) {
-        return [];
-      }
+      print('Found ${(response as List).length} photos for order $orderId');
 
-      return (response as List)
-          .map((photo) => OrderPhoto.fromJson(photo))
-          .toList();
+      // Convert the response to OrderPhoto objects
+      return (response as List).map((doc) {
+        print('Processing photo: ${doc['filename']} at ${doc['storage_path']}');
+        
+        // Get public URL from storage path
+        final photoUrl = _supabase.storage
+            .from('equipment-photos')
+            .getPublicUrl(doc['storage_path']);
+
+        // Extract description from meta field if available
+        final meta = doc['meta'] as Map<String, dynamic>?;
+        final description = meta?['description'] as String?;
+
+        // Create OrderPhoto object with correct field mapping
+        return OrderPhoto(
+          id: doc['id'].toString(),
+          orderId: doc['order_id'] as int,
+          photoUrl: photoUrl,
+          photoName: doc['filename'] as String?,
+          photoDescription: description,
+          uploadedAt: DateTime.parse(doc['created_at'] as String),
+          uploadedBy: doc['uploaded_by'] as String,
+          uploaderName: 'User', // Simplified for now
+        );
+      }).toList();
     } catch (e) {
+      // Log the error for debugging
+      ErrorService.logError(e, StackTrace.current, context: 'PhotoService.getOrderPhotos');
+      print('Error loading photos for order $orderId: $e');
       return [];
     }
   }
@@ -124,9 +165,10 @@ class PhotoService {
 
       // Get photo details first
       final photoResponse = await _supabase
-          .from('order_photos')
-          .select('photo_url, uploaded_by')
+          .from('order_documents')
+          .select('storage_path, uploaded_by')
           .eq('id', photoId)
+          .eq('category', 'photo')
           .single();
 
       // Check if user can delete this photo
@@ -135,12 +177,11 @@ class PhotoService {
       }
 
       // Delete from storage
-      final photoUrl = photoResponse['photo_url'] as String;
-      final fileName = photoUrl.split('/').last;
-      await _supabase.storage.from('equipment-photos').remove([fileName]);
+      final storagePath = photoResponse['storage_path'] as String;
+      await _supabase.storage.from('equipment-photos').remove([storagePath]);
 
       // Delete from database
-      await _supabase.from('order_photos').delete().eq('id', photoId);
+      await _supabase.from('order_documents').delete().eq('id', photoId);
 
       return true;
     } catch (e) {

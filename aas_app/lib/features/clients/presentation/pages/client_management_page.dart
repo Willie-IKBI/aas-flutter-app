@@ -32,10 +32,9 @@ class _ClientManagementPageState extends State<ClientManagementPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+      body: PatternBackground(
+        patternType: PatternType.grid,
+        patternOpacity: 0.02,
         child: SafeArea(
           child: Column(
             children: [

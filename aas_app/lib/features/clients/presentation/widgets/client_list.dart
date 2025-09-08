@@ -4,6 +4,7 @@ import 'package:aas_app/core/models/customer.dart';
 import 'package:aas_app/core/services/customer_service.dart';
 import '../models/client.dart';
 import '../pages/edit_client_page.dart';
+import '../../../orders/presentation/pages/create_order_wizard.dart';
 
 class ClientList extends StatefulWidget {
   const ClientList({
@@ -432,7 +433,7 @@ class _ClientListState extends State<ClientList> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        // TODO: Navigate to create order for this customer
+                        _navigateToCreateOrder(context, client);
                       },
                       child: const Text('Create Order'),
                     ),
@@ -493,6 +494,42 @@ class _ClientListState extends State<ClientList> {
       case 'delete':
         _showDeleteConfirmation(client);
         break;
+    }
+  }
+
+  void _navigateToCreateOrder(BuildContext context, Client client) async {
+    try {
+      // Convert Client to Customer for the wizard
+      final customer = Customer.fromClient(client);
+      
+      // Navigate to CreateOrderWizard with pre-selected customer
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CreateOrderWizard(
+            preSelectedCustomer: customer,
+          ),
+        ),
+      );
+      
+      // If an order was created successfully, show a success message
+      if (result != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Order created successfully for ${client.clientName}'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error creating order: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 

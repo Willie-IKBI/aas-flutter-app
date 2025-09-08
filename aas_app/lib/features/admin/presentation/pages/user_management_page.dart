@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/user_profile.dart';
 import '../../../../core/models/user_role.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/index.dart';
 import '../providers/user_management_provider.dart';
 import '../providers/search_controller_provider.dart';
 import '../widgets/user_card_skeleton.dart';
@@ -229,8 +229,12 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
+      body: PatternBackground(
+        patternType: PatternType.grid,
+        patternOpacity: 0.02,
+        child: Column(
+          children: [
+            AppBar(
         title: Text(state.isMultiSelectMode
             ? '${state.selectedCount} selected'
             : 'User Management'),
@@ -279,10 +283,10 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                   tooltip: 'Refresh',
                 ),
               ],
-      ),
-      body: state.isLoading
-          ? const UserListSkeleton(itemCount: 8)
-          : Column(
+            ),
+            state.isLoading
+                ? const UserListSkeleton(itemCount: 8)
+                : Column(
               children: [
                 // Alert for unassigned users
                 if (state.hasUnassignedUsers) ...[
@@ -519,6 +523,9 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
                   ),
               ],
             ),
+          ],
+        ),
+      ),
     );
   }
 

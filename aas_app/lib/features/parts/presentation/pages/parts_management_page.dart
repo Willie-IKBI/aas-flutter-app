@@ -39,63 +39,66 @@ class _PartsManagementPageState extends State<PartsManagementPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text(
-          'Parts Management',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: AppColors.onBackground,
-          ),
-        ),
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.onSurfaceVariant,
-          indicatorColor: AppColors.primary,
-          tabs: const [
-            Tab(text: 'All Parts'),
-            Tab(text: 'Active Parts'),
-            Tab(text: 'Analytics'),
-          ],
-        ),
-      ),
-      body: Column(
-        children: [
-          // Search bar
-          if (_tabController.index != 2) // Don't show search on Analytics tab
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: PartsSearch(
-                onSearchChanged: _onSearchChanged,
+      body: PatternBackground(
+        patternType: PatternType.grid,
+        patternOpacity: 0.02,
+        child: Column(
+          children: [
+            AppBar(
+              title: const Text(
+                'Parts Management',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.onBackground,
+                ),
+              ),
+              backgroundColor: AppColors.surface,
+              elevation: 0,
+              bottom: TabBar(
+                controller: _tabController,
+                labelColor: AppColors.primary,
+                unselectedLabelColor: AppColors.onSurfaceVariant,
+                indicatorColor: AppColors.primary,
+                tabs: const [
+                  Tab(text: 'All Parts'),
+                  Tab(text: 'Active Parts'),
+                  Tab(text: 'Analytics'),
+                ],
               ),
             ),
-
-          // Tab content
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // All Parts tab
-                PartsList(
-                  searchQuery: _searchQuery,
-                  filterActiveOnly: false,
+            // Search bar
+            if (_tabController.index != 2) // Don't show search on Analytics tab
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: PartsSearch(
+                  onSearchChanged: _onSearchChanged,
                 ),
+              ),
 
-                // Active Parts tab
-                PartsList(
-                  searchQuery: _searchQuery,
-                  filterActiveOnly: true,
-                ),
+            // Tab content
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // All Parts tab
+                  PartsList(
+                    searchQuery: _searchQuery,
+                    filterActiveOnly: false,
+                  ),
 
-                // Analytics tab
-                const PartsStats(),
-              ],
+                  // Active Parts tab
+                  PartsList(
+                    searchQuery: _searchQuery,
+                    filterActiveOnly: true,
+                  ),
+
+                  // Analytics tab
+                  const PartsStats(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton:
           _tabController.index != 2 // Don't show FAB on Analytics tab

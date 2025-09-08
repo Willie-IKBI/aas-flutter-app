@@ -3,7 +3,7 @@ import '../../../../core/models/customer.dart';
 import '../../../../core/models/user_profile.dart';
 import '../../../../core/services/order_service.dart';
 import '../../../../core/services/photo_service.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/index.dart';
 import '../widgets/customer_selection_step.dart';
 import '../widgets/job_details_step.dart';
 import '../widgets/equipment_photos_step.dart';
@@ -11,7 +11,12 @@ import '../widgets/sales_rep_step.dart';
 import '../widgets/review_step.dart';
 
 class CreateOrderWizard extends StatefulWidget {
-  const CreateOrderWizard({super.key});
+  const CreateOrderWizard({
+    super.key,
+    this.preSelectedCustomer,
+  });
+  
+  final Customer? preSelectedCustomer;
 
   @override
   State<CreateOrderWizard> createState() => _CreateOrderWizardState();
@@ -19,7 +24,7 @@ class CreateOrderWizard extends StatefulWidget {
 
 class _CreateOrderWizardState extends State<CreateOrderWizard>
     with TickerProviderStateMixin {
-  final PageController _pageController = PageController();
+  late final PageController _pageController;
   int _currentStep = 0;
   bool _isLoading = false;
   late AnimationController _progressController;
@@ -54,6 +59,16 @@ class _CreateOrderWizardState extends State<CreateOrderWizard>
   @override
   void initState() {
     super.initState();
+    
+    // Initialize with pre-selected customer if provided
+    if (widget.preSelectedCustomer != null) {
+      _selectedCustomer = widget.preSelectedCustomer;
+      // Skip to job details step if customer is pre-selected
+      _currentStep = 1;
+    }
+    
+    _pageController = PageController(initialPage: _currentStep);
+    
     _progressController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -65,6 +80,7 @@ class _CreateOrderWizardState extends State<CreateOrderWizard>
       parent: _progressController,
       curve: Curves.easeInOut,
     ));
+    
     _updateProgress();
   }
 
@@ -256,10 +272,9 @@ class _CreateOrderWizardState extends State<CreateOrderWizard>
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: AppColors.backgroundGradient,
-        ),
+      body: PatternBackground(
+        patternType: PatternType.grid,
+        patternOpacity: 0.02,
         child: SafeArea(
           child: Column(
             children: [
