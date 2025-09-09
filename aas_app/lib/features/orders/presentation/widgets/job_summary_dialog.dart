@@ -940,3 +940,4 @@ class JobSummaryDialog extends ConsumerWidget {
     }
   }
 }
+

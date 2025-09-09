@@ -10,12 +10,9 @@ class PartsService {
   /// Gets all parts for the current business
   static Future<List<Map<String, dynamic>>> getAllParts() async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final response = await _supabase
           .from(SupabaseConfig.partsInventoryTable)
           .select()
-          .eq('business_id', businessFilter['business_id'])
           .order('created_at', ascending: false);
 
       return (response as List).cast<Map<String, dynamic>>();
@@ -29,13 +26,10 @@ class PartsService {
   /// Gets a part by ID (with RLS validation)
   static Future<Map<String, dynamic>?> getPartById(int id) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final response = await _supabase
           .from(SupabaseConfig.partsInventoryTable)
           .select()
           .eq('id', id)
-          .eq('business_id', businessFilter['business_id'])
           .single();
 
       return response;
@@ -52,13 +46,10 @@ class PartsService {
   /// Searches parts by query (with RLS)
   static Future<List<Map<String, dynamic>>> searchParts(String query) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final response = await _supabase
           .from(SupabaseConfig.partsInventoryTable)
           .select()
-          .eq('business_id', businessFilter['business_id'])
-          .or('part_number.ilike.%$query%,description.ilike.%$query%,category.ilike.%$query%')
+          .or('part_number.ilike.%$query%,part_description.ilike.%$query%,part_name.ilike.%$query%')
           .order('part_number');
 
       return (response as List).cast<Map<String, dynamic>>();
@@ -73,10 +64,6 @@ class PartsService {
   static Future<Map<String, dynamic>> createPart(
       Map<String, dynamic> partData) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
-      partData['business_id'] = businessFilter['business_id'];
-
       final response = await _supabase
           .from(SupabaseConfig.partsInventoryTable)
           .insert(partData)
@@ -95,13 +82,10 @@ class PartsService {
   static Future<Map<String, dynamic>> updatePart(
       int id, Map<String, dynamic> partData) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final response = await _supabase
           .from(SupabaseConfig.partsInventoryTable)
           .update(partData)
           .eq('id', id)
-          .eq('business_id', businessFilter['business_id'])
           .select()
           .single();
 
@@ -116,13 +100,10 @@ class PartsService {
   /// Deletes a part (with RLS)
   static Future<void> deletePart(int id) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       await _supabase
           .from(SupabaseConfig.partsInventoryTable)
           .delete()
-          .eq('id', id)
-          .eq('business_id', businessFilter['business_id']);
+          .eq('id', id);
     } catch (error) {
       ErrorService.logError(error, StackTrace.current,
           context: 'PartsService.deletePart');
@@ -134,13 +115,10 @@ class PartsService {
   static Future<List<Map<String, dynamic>>> getPartsByCategory(
       String category) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       final response = await _supabase
           .from(SupabaseConfig.partsInventoryTable)
           .select()
-          .eq('business_id', businessFilter['business_id'])
-          .eq('category', category)
+          .eq('part_status', category)
           .order('part_number');
 
       return (response as List).cast<Map<String, dynamic>>();
@@ -155,14 +133,12 @@ class PartsService {
   static Future<List<Map<String, dynamic>>> getLowStockParts(
       int threshold) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
+      // Since the database doesn't have quantity_in_stock, we'll return parts with 'Low Stock' status
       final response = await _supabase
           .from(SupabaseConfig.partsInventoryTable)
           .select()
-          .eq('business_id', businessFilter['business_id'])
-          .lte('quantity_in_stock', threshold)
-          .order('quantity_in_stock');
+          .eq('part_status', 'Low Stock')
+          .order('part_name');
 
       return (response as List).cast<Map<String, dynamic>>();
     } catch (error) {
@@ -176,13 +152,13 @@ class PartsService {
   static Future<Map<String, dynamic>> updatePartQuantity(
       int id, int newQuantity) async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
+      // Since the database doesn't have quantity_in_stock, we'll update the status based on quantity
+      String status = newQuantity > 10 ? 'Active' : 'Low Stock';
+      
       final response = await _supabase
           .from(SupabaseConfig.partsInventoryTable)
-          .update({'quantity_in_stock': newQuantity})
+          .update({'part_status': status})
           .eq('id', id)
-          .eq('business_id', businessFilter['business_id'])
           .select()
           .single();
 
@@ -197,20 +173,16 @@ class PartsService {
   /// Gets parts statistics for the current business
   static Future<Map<String, dynamic>> getPartsStatistics() async {
     try {
-      final businessFilter = TenantContextService.getBusinessFilter();
-
       // Get total parts count using simple select and length
       final totalResponse = await _supabase
           .from(SupabaseConfig.partsInventoryTable)
-          .select('id')
-          .eq('business_id', businessFilter['business_id']);
+          .select('id');
 
       // Get low stock count using simple select and length
       final lowStockResponse = await _supabase
           .from(SupabaseConfig.partsInventoryTable)
           .select('id')
-          .eq('business_id', businessFilter['business_id'])
-          .lte('quantity_in_stock', 10);
+          .eq('part_status', 'Low Stock');
 
       return {
         'total_parts': totalResponse.length,

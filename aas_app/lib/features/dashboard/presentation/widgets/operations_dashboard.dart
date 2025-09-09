@@ -8,12 +8,52 @@ import '../../../admin/presentation/pages/user_management_page.dart';
 import '../../../orders/presentation/widgets/pipeline_board.dart';
 import '../../../orders/presentation/providers/pipeline_provider.dart';
 import '../../../orders/presentation/pages/create_order_wizard.dart';
+import '../../../parts/presentation/widgets/parts_list.dart';
+import '../../../parts/presentation/widgets/parts_search.dart';
+import '../../../parts/presentation/widgets/parts_stats.dart';
+import '../../../parts/presentation/widgets/add_part_fab.dart';
+import '../../../parts/presentation/widgets/parts_grid.dart';
+import '../../../parts/presentation/widgets/parts_detail_panel.dart';
+import '../../../parts/presentation/widgets/parts_detail_modal.dart';
+import '../../../parts/presentation/models/part.dart';
+import '../../../../core/services/parts_service.dart';
 
-class OperationsDashboard extends ConsumerWidget {
+class OperationsDashboard extends ConsumerStatefulWidget {
   const OperationsDashboard({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OperationsDashboard> createState() => _OperationsDashboardState();
+}
+
+class _OperationsDashboardState extends ConsumerState<OperationsDashboard>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  String _searchQuery = '';
+  Part? _selectedPart;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {}); // Rebuild when tab changes
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchQuery = query;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final unassignedUsersAsync = ref.watch(unassignedUsersProvider);
     final orderStatsAsync = ref.watch(orderStatisticsProvider);
     final activeOrdersAsync = ref.watch(activeOrdersProvider);
@@ -24,73 +64,141 @@ class OperationsDashboard extends ConsumerWidget {
         final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
         final isMobile = constraints.maxWidth < 768;
 
-        return SingleChildScrollView(
-          padding: EdgeInsets.all(isDesktop ? 24.0 : isTablet ? 20.0 : 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context, isDesktop),
-              const SizedBox(height: 24),
-
-              // Key Metrics Bar
-              _buildKeyMetricsBar(context, orderStatsAsync, activeOrdersAsync, isDesktop, isTablet, isMobile),
-              const SizedBox(height: 24),
-
-              // Main Content Grid
-              _buildMainContent(context, unassignedUsersAsync, isDesktop, isTablet, isMobile),
-            ],
-          ),
+        return Column(
+          children: [
+            _buildHeader(context, isDesktop),
+            const SizedBox(height: 16),
+            
+            // Tab Bar
+            _buildTabBar(context),
+            
+            // Search bar for Parts tab
+            if (_tabController.index == 2) // Parts tab
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: PartsSearch(
+                  onSearchChanged: _onSearchChanged,
+                ),
+              ),
+            
+            // Tab Content
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Operations Overview Tab
+                  _buildOperationsOverview(context, unassignedUsersAsync, orderStatsAsync, activeOrdersAsync, isDesktop, isTablet, isMobile),
+                  
+                  // Pipeline Tab
+                  _buildPipelineTab(context),
+                  
+                  // Parts Tab
+                  _buildPartsTab(context),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
   Widget _buildHeader(BuildContext context, bool isDesktop) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Operations Dashboard',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Manage orders, users, and operational workflows',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        // New Job Button
-        ElevatedButton.icon(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const CreateOrderWizard(),
-              ),
-            );
-          },
-          icon: const Icon(Icons.add, size: 20),
-          label: const Text('New Job'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+    return Container(
+      padding: const EdgeInsets.all(24.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Operations Dashboard',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primary,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Manage orders, users, parts, and operational workflows',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                ),
+              ],
             ),
           ),
+          const SizedBox(width: 16),
+          // New Job Button
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const CreateOrderWizard(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add, size: 20),
+            label: const Text('New Job'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabBar(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24.0),
+      decoration: BoxDecoration(
+        gradient: AppColors.cardGradient,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadow.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TabBar(
+        controller: _tabController,
+        indicator: BoxDecoration(
+          gradient: AppColors.primaryGradient,
+          borderRadius: BorderRadius.circular(12),
         ),
-      ],
+        indicatorSize: TabBarIndicatorSize.tab,
+        labelColor: AppColors.onPrimary,
+        unselectedLabelColor: AppColors.onSurfaceVariant,
+        labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+        unselectedLabelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+        tabs: const [
+          Tab(
+            icon: Icon(Icons.dashboard_outlined),
+            text: 'Overview',
+          ),
+          Tab(
+            icon: Icon(Icons.account_tree_outlined),
+            text: 'Pipeline',
+          ),
+          Tab(
+            icon: Icon(Icons.inventory_2_outlined),
+            text: 'Parts',
+          ),
+        ],
+      ),
     );
   }
 
@@ -714,5 +822,193 @@ class OperationsDashboard extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  // New tab content methods
+  Widget _buildOperationsOverview(BuildContext context, AsyncValue<List<UserProfile>> unassignedUsersAsync, 
+      AsyncValue<int> orderStatsAsync, AsyncValue<List<Order>> activeOrdersAsync, 
+      bool isDesktop, bool isTablet, bool isMobile) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(isDesktop ? 24.0 : isTablet ? 20.0 : 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Key Metrics Bar
+          _buildKeyMetricsBar(context, orderStatsAsync, activeOrdersAsync, isDesktop, isTablet, isMobile),
+          const SizedBox(height: 24),
+
+          // Main Content Grid
+          _buildMainContent(context, unassignedUsersAsync, isDesktop, isTablet, isMobile),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPipelineTab(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: _buildPipelineWidget(context),
+    );
+  }
+
+  Widget _buildPartsTab(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= 1200;
+        final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1200;
+        final isMobile = constraints.maxWidth < 768;
+
+        if (isDesktop) {
+          // Desktop: Master-Detail layout
+          return Row(
+            children: [
+              // Master: Parts Grid
+              Expanded(
+                flex: 2,
+                child: Column(
+                  children: [
+                    // Parts Stats - Compact height
+                    Container(
+                      height: 120, // Reduced height for more list space
+                      padding: const EdgeInsets.all(16),
+                      child: const PartsStats(),
+                    ),
+                    
+                    // Parts Grid
+                    Expanded(
+                      child: PartsGrid(
+                        searchQuery: _searchQuery,
+                        filterActiveOnly: false,
+                        selectedPartId: _selectedPart?.id,
+                        onPartSelected: (part) {
+                          setState(() {
+                            _selectedPart = part;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Detail: Parts Detail Panel
+              if (_selectedPart != null)
+                Expanded(
+                  flex: 1,
+                  child: PartsDetailPanel(
+                    part: _selectedPart!,
+                    onEdit: () => _editPart(_selectedPart!),
+                    onDelete: () => _deletePart(_selectedPart!),
+                  ),
+                ),
+            ],
+          );
+        } else {
+          // Mobile/Tablet: Full-screen with modal details
+          return Scaffold(
+            body: Column(
+              children: [
+                // Parts Stats - Compact height for mobile
+                Container(
+                  height: isMobile ? 100 : 120, // Much smaller height
+                  padding: const EdgeInsets.all(16),
+                  child: const PartsStats(),
+                ),
+                
+                // Parts Grid
+                Expanded(
+                  child: PartsGrid(
+                    searchQuery: _searchQuery,
+                    filterActiveOnly: false,
+                    onPartSelected: (part) => _showPartDetailModal(context, part),
+                  ),
+                ),
+              ],
+            ),
+            floatingActionButton: const AddPartFAB(),
+          );
+        }
+      },
+    );
+  }
+
+  void _showPartDetailModal(BuildContext context, Part part) {
+    showDialog(
+      context: context,
+      builder: (context) => PartsDetailModal(
+        part: part,
+        onEdit: () {
+          Navigator.of(context).pop();
+          _editPart(part);
+        },
+        onDelete: () {
+          Navigator.of(context).pop();
+          _deletePart(part);
+        },
+      ),
+    );
+  }
+
+  void _editPart(Part part) {
+    // TODO: Navigate to edit part page
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Editing ${part.partName}'),
+        backgroundColor: AppColors.info,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _deletePart(Part part) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Part'),
+        content: Text('Are you sure you want to delete "${part.partName}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: AppColors.onError,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed ?? false) {
+      try {
+        await PartsService.deletePart(part.id!);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${part.partName} deleted successfully'),
+              backgroundColor: AppColors.success,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          setState(() {
+            _selectedPart = null;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete part: $e'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    }
   }
 }
